@@ -1,6 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>index.html</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f1923; color: #f0f4ff; min-height: 100vh; display: flex; flex-direction: column; }
+.toolbar { position: sticky; top: 0; z-index: 10; background: #1a2133; border-bottom: 1px solid rgba(200,255,0,0.2); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.info { display: flex; flex-direction: column; gap: 3px; }
+.filename { font-family: "SF Mono","Fira Code",monospace; font-size: 15px; font-weight: 700; color: #c8ff00; }
+.desc { font-size: 11px; color: #8a9ab8; }
+.lines { font-family: "SF Mono",monospace; font-size: 10px; color: #4a5568; margin-top: 1px; }
+.copy-btn { display: flex; align-items: center; gap: 8px; padding: 12px 22px; background: #c8ff00; color: #0f1923; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 150ms ease; white-space: nowrap; flex-shrink: 0; font-family: inherit; }
+.copy-btn:hover { background: #d4ff1a; }
+.copy-btn:active { transform: scale(0.97); }
+.copy-btn.copied { background: #22c55e; color: #fff; }
+.code-wrap { flex: 1; overflow: auto; padding: 20px; }
+pre { font-family: "SF Mono","Fira Code","Courier New",monospace; font-size: 11.5px; line-height: 1.65; color: #c9d1d9; white-space: pre-wrap; word-break: break-all; tab-size: 2; }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <div class="info">
+    <div class="filename">index.html</div>
+    <div class="desc">Dashboard — calorie ring, macros, water tracker</div>
+    <div class="lines" id="lc"></div>
+  </div>
+  <button class="copy-btn" id="btn" onclick="copyIt()">📋 Copy</button>
+</div>
+<div class="code-wrap"><pre id="code"></pre></div>
+<script>
+const CONTENT = `<!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#090b10">
@@ -750,7 +783,7 @@
       const ringFill = document.getElementById('calorie-ring-fill');
       requestAnimationFrame(() => {
         if (ringFill) {
-          ringFill.style.strokeDasharray = `${dashLen} ${gapLen}`;
+          ringFill.style.strokeDasharray = \`\${dashLen} \${gapLen}\`;
 
           // Change ring color if over budget
           if (consumed > targetCal) {
@@ -768,9 +801,9 @@
       const statusContainer = document.getElementById('calorie-status-badge');
       if (statusContainer) {
         if (consumed <= targetCal) {
-          statusContainer.innerHTML = `<span class="badge badge--success">On Track</span>`;
+          statusContainer.innerHTML = \`<span class="badge badge--success">On Track</span>\`;
         } else {
-          statusContainer.innerHTML = `<span class="badge badge--warning">Over Budget</span>`;
+          statusContainer.innerHTML = \`<span class="badge badge--warning">Over Budget</span>\`;
         }
       }
     }
@@ -818,20 +851,20 @@
       // Note: data-fill-percent is read back by the animation code below
       macroContainer.innerHTML = macros.map(macro => {
         const percent = Math.min(100, Math.round((macro.consumed / macro.target) * 100));
-        return `
+        return \`
           <div class="macro-item">
-            <div class="macro-item__dot" style="background:${macro.dot};"></div>
-            <span class="macro-item__name">${macro.name}</span>
+            <div class="macro-item__dot" style="background:\${macro.dot};"></div>
+            <span class="macro-item__name">\${macro.name}</span>
             <div class="macro-item__bar-wrap">
               <div
                 class="macro-item__bar-fill"
-                style="background:${macro.color};"
-                data-fill-percent="${percent}"
+                style="background:\${macro.color};"
+                data-fill-percent="\${percent}"
               ></div>
             </div>
-            <span class="macro-item__values">${macro.consumed}g / ${macro.target}g</span>
+            <span class="macro-item__values">\${macro.consumed}g / \${macro.target}g</span>
           </div>
-        `;
+        \`;
       }).join('');
 
       // After the HTML is injected, animate each bar to its fill width.
@@ -839,7 +872,7 @@
       // the 0% width before we change it (otherwise the transition won't fire).
       requestAnimationFrame(() => {
         macroContainer.querySelectorAll('[data-fill-percent]').forEach(bar => {
-          bar.style.width = `${bar.dataset.fillPercent}%`;
+          bar.style.width = \`\${bar.dataset.fillPercent}%\`;
         });
       });
     }
@@ -860,7 +893,7 @@
 
       // Current weight
       const currentWeight = profile?.weightLbs ?? '—';
-      UIHelpers.setText('#current-weight', currentWeight ? `${currentWeight} lb` : '—');
+      UIHelpers.setText('#current-weight', currentWeight ? \`\${currentWeight} lb\` : '—');
 
       // Streak days
       const streak = profile?.streakDays ?? 0;
@@ -869,7 +902,7 @@
 
       // Animate metric cards in sequence
       document.querySelectorAll('.metric-card').forEach((card, i) => {
-        card.style.animationDelay = `${i * 80}ms`;
+        card.style.animationDelay = \`\${i * 80}ms\`;
         card.classList.add('animate-fade-in-up');
       });
     }
@@ -946,12 +979,12 @@
       for (let i = 0; i < TOTAL_WATER_CUPS; i++) {
         const cupBtn = document.createElement('button');
         cupBtn.className = 'water-cup';
-        cupBtn.setAttribute('aria-label', `Cup ${i + 1} of ${TOTAL_WATER_CUPS}`);
+        cupBtn.setAttribute('aria-label', \`Cup \${i + 1} of \${TOTAL_WATER_CUPS}\`);
         cupBtn.setAttribute('aria-pressed', 'false');
         cupBtn.textContent = '💧';
 
         // Each cup button toggles its filled state on click
-        // Arrow function captures `i` from the outer loop scope
+        // Arrow function captures \`i\` from the outer loop scope
         cupBtn.addEventListener('click', () => handleWaterCupTap(cupBtn, i));
 
         cupsContainer.appendChild(cupBtn);
@@ -984,7 +1017,7 @@
       });
 
       // Update the label counter
-      UIHelpers.setText('#water-label', `${newFillCount} / ${TOTAL_WATER_CUPS} cups`);
+      UIHelpers.setText('#water-label', \`\${newFillCount} / \${TOTAL_WATER_CUPS} cups\`);
 
       // Show encouraging toast at key milestones
       if (newFillCount === 4) {
@@ -1008,22 +1041,22 @@
 
       // Mock activity items — in production these come from the DailyLog
       const activities = [
-        { icon: '🍳', title: 'Breakfast logged',        time: '7:32 AM',  value: `+${Math.round((log?.caloriesIn ?? 400) * 0.3)} cal` },
+        { icon: '🍳', title: 'Breakfast logged',        time: '7:32 AM',  value: \`+\${Math.round((log?.caloriesIn ?? 400) * 0.3)} cal\` },
         { icon: '🏋️', title: 'Workout completed',       time: '9:15 AM',  value: '🔥 −320 cal' },
-        { icon: '🥗', title: 'Lunch logged',            time: '12:48 PM', value: `+${Math.round((log?.caloriesIn ?? 400) * 0.4)} cal` },
+        { icon: '🥗', title: 'Lunch logged',            time: '12:48 PM', value: \`+\${Math.round((log?.caloriesIn ?? 400) * 0.4)} cal\` },
         { icon: '💊', title: 'Supplements taken',       time: '1:00 PM',  value: '✓' },
       ];
 
-      feedContainer.innerHTML = activities.map(item => `
+      feedContainer.innerHTML = activities.map(item => \`
         <div class="activity-item">
-          <div class="activity-item__icon" aria-hidden="true">${UIHelpers.escapeHTML(item.icon)}</div>
+          <div class="activity-item__icon" aria-hidden="true">\${UIHelpers.escapeHTML(item.icon)}</div>
           <div class="activity-item__info">
-            <div class="activity-item__title">${UIHelpers.escapeHTML(item.title)}</div>
-            <div class="activity-item__time">${UIHelpers.escapeHTML(item.time)}</div>
+            <div class="activity-item__title">\${UIHelpers.escapeHTML(item.title)}</div>
+            <div class="activity-item__time">\${UIHelpers.escapeHTML(item.time)}</div>
           </div>
-          <div class="activity-item__value">${UIHelpers.escapeHTML(item.value)}</div>
+          <div class="activity-item__value">\${UIHelpers.escapeHTML(item.value)}</div>
         </div>
-      `).join('');
+      \`).join('');
     }
 
 
@@ -1037,13 +1070,33 @@
 
       const macroContainer = document.getElementById('macro-bars');
       if (macroContainer) {
-        macroContainer.innerHTML = `
+        macroContainer.innerHTML = \`
           <p style="color:var(--color-text-muted); font-size:var(--text-sm); text-align:center; padding:var(--space-4);">
             Could not load data. Check your connection.
           </p>
-        `;
+        \`;
       }
     }
   </script>
+</body>
+</html>
+`;
+const pre = document.getElementById('code');
+pre.textContent = CONTENT;
+document.getElementById('lc').textContent = CONTENT.split('\n').length.toLocaleString() + ' lines';
+function copyIt() {
+  const btn = document.getElementById('btn');
+  navigator.clipboard.writeText(CONTENT).then(ok).catch(() => {
+    const t = document.createElement('textarea');
+    t.value = CONTENT; t.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
+    ok();
+  });
+  function ok() {
+    btn.classList.add('copied'); btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 Copy'; }, 2500);
+  }
+}
+</script>
 </body>
 </html>
