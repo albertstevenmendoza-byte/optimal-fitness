@@ -66,8 +66,8 @@ const CONTENT = `/**
    ============================================================ */
 
 const CONFIG = Object.freeze({
-  SUPABASE_URL:      'https://YOUR_PROJECT.supabase.co',
-  SUPABASE_ANON_KEY: 'YOUR_ANON_KEY',
+  SUPABASE_URL:      'https://busdvzeyuwolkiglmvys.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1c2R2emV5dXdvbGtpZ2xtdnlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NDk1ODQsImV4cCI6MjA5NTMyNTU4NH0.P3KFQvf7LowKCt5VlE1xL42q99JCRN6qF-nWr1FIMIc',
 
   ENDPOINTS: {
     PROFILES:  '/rest/v1/profiles',
