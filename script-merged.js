@@ -1,37 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>script-merged.js</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f1923; color: #f0f4ff; min-height: 100vh; display: flex; flex-direction: column; }
-.toolbar { position: sticky; top: 0; z-index: 10; background: #1a2133; border-bottom: 1px solid rgba(200,255,0,0.2); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.info { display: flex; flex-direction: column; gap: 3px; }
-.filename { font-family: "SF Mono","Fira Code",monospace; font-size: 15px; font-weight: 700; color: #c8ff00; }
-.desc { font-size: 11px; color: #8a9ab8; }
-.lines { font-family: "SF Mono",monospace; font-size: 10px; color: #4a5568; margin-top: 1px; }
-.copy-btn { display: flex; align-items: center; gap: 8px; padding: 12px 22px; background: #c8ff00; color: #0f1923; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 150ms ease; white-space: nowrap; flex-shrink: 0; font-family: inherit; }
-.copy-btn:hover { background: #d4ff1a; }
-.copy-btn:active { transform: scale(0.97); }
-.copy-btn.copied { background: #22c55e; color: #fff; }
-.code-wrap { flex: 1; overflow: auto; padding: 20px; }
-pre { font-family: "SF Mono","Fira Code","Courier New",monospace; font-size: 11.5px; line-height: 1.65; color: #c9d1d9; white-space: pre-wrap; word-break: break-all; tab-size: 2; }
-</style>
-</head>
-<body>
-<div class="toolbar">
-  <div class="info">
-    <div class="filename">script-merged.js</div>
-    <div class="desc">All JS — AppState, SupabaseAPI, ChartUtils, etc.</div>
-    <div class="lines" id="lc"></div>
-  </div>
-  <button class="copy-btn" id="btn" onclick="copyIt()">📋 Copy</button>
-</div>
-<div class="code-wrap"><pre id="code"></pre></div>
-<script>
-const CONTENT = `/**
+/**
  * ============================================================
  * FITFORGE — Complete Application Script
  * script-merged.js
@@ -189,12 +156,12 @@ const AppState = (() => {
 
   return {
     get(key) {
-      if (!(key in _state)) { console.warn(\`AppState.get: Unknown key "\${key}"\`); return undefined; }
+      if (!(key in _state)) { console.warn(`AppState.get: Unknown key "${key}"`); return undefined; }
       return _state[key];
     },
 
     set(key, value) {
-      if (!(key in _state)) { console.warn(\`AppState.set: Unknown key "\${key}"\`); return; }
+      if (!(key in _state)) { console.warn(`AppState.set: Unknown key "${key}"`); return; }
       const oldValue = _state[key];
       _state[key] = value;
       if (_subscribers[key]) {
@@ -242,7 +209,7 @@ const AppState = (() => {
 /* ============================================================
    4. SUPABASE API
    All placeholder async functions in one IIFE.
-   Replace each \`await delay()\` block with real supabase-js calls.
+   Replace each `await delay()` block with real supabase-js calls.
    ============================================================ */
 
 const SupabaseAPI = (() => {
@@ -284,7 +251,7 @@ const SupabaseAPI = (() => {
     // ── Daily Log ───────────────────────────────────────────────
 
     async getDailyLog(userId, date) {
-      console.log(\`[SupabaseAPI] getDailyLog: \${date}\`);
+      console.log(`[SupabaseAPI] getDailyLog: ${date}`);
       await delay(400);
       // TODO: const { data, error } = await supabase.from('daily_logs').select('*').eq('user_id', userId).eq('date', date).single();
       return { id: 'mock-log-001', userId, date, caloriesIn: 1840, proteinG: 182, carbsG: 165, fatG: 52, waterOz: 72, workoutDone: false, mealsLogged: [] };
@@ -309,14 +276,14 @@ const SupabaseAPI = (() => {
     // ── Workouts ────────────────────────────────────────────────
 
     async getWorkoutPlan(goal, activityLevel) {
-      console.log(\`[SupabaseAPI] getWorkoutPlan: \${goal}/\${activityLevel}\`);
+      console.log(`[SupabaseAPI] getWorkoutPlan: ${goal}/${activityLevel}`);
       await delay(500);
-      // TODO: const { data, error } = await supabase.from('workout_templates').select('*').eq('template_key', \`\${goal}_\${activityLevel}\`).single();
-      return { templateKey: \`\${goal}_\${activityLevel}\`, daysPerWeek: goal === 'fat_loss' ? 4 : 5, style: goal === 'fat_loss' ? 'Circuit / HIIT' : 'Progressive Overload' };
+      // TODO: const { data, error } = await supabase.from('workout_templates').select('*').eq('template_key', `${goal}_${activityLevel}`).single();
+      return { templateKey: `${goal}_${activityLevel}`, daysPerWeek: goal === 'fat_loss' ? 4 : 5, style: goal === 'fat_loss' ? 'Circuit / HIIT' : 'Progressive Overload' };
     },
 
     async logWorkoutComplete(userId, date, workoutId) {
-      console.log(\`[SupabaseAPI] logWorkoutComplete: \${workoutId} on \${date}\`);
+      console.log(`[SupabaseAPI] logWorkoutComplete: ${workoutId} on ${date}`);
       await delay(300);
       // TODO: const { data, error } = await supabase.from('workout_completions').insert({ user_id: userId, date, workout_id: workoutId });
       return { success: true };
@@ -328,7 +295,7 @@ const SupabaseAPI = (() => {
       console.log('[SupabaseAPI] saveProgressLog');
       await delay(500);
       // TODO: const { data, error } = await supabase.from('progress_logs').insert(logEntry);
-      return { ...logEntry, id: \`log-\${Date.now()}\`, savedAt: new Date().toISOString() };
+      return { ...logEntry, id: `log-${Date.now()}`, savedAt: new Date().toISOString() };
     },
 
     async getProgressLogs(userId, filters = {}) {
@@ -357,12 +324,12 @@ const SupabaseAPI = (() => {
     // ── Photos ──────────────────────────────────────────────────
 
     async uploadPhoto(base64DataUrl, filename, userId) {
-      console.log('[SupabaseAPI] uploadPhoto:', filename, \`(\${(base64DataUrl.length / 1024).toFixed(0)} KB)\`);
+      console.log('[SupabaseAPI] uploadPhoto:', filename, `(${(base64DataUrl.length / 1024).toFixed(0)} KB)`);
       await delay(1200);
       // TODO:
       //   const res  = await fetch(base64DataUrl);
       //   const blob = await res.blob();
-      //   const path = \`\${userId}/progress/\${Date.now()}-\${filename}\`;
+      //   const path = `${userId}/progress/${Date.now()}-${filename}`;
       //   const { data, error } = await supabase.storage.from('progress-photos').upload(path, blob, { contentType: blob.type });
       //   const { data: urlData } = supabase.storage.from('progress-photos').getPublicUrl(path);
       //   return { publicUrl: urlData.publicUrl };
@@ -372,7 +339,7 @@ const SupabaseAPI = (() => {
     // ── Grocery ─────────────────────────────────────────────────
 
     async syncGroceryList(userId, items) {
-      console.log(\`[SupabaseAPI] syncGroceryList: \${items.length} items\`);
+      console.log(`[SupabaseAPI] syncGroceryList: ${items.length} items`);
       await delay(400);
       // TODO: const { data, error } = await supabase.from('grocery_items').upsert(items.map(item => ({ ...item, user_id: userId })), { onConflict: 'id' });
       return { synced: items.length };
@@ -439,7 +406,7 @@ const FitnessCalculator = {
   },
 
   formatCalories(cal) {
-    return \`\${cal.toLocaleString()} kcal\`;
+    return `${cal.toLocaleString()} kcal`;
   },
 };
 
@@ -450,7 +417,7 @@ const FitnessCalculator = {
 
 const Router = {
   navigate(page, replace = false) {
-    const url = page.startsWith('/') ? page : \`./\${page}\`;
+    const url = page.startsWith('/') ? page : `./${page}`;
     if (replace) { window.location.replace(url); } else { window.location.href = url; }
   },
 
@@ -476,25 +443,25 @@ const BottomNav = {
   render(container) {
     if (!container) return;
     const currentPage = Router.getCurrentPage();
-    container.innerHTML = \`
+    container.innerHTML = `
       <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
         <ul class="bottom-nav__list" role="list">
-          \${CONFIG.NAV_ITEMS.map(item => \`
+          ${CONFIG.NAV_ITEMS.map(item => `
             <li>
               <a
-                href="\${item.page}"
-                class="bottom-nav__item \${currentPage === item.page ? 'is-active' : ''}"
-                aria-label="\${item.label}"
-                aria-current="\${currentPage === item.page ? 'page' : 'false'}"
+                href="${item.page}"
+                class="bottom-nav__item ${currentPage === item.page ? 'is-active' : ''}"
+                aria-label="${item.label}"
+                aria-current="${currentPage === item.page ? 'page' : 'false'}"
               >
-                <span class="bottom-nav__icon" aria-hidden="true">\${item.icon}</span>
-                <span class="bottom-nav__label">\${item.label}</span>
+                <span class="bottom-nav__icon" aria-hidden="true">${item.icon}</span>
+                <span class="bottom-nav__label">${item.label}</span>
               </a>
             </li>
-          \`).join('')}
+          `).join('')}
         </ul>
       </nav>
-    \`;
+    `;
   },
 };
 
@@ -530,7 +497,7 @@ const UIHelpers = {
 
   animateProgressBar(fillEl, percent) {
     if (!fillEl) return;
-    requestAnimationFrame(() => { fillEl.style.width = \`\${Math.min(100, Math.max(0, percent))}%\`; });
+    requestAnimationFrame(() => { fillEl.style.width = `${Math.min(100, Math.max(0, percent))}%`; });
   },
 
   formatDate(date, format = 'short') {
@@ -548,7 +515,7 @@ const UIHelpers = {
   showToast(message, type = 'info', duration = 3000) {
     document.querySelector('.toast')?.remove();
     const toast = document.createElement('div');
-    toast.className = \`toast toast--\${type}\`;
+    toast.className = `toast toast--${type}`;
     toast.setAttribute('role', 'alert');
     toast.setAttribute('aria-live', 'polite');
     toast.textContent = message;
@@ -677,11 +644,11 @@ const ChartUtils = {
     const { color = '#c8ff00', gradId = 'chart', unit = '', W = 360, H = 160, P = 36 } = options;
 
     if (!data || data.length === 0) {
-      return \`<svg viewBox="0 0 \${W} \${H}" xmlns="http://www.w3.org/2000/svg">
-        <text x="\${W/2}" y="\${H/2}" text-anchor="middle" dominant-baseline="middle"
+      return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+        <text x="${W/2}" y="${H/2}" text-anchor="middle" dominant-baseline="middle"
               font-family="DM Sans, sans-serif" font-size="13"
               fill="rgba(138,154,184,0.4)">No data yet</text>
-      </svg>\`;
+      </svg>`;
     }
 
     const values   = data.map(d => d.value);
@@ -696,56 +663,56 @@ const ChartUtils = {
     const scaleX = i => P + (N > 1 ? (i / (N - 1)) : 0.5) * (W - 2 * P);
     const scaleY = v => (H - P) - ((v - minV) / fullSpan) * (H - 2 * P);
 
-    const linePoints = data.map((d, i) => \`\${scaleX(i).toFixed(1)},\${scaleY(d.value).toFixed(1)}\`).join(' ');
+    const linePoints = data.map((d, i) => `${scaleX(i).toFixed(1)},${scaleY(d.value).toFixed(1)}`).join(' ');
 
     const areaPath = N >= 2
-      ? \`M \${scaleX(0).toFixed(1)},\${scaleY(data[0].value).toFixed(1)} \` +
-        data.slice(1).map((d, i) => \`L \${scaleX(i+1).toFixed(1)},\${scaleY(d.value).toFixed(1)}\`).join(' ') +
-        \` L \${scaleX(N-1).toFixed(1)},\${(H-P).toFixed(1)} L \${scaleX(0).toFixed(1)},\${(H-P).toFixed(1)} Z\`
+      ? `M ${scaleX(0).toFixed(1)},${scaleY(data[0].value).toFixed(1)} ` +
+        data.slice(1).map((d, i) => `L ${scaleX(i+1).toFixed(1)},${scaleY(d.value).toFixed(1)}`).join(' ') +
+        ` L ${scaleX(N-1).toFixed(1)},${(H-P).toFixed(1)} L ${scaleX(0).toFixed(1)},${(H-P).toFixed(1)} Z`
       : '';
 
     const gridSVG = Array.from({ length: 5 }, (_, i) => {
       const fraction = i / 4;
       const value    = rawMin + fraction * (rawMax - rawMin);
       const y        = scaleY(value).toFixed(1);
-      return \`
-        <line x1="\${P}" y1="\${y}" x2="\${W-P}" y2="\${y}" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
-        <text x="\${P-4}" y="\${(parseFloat(y)+3.5).toFixed(1)}" text-anchor="end"
+      return `
+        <line x1="${P}" y1="${y}" x2="${W-P}" y2="${y}" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <text x="${P-4}" y="${(parseFloat(y)+3.5).toFixed(1)}" text-anchor="end"
               font-family="Space Mono, monospace" font-size="8.5"
-              fill="rgba(138,154,184,0.55)">\${Math.round(value)}</text>\`;
+              fill="rgba(138,154,184,0.55)">${Math.round(value)}</text>`;
     }).join('');
 
     const xLabelIndices = N <= 2 ? [0, N-1] : [0, Math.floor((N-1)/2), N-1];
     const xLabelsSVG = xLabelIndices
       .filter(idx => idx < N && data[idx]?.label)
-      .map(idx => \`
-        <text x="\${scaleX(idx).toFixed(1)}" y="\${H-2}" text-anchor="middle"
+      .map(idx => `
+        <text x="${scaleX(idx).toFixed(1)}" y="${H-2}" text-anchor="middle"
               font-family="DM Sans, sans-serif" font-size="9"
-              fill="rgba(138,154,184,0.45)">\${data[idx].label}</text>\`)
+              fill="rgba(138,154,184,0.45)">${data[idx].label}</text>`)
       .join('');
 
     const dotsSVG = data.map((d, i) => {
       const isLatest = i === N - 1;
-      return \`<circle cx="\${scaleX(i).toFixed(1)}" cy="\${scaleY(d.value).toFixed(1)}"
-              r="\${isLatest ? 4.5 : 2.5}"
-              fill="\${isLatest ? color : 'var(--color-bg-base)'}"
-              stroke="\${color}" stroke-width="\${isLatest ? 0 : 1.5}"/>\`;
+      return `<circle cx="${scaleX(i).toFixed(1)}" cy="${scaleY(d.value).toFixed(1)}"
+              r="${isLatest ? 4.5 : 2.5}"
+              fill="${isLatest ? color : 'var(--color-bg-base)'}"
+              stroke="${color}" stroke-width="${isLatest ? 0 : 1.5}"/>`;
     }).join('');
 
-    return \`
-      <svg viewBox="0 0 \${W} \${H}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    return `
+      <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <defs>
-          <linearGradient id="grad-\${gradId}" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stop-color="\${color}" stop-opacity="0.22"/>
-            <stop offset="100%" stop-color="\${color}" stop-opacity="0"/>
+          <linearGradient id="grad-${gradId}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="${color}" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
           </linearGradient>
         </defs>
-        \${gridSVG}
-        \${xLabelsSVG}
-        \${areaPath ? \`<path d="\${areaPath}" fill="url(#grad-\${gradId})"/>\` : ''}
-        \${N >= 2 ? \`<polyline points="\${linePoints}" fill="none" stroke="\${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>\` : ''}
-        \${dotsSVG}
-      </svg>\`;
+        ${gridSVG}
+        ${xLabelsSVG}
+        ${areaPath ? `<path d="${areaPath}" fill="url(#grad-${gradId})"/>` : ''}
+        ${N >= 2 ? `<polyline points="${linePoints}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
+        ${dotsSVG}
+      </svg>`;
   },
 
   /**
@@ -809,25 +776,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // Pre-load profile so all pages can access it synchronously
   AppState.loadProfileFromStorage();
 
-  console.log(\`[FitForge] Initialized: \${currentPage}\`);
+  console.log(`[FitForge] Initialized: ${currentPage}`);
 });
-`;
-const pre = document.getElementById('code');
-pre.textContent = CONTENT;
-document.getElementById('lc').textContent = CONTENT.split('\n').length.toLocaleString() + ' lines';
-function copyIt() {
-  const btn = document.getElementById('btn');
-  navigator.clipboard.writeText(CONTENT).then(ok).catch(() => {
-    const t = document.createElement('textarea');
-    t.value = CONTENT; t.style.cssText = 'position:fixed;opacity:0';
-    document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
-    ok();
-  });
-  function ok() {
-    btn.classList.add('copied'); btn.textContent = '✓ Copied!';
-    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 Copy'; }, 2500);
-  }
-}
-</script>
-</body>
-</html>
