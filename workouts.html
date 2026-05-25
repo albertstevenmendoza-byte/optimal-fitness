@@ -1,6 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>workouts.html</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f1923; color: #f0f4ff; min-height: 100vh; display: flex; flex-direction: column; }
+.toolbar { position: sticky; top: 0; z-index: 10; background: #1a2133; border-bottom: 1px solid rgba(200,255,0,0.2); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.info { display: flex; flex-direction: column; gap: 3px; }
+.filename { font-family: "SF Mono","Fira Code",monospace; font-size: 15px; font-weight: 700; color: #c8ff00; }
+.desc { font-size: 11px; color: #8a9ab8; }
+.lines { font-family: "SF Mono",monospace; font-size: 10px; color: #4a5568; margin-top: 1px; }
+.copy-btn { display: flex; align-items: center; gap: 8px; padding: 12px 22px; background: #c8ff00; color: #0f1923; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 150ms ease; white-space: nowrap; flex-shrink: 0; font-family: inherit; }
+.copy-btn:hover { background: #d4ff1a; }
+.copy-btn:active { transform: scale(0.97); }
+.copy-btn.copied { background: #22c55e; color: #fff; }
+.code-wrap { flex: 1; overflow: auto; padding: 20px; }
+pre { font-family: "SF Mono","Fira Code","Courier New",monospace; font-size: 11.5px; line-height: 1.65; color: #c9d1d9; white-space: pre-wrap; word-break: break-all; tab-size: 2; }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <div class="info">
+    <div class="filename">workouts.html</div>
+    <div class="desc">Week strip, exercise cards, swap modal</div>
+    <div class="lines" id="lc"></div>
+  </div>
+  <button class="copy-btn" id="btn" onclick="copyIt()">📋 Copy</button>
+</div>
+<div class="code-wrap"><pre id="code"></pre></div>
+<script>
+const CONTENT = `<!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#090b10">
@@ -810,13 +843,13 @@
             .filter(i => i !== 'none')
             .map(i => i.replace('_', ' '))
             .join(', ');
-          textEl.textContent = `Swap buttons (⇄) are highlighted for exercises that may stress your flagged areas: ${injuryNames}.`;
+          textEl.textContent = \`Swap buttons (⇄) are highlighted for exercises that may stress your flagged areas: \${injuryNames}.\`;
         }
       }
 
       // 10. Set week label in header
       const weekNum = getWeekNumber(new Date());
-      UIHelpers.setText('#week-label', `Week ${weekNum}`);
+      UIHelpers.setText('#week-label', \`Week \${weekNum}\`);
 
       // 11. Wire up swap modal buttons
       document.getElementById('swap-cancel-btn')?.addEventListener('click', closeSwapModal);
@@ -833,22 +866,22 @@
        RENDER: PLAN HEADER CARD
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
     function renderPlanHeader(template, profile) {
-      UIHelpers.setText('#plan-label', `${profile?.goal?.replace('_', ' ')?.toUpperCase() ?? 'FITNESS'} PLAN`);
+      UIHelpers.setText('#plan-label', \`\${profile?.goal?.replace('_', ' ')?.toUpperCase() ?? 'FITNESS'} PLAN\`);
       UIHelpers.setText('#plan-name', template.name);
 
       const metaContainer = document.getElementById('plan-meta');
       if (metaContainer) {
         const metaItems = [
-          { label: `${template.daysPerWeek} days / week` },
+          { label: \`\${template.daysPerWeek} days / week\` },
           { label: template.style },
           { label: profile?.equipment?.replace('_', ' ') ?? 'Full Gym' },
         ];
-        metaContainer.innerHTML = metaItems.map(item => `
+        metaContainer.innerHTML = metaItems.map(item => \`
           <div class="plan-meta-item">
             <div class="plan-meta-item__dot"></div>
-            <span>${UIHelpers.escapeHTML(item.label)}</span>
+            <span>\${UIHelpers.escapeHTML(item.label)}</span>
           </div>
-        `).join('');
+        \`).join('');
       }
     }
 
@@ -868,27 +901,27 @@
       strip.innerHTML = template.schedule.map((day, index) => {
         const todayData  = getDayCompletionData(todayKey);
         const isComplete = completionStore[todayKey]?.dayComplete && index === new Date().getDay();
-        const typeClass  = `day-pill--${day.type}`;
+        const typeClass  = \`day-pill--\${day.type}\`;
         const completeClass = isComplete ? 'day-pill--complete' : '';
 
         // Dot content: checkmark if done, emoji if training/rest
         const dotContent = isComplete ? '✓' : (day.type === 'training' ? '' : '');
 
-        return `
+        return \`
           <button
-            class="day-pill ${typeClass} ${completeClass}"
-            id="day-pill-${index}"
+            class="day-pill \${typeClass} \${completeClass}"
+            id="day-pill-\${index}"
             role="tab"
             aria-selected="false"
-            aria-controls="day-panel-${index}"
-            aria-label="${dayFullNames[index]} — ${day.name}"
-            data-day-index="${index}"
-            onclick="switchToDay(${index})"
+            aria-controls="day-panel-\${index}"
+            aria-label="\${dayFullNames[index]} — \${day.name}"
+            data-day-index="\${index}"
+            onclick="switchToDay(\${index})"
           >
-            <span class="day-pill__abbr">${dayAbbrs[index]}</span>
-            <div class="day-pill__dot">${dotContent}</div>
+            <span class="day-pill__abbr">\${dayAbbrs[index]}</span>
+            <div class="day-pill__dot">\${dotContent}</div>
           </button>
-        `;
+        \`;
       }).join('');
     }
 
@@ -923,7 +956,7 @@
        Called once per day on page init, not on every day switch.
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
     function renderDayPanel(dayIndex) {
-      const panel = document.getElementById(`day-panel-${dayIndex}`);
+      const panel = document.getElementById(\`day-panel-\${dayIndex}\`);
       if (!panel) return;
 
       const day    = pageState.template.schedule[dayIndex];
@@ -932,19 +965,19 @@
 
       // ── Rest day rendering ────────────────────────────────────
       if (day.type === 'rest' || day.type === 'recovery') {
-        panel.innerHTML = `
+        panel.innerHTML = \`
           <div class="day-header">
-            <div class="day-header__type day-header__type--${day.type}">
-              ${day.type === 'recovery' ? '🟦 Active Recovery' : '⬜ Rest Day'}
+            <div class="day-header__type day-header__type--\${day.type}">
+              \${day.type === 'recovery' ? '🟦 Active Recovery' : '⬜ Rest Day'}
             </div>
-            <h2 class="day-header__name">${UIHelpers.escapeHTML(day.name)}</h2>
+            <h2 class="day-header__name">\${UIHelpers.escapeHTML(day.name)}</h2>
           </div>
           <div class="rest-day-card">
-            <div class="rest-day-card__icon" aria-hidden="true">${day.icon}</div>
-            <h3 class="rest-day-card__title">${UIHelpers.escapeHTML(day.name)}</h3>
-            <p class="rest-day-card__sub">${UIHelpers.escapeHTML(day.notes)}</p>
+            <div class="rest-day-card__icon" aria-hidden="true">\${day.icon}</div>
+            <h3 class="rest-day-card__title">\${UIHelpers.escapeHTML(day.name)}</h3>
+            <p class="rest-day-card__sub">\${UIHelpers.escapeHTML(day.notes)}</p>
           </div>
-        `;
+        \`;
         return;
       }
 
@@ -968,71 +1001,71 @@
 
         const swapBtnClass = hasInjuryRelevantSwap ? 'swap-btn swap-btn--injury-flagged' : 'swap-btn';
 
-        return `
+        return \`
           <div
-            class="exercise-card ${isChecked ? 'is-done' : ''} ${activeSwaps[exercise.id] ? 'was-swapped' : ''}"
-            id="exercise-card-${exercise.id}"
+            class="exercise-card \${isChecked ? 'is-done' : ''} \${activeSwaps[exercise.id] ? 'was-swapped' : ''}"
+            id="exercise-card-\${exercise.id}"
           >
             <!-- Custom checkbox: tapping toggles completion -->
             <button
-              class="exercise-check ${isChecked ? 'is-checked' : ''}"
-              id="check-${exercise.id}"
-              aria-label="Mark ${UIHelpers.escapeHTML(currentExercise.name)} as complete"
-              aria-pressed="${isChecked}"
-              onclick="toggleExerciseComplete('${exercise.id}')"
+              class="exercise-check \${isChecked ? 'is-checked' : ''}"
+              id="check-\${exercise.id}"
+              aria-label="Mark \${UIHelpers.escapeHTML(currentExercise.name)} as complete"
+              aria-pressed="\${isChecked}"
+              onclick="toggleExerciseComplete('\${exercise.id}')"
             >
-              ${isChecked ? '✓' : ''}
+              \${isChecked ? '✓' : ''}
             </button>
 
             <!-- Exercise info -->
             <div>
-              <div class="exercise-card__name" id="exname-${exercise.id}">
-                ${UIHelpers.escapeHTML(currentExercise.name)}
+              <div class="exercise-card__name" id="exname-\${exercise.id}">
+                \${UIHelpers.escapeHTML(currentExercise.name)}
               </div>
               <div class="exercise-card__detail">
-                ${currentExercise.sets} sets × ${UIHelpers.escapeHTML(currentExercise.reps)}
-                ${currentExercise.notes ? `· <span style="color:var(--color-text-muted);">${UIHelpers.escapeHTML(currentExercise.notes)}</span>` : ''}
+                \${currentExercise.sets} sets × \${UIHelpers.escapeHTML(currentExercise.reps)}
+                \${currentExercise.notes ? \`· <span style="color:var(--color-text-muted);">\${UIHelpers.escapeHTML(currentExercise.notes)}</span>\` : ''}
               </div>
             </div>
 
             <!-- Swap button -->
             <button
-              class="${swapBtnClass}"
-              aria-label="Swap ${UIHelpers.escapeHTML(exercise.name)}"
+              class="\${swapBtnClass}"
+              aria-label="Swap \${UIHelpers.escapeHTML(exercise.name)}"
               title="Swap this exercise"
-              onclick="openSwapModal('${exercise.id}', '${UIHelpers.escapeHTML(exercise.name)}', '${exercise.swapGroup}')"
+              onclick="openSwapModal('\${exercise.id}', '\${UIHelpers.escapeHTML(exercise.name)}', '\${exercise.swapGroup}')"
             >
               ⇄
             </button>
           </div>
-        `;
+        \`;
       }).join('');
 
       // Calculate total sets for the meta row
       const totalSets = day.exercises.reduce((sum, ex) => sum + (ex.sets ?? 0), 0);
 
-      panel.innerHTML = `
+      panel.innerHTML = \`
         <!-- Day header -->
         <div class="day-header">
           <div class="day-header__type day-header__type--training">
-            🟩 Training Day${isToday ? ' · Today' : ''}
+            🟩 Training Day\${isToday ? ' · Today' : ''}
           </div>
-          <h2 class="day-header__name">${UIHelpers.escapeHTML(day.name)}</h2>
+          <h2 class="day-header__name">\${UIHelpers.escapeHTML(day.name)}</h2>
 
           <!-- Meta: duration + volume -->
           <div class="day-header__meta">
             <div class="day-meta-chip">
-              <span>⏱</span><span>~${day.duration ?? 45} min</span>
+              <span>⏱</span><span>~\${day.duration ?? 45} min</span>
             </div>
             <div class="day-meta-chip">
-              <span>📋</span><span>${day.exercises.length} exercises · ${totalSets} total sets</span>
+              <span>📋</span><span>\${day.exercises.length} exercises · \${totalSets} total sets</span>
             </div>
           </div>
 
           <!-- Muscle group chips -->
           <div class="muscle-group-row" aria-label="Target muscle groups">
-            ${day.muscleGroups.map(mg =>
-              `<span class="muscle-chip">${UIHelpers.escapeHTML(mg)}</span>`
+            \${day.muscleGroups.map(mg =>
+              \`<span class="muscle-chip">\${UIHelpers.escapeHTML(mg)}</span>\`
             ).join('')}
           </div>
         </div>
@@ -1041,31 +1074,31 @@
         <p class="exercises-label">Exercises</p>
 
         <!-- Exercise cards list -->
-        <div class="stack stack-sm" id="exercises-list-${dayIndex}">
-          ${exerciseCardsHTML}
+        <div class="stack stack-sm" id="exercises-list-\${dayIndex}">
+          \${exerciseCardsHTML}
         </div>
 
         <!-- Day complete banner (shows when day is marked done) or CTA button -->
-        ${isDayComplete
-          ? `<div class="day-complete-banner" id="day-complete-banner-${dayIndex}">
+        \${isDayComplete
+          ? \`<div class="day-complete-banner" id="day-complete-banner-\${dayIndex}">
                <div class="day-complete-banner__icon">🏆</div>
                <div class="day-complete-banner__title">Day Crushed!</div>
                <div class="day-complete-banner__sub">Logged to your weekly progress. Rest and recover.</div>
-             </div>`
+             </div>\`
           : isToday
-            ? `<div class="complete-day-btn-wrap">
+            ? \`<div class="complete-day-btn-wrap">
                  <button
                    class="btn btn--primary btn--lg btn--full"
                    id="mark-day-complete-btn"
-                   onclick="markDayComplete(${dayIndex})"
+                   onclick="markDayComplete(\${dayIndex})"
                  >
                    <span>Mark Day Complete</span>
                    <span>✓</span>
                  </button>
-               </div>`
+               </div>\`
             : ''
         }
-      `;
+      \`;
     }
 
 
@@ -1089,7 +1122,7 @@
       setExerciseComplete(exerciseId, newState);
 
       // Update the checkbox button
-      const checkBtn = document.getElementById(`check-${exerciseId}`);
+      const checkBtn = document.getElementById(\`check-\${exerciseId}\`);
       if (checkBtn) {
         checkBtn.classList.toggle('is-checked', newState);
         checkBtn.textContent = newState ? '✓' : '';
@@ -1097,7 +1130,7 @@
       }
 
       // Update the card's done state (triggers strikethrough)
-      const card = document.getElementById(`exercise-card-${exerciseId}`);
+      const card = document.getElementById(\`exercise-card-\${exerciseId}\`);
       if (card) card.classList.toggle('is-done', newState);
 
       // Check if ALL exercises for today are done
@@ -1134,17 +1167,17 @@
       // Replace the CTA button with the completion banner
       const btnWrap = document.querySelector('.complete-day-btn-wrap');
       if (btnWrap) {
-        btnWrap.outerHTML = `
-          <div class="day-complete-banner" id="day-complete-banner-${dayIndex}">
+        btnWrap.outerHTML = \`
+          <div class="day-complete-banner" id="day-complete-banner-\${dayIndex}">
             <div class="day-complete-banner__icon">🏆</div>
             <div class="day-complete-banner__title">Day Crushed!</div>
             <div class="day-complete-banner__sub">Logged to your weekly progress. Rest and recover.</div>
           </div>
-        `;
+        \`;
       }
 
       // Update the day pill to show complete state
-      const pill = document.getElementById(`day-pill-${dayIndex}`);
+      const pill = document.getElementById(\`day-pill-\${dayIndex}\`);
       if (pill) {
         pill.classList.add('day-pill--complete');
         const dot = pill.querySelector('.day-pill__dot');
@@ -1224,7 +1257,7 @@
       const injuries  = pageState.injuries.filter(i => i !== 'none');
 
       if (!options || options.length === 0) {
-        optionsList.innerHTML = `<p style="color:var(--color-text-muted); font-size:var(--text-sm);">No alternatives defined for this movement pattern yet.</p>`;
+        optionsList.innerHTML = \`<p style="color:var(--color-text-muted); font-size:var(--text-sm);">No alternatives defined for this movement pattern yet.</p>\`;
         return;
       }
 
@@ -1241,29 +1274,29 @@
         const relevantInjuries = opt.safeFor.filter(s => injuries.includes(s));
 
         const injuryBadge = relevantInjuries.length > 0
-          ? `<span class="injury-safe-badge">✓ Safe for ${relevantInjuries.map(i => i.replace('_',' ')).join(', ')}</span>`
+          ? \`<span class="injury-safe-badge">✓ Safe for \${relevantInjuries.map(i => i.replace('_',' ')).join(', ')}</span>\`
           : '';
 
-        return `
+        return \`
           <button
             class="swap-option"
-            id="swap-opt-${opt.id}"
+            id="swap-opt-\${opt.id}"
             role="radio"
             aria-checked="false"
-            aria-label="Select ${UIHelpers.escapeHTML(opt.name)}"
-            onclick="handleSwapOptionSelect('${opt.id}', ${JSON.stringify(opt).replace(/"/g, '&quot;')})"
+            aria-label="Select \${UIHelpers.escapeHTML(opt.name)}"
+            onclick="handleSwapOptionSelect('\${opt.id}', \${JSON.stringify(opt).replace(/"/g, '&quot;')})"
           >
             <div class="swap-option__radio" aria-hidden="true"></div>
             <div class="swap-option__info">
-              <div class="swap-option__name">${UIHelpers.escapeHTML(opt.name)}</div>
+              <div class="swap-option__name">\${UIHelpers.escapeHTML(opt.name)}</div>
               <div class="swap-option__detail">
-                ${opt.sets} sets × ${UIHelpers.escapeHTML(opt.reps)}
-                ${opt.note ? `· ${UIHelpers.escapeHTML(opt.note)}` : ''}
+                \${opt.sets} sets × \${UIHelpers.escapeHTML(opt.reps)}
+                \${opt.note ? \`· \${UIHelpers.escapeHTML(opt.note)}\` : ''}
               </div>
             </div>
-            ${injuryBadge}
+            \${injuryBadge}
           </button>
-        `;
+        \`;
       }).join('');
     }
 
@@ -1278,7 +1311,7 @@
       });
 
       // Select the clicked option
-      const selectedEl = document.getElementById(`swap-opt-${optionId}`);
+      const selectedEl = document.getElementById(\`swap-opt-\${optionId}\`);
       if (selectedEl) {
         selectedEl.classList.add('is-selected');
         selectedEl.setAttribute('aria-checked', 'true');
@@ -1299,9 +1332,9 @@
       activeSwaps[targetExerciseId] = pendingSelection;
 
       // Update the exercise card in the DOM (without a full re-render)
-      const nameEl   = document.getElementById(`exname-${targetExerciseId}`);
-      const checkEl  = document.getElementById(`check-${targetExerciseId}`);
-      const card     = document.getElementById(`exercise-card-${targetExerciseId}`);
+      const nameEl   = document.getElementById(\`exname-\${targetExerciseId}\`);
+      const checkEl  = document.getElementById(\`check-\${targetExerciseId}\`);
+      const card     = document.getElementById(\`exercise-card-\${targetExerciseId}\`);
 
       if (nameEl) nameEl.textContent = pendingSelection.name;
 
@@ -1309,7 +1342,7 @@
       if (card) {
         const detailEl = card.querySelector('.exercise-card__detail');
         if (detailEl) {
-          detailEl.textContent = `${pendingSelection.sets} sets × ${pendingSelection.reps}`;
+          detailEl.textContent = \`\${pendingSelection.sets} sets × \${pendingSelection.reps}\`;
         }
 
         // Trigger the CSS highlight animation (was-swapped class)
@@ -1320,7 +1353,7 @@
         card.classList.add('was-swapped');
       }
 
-      UIHelpers.showToast(`Swapped to: ${pendingSelection.name} ✓`, 'success');
+      UIHelpers.showToast(\`Swapped to: \${pendingSelection.name} ✓\`, 'success');
 
       // Close modal
       closeSwapModal();
@@ -1374,5 +1407,25 @@
       return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
     }
   </script>
+</body>
+</html>
+`;
+const pre = document.getElementById('code');
+pre.textContent = CONTENT;
+document.getElementById('lc').textContent = CONTENT.split('\n').length.toLocaleString() + ' lines';
+function copyIt() {
+  const btn = document.getElementById('btn');
+  navigator.clipboard.writeText(CONTENT).then(ok).catch(() => {
+    const t = document.createElement('textarea');
+    t.value = CONTENT; t.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
+    ok();
+  });
+  function ok() {
+    btn.classList.add('copied'); btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 Copy'; }, 2500);
+  }
+}
+</script>
 </body>
 </html>
