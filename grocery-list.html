@@ -1,47 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>grocery-list.html</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f1923; color: #f0f4ff; min-height: 100vh; display: flex; flex-direction: column; }
-.toolbar { position: sticky; top: 0; z-index: 10; background: #1a2133; border-bottom: 1px solid rgba(200,255,0,0.2); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.info { display: flex; flex-direction: column; gap: 3px; }
-.filename { font-family: "SF Mono","Fira Code",monospace; font-size: 15px; font-weight: 700; color: #c8ff00; }
-.desc { font-size: 11px; color: #8a9ab8; }
-.lines { font-family: "SF Mono",monospace; font-size: 10px; color: #4a5568; margin-top: 1px; }
-.copy-btn { display: flex; align-items: center; gap: 8px; padding: 12px 22px; background: #c8ff00; color: #0f1923; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 150ms ease; white-space: nowrap; flex-shrink: 0; font-family: inherit; }
-.copy-btn:hover { background: #d4ff1a; }
-.copy-btn:active { transform: scale(0.97); }
-.copy-btn.copied { background: #22c55e; color: #fff; }
-.code-wrap { flex: 1; overflow: auto; padding: 20px; }
-pre { font-family: "SF Mono","Fira Code","Courier New",monospace; font-size: 11.5px; line-height: 1.65; color: #c9d1d9; white-space: pre-wrap; word-break: break-all; tab-size: 2; }
-</style>
-</head>
-<body>
-<div class="toolbar">
-  <div class="info">
-    <div class="filename">grocery-list.html</div>
-    <div class="desc">Categorized checklist, favorite highlighting</div>
-    <div class="lines" id="lc"></div>
-  </div>
-  <button class="copy-btn" id="btn" onclick="copyIt()">📋 Copy</button>
-</div>
-<div class="code-wrap"><pre id="code"></pre></div>
-<script>
-const CONTENT = `<!DOCTYPE html>
-<html lang="en">
-<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#090b10">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="styles-phase3-additions.css">
+  <link rel="stylesheet" href="styles-light-full.css">
+  
   <title>FitForge — Grocery List</title>
 
   <style>
@@ -246,8 +213,8 @@ const CONTENT = `<!DOCTYPE html>
     <div id="bottom-nav-container"></div>
   </div>
 
-  <script src="script.js"></script>
-  <script src="script-phase3-additions.js"></script>
+  <script src="script-merged.js"></script>
+  
 
   <script>
     /**
@@ -259,12 +226,12 @@ const CONTENT = `<!DOCTYPE html>
      *
      *   GROCERY_MASTER_LIST — the full default item catalog (40+ items).
      *     Defined as a constant — never mutated directly.
-     *     Each item has a \`foodKey\` matching onboarding tag strings.
+     *     Each item has a `foodKey` matching onboarding tag strings.
      *
      *   groceryList — the WORKING list in memory.
      *     Loaded from localStorage on init.
      *     If no stored list exists, generated from GROCERY_MASTER_LIST
-     *     with each item's \`isFavorite\` flag set by comparing to
+     *     with each item's `isFavorite` flag set by comparing to
      *     profile.favoriteFoods.
      *     Any mutation (check/uncheck/add/delete) goes through
      *     updateItem() which saves back to localStorage and queues
@@ -281,7 +248,7 @@ const CONTENT = `<!DOCTYPE html>
     /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
        MASTER ITEM CATALOG
        ~40 common macro-focused grocery items.
-       \`foodKey\` matches the onboarding food tag strings so we can
+       `foodKey` matches the onboarding food tag strings so we can
        identify user favorites.
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
     const GROCERY_MASTER_LIST = [
@@ -378,7 +345,7 @@ const CONTENT = `<!DOCTYPE html>
       const favoriteCount = groceryList.filter(i => i.isFavorite).length;
       UIHelpers.setText(
         '#grocery-subtitle',
-        \`\${groceryList.length} items · \${favoriteCount} flagged as your favorites\`
+        `${groceryList.length} items · ${favoriteCount} flagged as your favorites`
       );
 
       // ── Render filter tabs ────────────────────────────────────
@@ -430,19 +397,19 @@ const CONTENT = `<!DOCTYPE html>
         counts[cat] = groceryList.filter(i => i.category === cat && !i.checked).length;
       });
 
-      strip.innerHTML = Object.entries(CATEGORIES).map(([key, cat]) => \`
+      strip.innerHTML = Object.entries(CATEGORIES).map(([key, cat]) => `
         <button
-          class="filter-tab \${activeCategory === key ? 'is-active' : ''}"
+          class="filter-tab ${activeCategory === key ? 'is-active' : ''}"
           role="tab"
-          aria-selected="\${activeCategory === key}"
-          aria-label="Show \${cat.label}"
-          onclick="setActiveCategory('\${key}')"
+          aria-selected="${activeCategory === key}"
+          aria-label="Show ${cat.label}"
+          onclick="setActiveCategory('${key}')"
         >
-          <span>\${cat.icon}</span>
-          <span>\${cat.label}</span>
-          <span class="filter-tab__count">\${counts[key] ?? 0}</span>
+          <span>${cat.icon}</span>
+          <span>${cat.label}</span>
+          <span class="filter-tab__count">${counts[key] ?? 0}</span>
         </button>
-      \`).join('');
+      `).join('');
     }
 
 
@@ -503,21 +470,21 @@ const CONTENT = `<!DOCTYPE html>
           return a.name.localeCompare(b.name);
         });
 
-        return \`
-          <div class="grocery-section" data-category="\${cat}">
-            <div class="grocery-section-header grocery-section-header--\${cat}">
-              <span class="grocery-section-header__icon">\${catInfo.icon}</span>
-              <span class="grocery-section-header__name" style="--section-color:\${catInfo.color}">
-                \${catInfo.label}
+        return `
+          <div class="grocery-section" data-category="${cat}">
+            <div class="grocery-section-header grocery-section-header--${cat}">
+              <span class="grocery-section-header__icon">${catInfo.icon}</span>
+              <span class="grocery-section-header__name" style="--section-color:${catInfo.color}">
+                ${catInfo.label}
               </span>
               <span class="grocery-section-header__count">
-                \${sorted.filter(i => !i.checked).length} remaining
+                ${sorted.filter(i => !i.checked).length} remaining
               </span>
             </div>
 
-            \${sorted.map(item => buildItemHTML(item)).join('')}
+            ${sorted.map(item => buildItemHTML(item)).join('')}
           </div>
-        \`;
+        `;
       }).join('');
 
       container.innerHTML = sectionsHTML;
@@ -528,44 +495,44 @@ const CONTENT = `<!DOCTYPE html>
 
     /** Build the HTML for a single grocery item row */
     function buildItemHTML(item) {
-      return \`
+      return `
         <div
-          class="grocery-item \${item.checked ? 'is-checked' : ''} \${item.isFavorite ? 'is-favorite' : ''}"
-          id="grocery-item-\${item.id}"
+          class="grocery-item ${item.checked ? 'is-checked' : ''} ${item.isFavorite ? 'is-favorite' : ''}"
+          id="grocery-item-${item.id}"
         >
           <!-- Checkbox -->
           <button
-            class="grocery-check \${item.checked ? 'is-checked' : ''}"
-            onclick="toggleItem('\${item.id}')"
-            aria-label="\${item.checked ? 'Uncheck' : 'Check'} \${UIHelpers.escapeHTML(item.name)}"
-            aria-pressed="\${item.checked}"
-          >\${item.checked ? '✓' : ''}</button>
+            class="grocery-check ${item.checked ? 'is-checked' : ''}"
+            onclick="toggleItem('${item.id}')"
+            aria-label="${item.checked ? 'Uncheck' : 'Check'} ${UIHelpers.escapeHTML(item.name)}"
+            aria-pressed="${item.checked}"
+          >${item.checked ? '✓' : ''}</button>
 
           <!-- Name + amount -->
           <div>
             <div class="grocery-item__name">
-              \${item.emoji ? \`<span aria-hidden="true">\${item.emoji} </span>\` : ''}
-              \${UIHelpers.escapeHTML(item.name)}
+              ${item.emoji ? `<span aria-hidden="true">${item.emoji} </span>` : ''}
+              ${UIHelpers.escapeHTML(item.name)}
             </div>
-            <div class="grocery-item__amount">\${UIHelpers.escapeHTML(item.amount ?? '')}</div>
+            <div class="grocery-item__amount">${UIHelpers.escapeHTML(item.amount ?? '')}</div>
           </div>
 
           <!-- Favorite star — only visible when isFavorite: true (CSS handles this) -->
           <span
             class="grocery-favorite-star"
-            aria-label="\${item.isFavorite ? 'This is one of your favorite foods' : ''}"
-            title="\${item.isFavorite ? '⭐ Matches your onboarding food picks' : ''}"
+            aria-label="${item.isFavorite ? 'This is one of your favorite foods' : ''}"
+            title="${item.isFavorite ? '⭐ Matches your onboarding food picks' : ''}"
           >⭐</span>
 
           <!-- Delete button -->
           <button
             class="grocery-item__delete"
-            onclick="deleteItem('\${item.id}')"
-            aria-label="Remove \${UIHelpers.escapeHTML(item.name)} from list"
+            onclick="deleteItem('${item.id}')"
+            aria-label="Remove ${UIHelpers.escapeHTML(item.name)} from list"
             title="Remove item"
           >✕</button>
         </div>
-      \`;
+      `;
     }
 
 
@@ -581,7 +548,7 @@ const CONTENT = `<!DOCTYPE html>
       item.checked = !item.checked;
 
       // Update DOM without full re-render for performance
-      const card    = document.getElementById(\`grocery-item-\${itemId}\`);
+      const card    = document.getElementById(`grocery-item-${itemId}`);
       const checkEl = card?.querySelector('.grocery-check');
 
       if (card) {
@@ -618,7 +585,7 @@ const CONTENT = `<!DOCTYPE html>
       }
 
       const newItem = {
-        id:         \`custom-\${Date.now()}\`,
+        id:         `custom-${Date.now()}`,
         name,
         amount:     '',
         category,
@@ -638,7 +605,7 @@ const CONTENT = `<!DOCTYPE html>
       renderList();
       renderFilterTabs();
 
-      UIHelpers.showToast(\`"\${name}" added to \${CATEGORIES[category]?.label ?? category}\`, 'success');
+      UIHelpers.showToast(`"${name}" added to ${CATEGORIES[category]?.label ?? category}`, 'success');
     }
 
     /** Delete an item permanently */
@@ -661,7 +628,7 @@ const CONTENT = `<!DOCTYPE html>
       persistAndSync();
       renderList();
       renderFilterTabs();
-      UIHelpers.showToast(\`\${checkedCount} items unchecked.\`, 'success');
+      UIHelpers.showToast(`${checkedCount} items unchecked.`, 'success');
     }
 
     /** Set active category filter */
@@ -682,10 +649,10 @@ const CONTENT = `<!DOCTYPE html>
       const pct     = total > 0 ? checked / total : 0;
 
       // Header count
-      UIHelpers.setText('#header-checked-count', \`\${checked} / \${total}\`);
+      UIHelpers.setText('#header-checked-count', `${checked} / ${total}`);
 
       // Action bar text
-      UIHelpers.setText('#action-bar-label', \`\${checked} of \${total} items checked\`);
+      UIHelpers.setText('#action-bar-label', `${checked} of ${total} items checked`);
       UIHelpers.setText('#action-bar-sub',
         checked === total && total > 0
           ? 'All done! Ready to shop 🛒'
@@ -698,7 +665,7 @@ const CONTENT = `<!DOCTYPE html>
       const ringFill  = document.getElementById('mini-ring-fill');
       if (ringFill) {
         requestAnimationFrame(() => {
-          ringFill.style.strokeDasharray = \`\${(pct * MINI_CIRC).toFixed(1)} \${MINI_CIRC}\`;
+          ringFill.style.strokeDasharray = `${(pct * MINI_CIRC).toFixed(1)} ${MINI_CIRC}`;
         });
       }
     }
@@ -739,7 +706,7 @@ const CONTENT = `<!DOCTYPE html>
         try {
           const profile = AppState.getProfile();
           await SupabaseAPI.syncGroceryList(profile?.id ?? 'guest', groceryList);
-          setSyncStatus('synced', \`Synced · \${new Date().toLocaleTimeString()}\`);
+          setSyncStatus('synced', `Synced · ${new Date().toLocaleTimeString()}`);
         } catch (err) {
           console.warn('Grocery sync failed:', err);
           setSyncStatus('error', 'Sync failed — saved locally');
@@ -752,29 +719,9 @@ const CONTENT = `<!DOCTYPE html>
       const textEl = document.getElementById('sync-status-text');
       if (!el || !textEl) return;
 
-      el.className = \`sync-status is-\${state}\`;
+      el.className = `sync-status is-${state}`;
       textEl.textContent = text;
     }
   </script>
-</body>
-</html>
-`;
-const pre = document.getElementById('code');
-pre.textContent = CONTENT;
-document.getElementById('lc').textContent = CONTENT.split('\n').length.toLocaleString() + ' lines';
-function copyIt() {
-  const btn = document.getElementById('btn');
-  navigator.clipboard.writeText(CONTENT).then(ok).catch(() => {
-    const t = document.createElement('textarea');
-    t.value = CONTENT; t.style.cssText = 'position:fixed;opacity:0';
-    document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
-    ok();
-  });
-  function ok() {
-    btn.classList.add('copied'); btn.textContent = '✓ Copied!';
-    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 Copy'; }, 2500);
-  }
-}
-</script>
 </body>
 </html>
