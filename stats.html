@@ -1,47 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>stats.html</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f1923; color: #f0f4ff; min-height: 100vh; display: flex; flex-direction: column; }
-.toolbar { position: sticky; top: 0; z-index: 10; background: #1a2133; border-bottom: 1px solid rgba(200,255,0,0.2); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.info { display: flex; flex-direction: column; gap: 3px; }
-.filename { font-family: "SF Mono","Fira Code",monospace; font-size: 15px; font-weight: 700; color: #c8ff00; }
-.desc { font-size: 11px; color: #8a9ab8; }
-.lines { font-family: "SF Mono",monospace; font-size: 10px; color: #4a5568; margin-top: 1px; }
-.copy-btn { display: flex; align-items: center; gap: 8px; padding: 12px 22px; background: #c8ff00; color: #0f1923; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 150ms ease; white-space: nowrap; flex-shrink: 0; font-family: inherit; }
-.copy-btn:hover { background: #d4ff1a; }
-.copy-btn:active { transform: scale(0.97); }
-.copy-btn.copied { background: #22c55e; color: #fff; }
-.code-wrap { flex: 1; overflow: auto; padding: 20px; }
-pre { font-family: "SF Mono","Fira Code","Courier New",monospace; font-size: 11.5px; line-height: 1.65; color: #c9d1d9; white-space: pre-wrap; word-break: break-all; tab-size: 2; }
-</style>
-</head>
-<body>
-<div class="toolbar">
-  <div class="info">
-    <div class="filename">stats.html</div>
-    <div class="desc">SVG line charts, PR grid, photo grid</div>
-    <div class="lines" id="lc"></div>
-  </div>
-  <button class="copy-btn" id="btn" onclick="copyIt()">📋 Copy</button>
-</div>
-<div class="code-wrap"><pre id="code"></pre></div>
-<script>
-const CONTENT = `<!DOCTYPE html>
-<html lang="en">
-<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#090b10">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="styles-phase3-additions.css">
+  <link rel="stylesheet" href="styles-light-full.css">
+  
   <title>FitForge — Stats</title>
 
   <style>
@@ -339,8 +306,8 @@ const CONTENT = `<!DOCTYPE html>
     <div id="bottom-nav-container"></div>
   </div>
 
-  <script src="script.js"></script>
-  <script src="script-phase3-additions.js"></script>
+  <script src="script-merged.js"></script>
+  
 
   <script>
     /**
@@ -431,7 +398,7 @@ const CONTENT = `<!DOCTYPE html>
         // Hide demo badge when real data is present
         const demoBadge = document.getElementById('demo-badge');
         if (demoBadge) {
-          UIHelpers.setText('#demo-badge-text', \`\${realLogs.length} logged entries\`);
+          UIHelpers.setText('#demo-badge-text', `${realLogs.length} logged entries`);
         }
 
       } else {
@@ -520,14 +487,14 @@ const CONTENT = `<!DOCTYPE html>
         const deltaEl = document.getElementById('weight-delta-display');
         if (deltaEl) {
           const color = delta < 0 ? 'var(--color-success)' : 'var(--color-danger)';
-          deltaEl.innerHTML = \`
-            <span style="color:\${color}; font-family:var(--font-mono); font-size:var(--text-sm); font-weight:700;">
-              \${sign}\${delta} lbs
+          deltaEl.innerHTML = `
+            <span style="color:${color}; font-family:var(--font-mono); font-size:var(--text-sm); font-weight:700;">
+              ${sign}${delta} lbs
             </span>
             <span style="color:var(--color-text-muted); font-size:var(--text-xs);">
-              vs \${data.length > 1 ? data[0].label : '—'}
+              vs ${data.length > 1 ? data[0].label : '—'}
             </span>
-          \`;
+          `;
         }
       }
     }
@@ -601,14 +568,14 @@ const CONTENT = `<!DOCTYPE html>
     }
 
     function updateTooltip(chartId, point, unit, prefix) {
-      const tooltipEl   = document.getElementById(\`\${chartId}-tooltip\`);
+      const tooltipEl   = document.getElementById(`${chartId}-tooltip`);
       if (!tooltipEl) return;
 
       const dateEl  = tooltipEl.querySelector('.chart-tooltip-bar__date');
       const valueEl = tooltipEl.querySelector('.chart-tooltip-bar__value');
 
       if (dateEl)  dateEl.textContent  = point.label;
-      if (valueEl) valueEl.textContent = \`\${prefix ? prefix + ': ' : ''}\${point.value} \${unit}\`;
+      if (valueEl) valueEl.textContent = `${prefix ? prefix + ': ' : ''}${point.value} ${unit}`;
     }
 
 
@@ -623,22 +590,22 @@ const CONTENT = `<!DOCTYPE html>
         const improvement = pr.current - pr.prev;
         const sign        = improvement >= 0 ? '+' : '';
 
-        return \`
+        return `
           <div class="pr-card">
             <div class="pr-card__badge">PR</div>
-            <div class="pr-card__lift">\${UIHelpers.escapeHTML(pr.lift)}</div>
+            <div class="pr-card__lift">${UIHelpers.escapeHTML(pr.lift)}</div>
             <div>
-              <span class="pr-card__weight">\${pr.current}</span>
-              <span class="pr-card__unit"> \${pr.unit}</span>
+              <span class="pr-card__weight">${pr.current}</span>
+              <span class="pr-card__unit"> ${pr.unit}</span>
             </div>
-            <div class="pr-card__improvement pr-card__improvement--\${pr.improved ? 'up' : 'same'}">
-              \${pr.improved
-                ? \`<span>↑</span><span>\${sign}\${improvement} \${pr.unit}</span>\`
-                : \`<span>→</span><span>No change</span>\`}
+            <div class="pr-card__improvement pr-card__improvement--${pr.improved ? 'up' : 'same'}">
+              ${pr.improved
+                ? `<span>↑</span><span>${sign}${improvement} ${pr.unit}</span>`
+                : `<span>→</span><span>No change</span>`}
             </div>
-            <div class="pr-card__date">\${UIHelpers.escapeHTML(pr.date)}</div>
+            <div class="pr-card__date">${UIHelpers.escapeHTML(pr.date)}</div>
           </div>
-        \`;
+        `;
       }).join('');
     }
 
@@ -657,7 +624,7 @@ const CONTENT = `<!DOCTYPE html>
         .find(l => l.measurements && Object.values(l.measurements).some(v => v !== null));
 
       if (!latest) {
-        grid.innerHTML = \`
+        grid.innerHTML = `
           <div style="grid-column:1/-1; text-align:center; padding:var(--space-6); color:var(--color-text-muted); font-size:var(--text-sm);">
             No measurements logged yet.
             <br>
@@ -665,7 +632,7 @@ const CONTENT = `<!DOCTYPE html>
               Log your first measurement →
             </a>
           </div>
-        \`;
+        `;
         return;
       }
 
@@ -678,17 +645,17 @@ const CONTENT = `<!DOCTYPE html>
         const val = latest.measurements?.[field.key];
         if (val === null || val === undefined) return '';
 
-        return \`
+        return `
           <div class="measurement-snapshot">
-            <div class="measurement-snapshot__label">\${field.label}</div>
-            <div class="measurement-snapshot__value">\${val}"</div>
+            <div class="measurement-snapshot__label">${field.label}</div>
+            <div class="measurement-snapshot__value">${val}"</div>
           </div>
-        \`;
-      }).filter(Boolean).join('') || \`
+        `;
+      }).filter(Boolean).join('') || `
         <div style="grid-column:1/-1; color:var(--color-text-muted); font-size:var(--text-sm); text-align:center; padding:var(--space-4);">
           No measurements in latest entry.
         </div>
-      \`;
+      `;
     }
 
 
@@ -708,58 +675,38 @@ const CONTENT = `<!DOCTYPE html>
       const filledCells = photos.map(photo => {
         if (photo.dataUrl) {
           // Has a base64 photo
-          return \`
+          return `
             <div class="photo-cell">
               <img
-                src="\${photo.dataUrl}"
-                alt="Progress photo from \${UIHelpers.formatDate(photo.date + 'T12:00:00', 'short')}"
+                src="${photo.dataUrl}"
+                alt="Progress photo from ${UIHelpers.formatDate(photo.date + 'T12:00:00', 'short')}"
                 loading="lazy"
               >
               <div class="photo-cell__date">
-                \${UIHelpers.formatDate(photo.date + 'T12:00:00', 'short')}
+                ${UIHelpers.formatDate(photo.date + 'T12:00:00', 'short')}
               </div>
             </div>
-          \`;
+          `;
         } else {
           // Photo metadata only (base64 was pruned due to storage limits)
-          return \`
+          return `
             <div class="photo-cell" style="background:var(--color-bg-elevated);">
-              <div class="photo-cell__date">\${UIHelpers.formatDate(photo.date + 'T12:00:00', 'short')}</div>
+              <div class="photo-cell__date">${UIHelpers.formatDate(photo.date + 'T12:00:00', 'short')}</div>
               <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%); font-size:20px; opacity:0.3;">📷</div>
             </div>
-          \`;
+          `;
         }
       });
 
       // Build empty placeholder cells
-      const emptyHTML = Array.from({ length: emptyCells }, () => \`
+      const emptyHTML = Array.from({ length: emptyCells }, () => `
         <a class="photo-cell photo-cell--empty" href="progress-log.html" aria-label="Add a progress photo">
           <div class="photo-cell--empty__icon">+</div>
         </a>
-      \`);
+      `);
 
       grid.innerHTML = [...filledCells, ...emptyHTML].join('');
     }
   </script>
-</body>
-</html>
-`;
-const pre = document.getElementById('code');
-pre.textContent = CONTENT;
-document.getElementById('lc').textContent = CONTENT.split('\n').length.toLocaleString() + ' lines';
-function copyIt() {
-  const btn = document.getElementById('btn');
-  navigator.clipboard.writeText(CONTENT).then(ok).catch(() => {
-    const t = document.createElement('textarea');
-    t.value = CONTENT; t.style.cssText = 'position:fixed;opacity:0';
-    document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
-    ok();
-  });
-  function ok() {
-    btn.classList.add('copied'); btn.textContent = '✓ Copied!';
-    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 Copy'; }, 2500);
-  }
-}
-</script>
 </body>
 </html>
