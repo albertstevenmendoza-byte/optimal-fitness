@@ -1,39 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>onboarding.html</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f1923; color: #f0f4ff; min-height: 100vh; display: flex; flex-direction: column; }
-.toolbar { position: sticky; top: 0; z-index: 10; background: #1a2133; border-bottom: 1px solid rgba(200,255,0,0.2); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.info { display: flex; flex-direction: column; gap: 3px; }
-.filename { font-family: "SF Mono","Fira Code",monospace; font-size: 15px; font-weight: 700; color: #c8ff00; }
-.desc { font-size: 11px; color: #8a9ab8; }
-.lines { font-family: "SF Mono",monospace; font-size: 10px; color: #4a5568; margin-top: 1px; }
-.copy-btn { display: flex; align-items: center; gap: 8px; padding: 12px 22px; background: #c8ff00; color: #0f1923; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 150ms ease; white-space: nowrap; flex-shrink: 0; font-family: inherit; }
-.copy-btn:hover { background: #d4ff1a; }
-.copy-btn:active { transform: scale(0.97); }
-.copy-btn.copied { background: #22c55e; color: #fff; }
-.code-wrap { flex: 1; overflow: auto; padding: 20px; }
-pre { font-family: "SF Mono","Fira Code","Courier New",monospace; font-size: 11.5px; line-height: 1.65; color: #c9d1d9; white-space: pre-wrap; word-break: break-all; tab-size: 2; }
-</style>
-</head>
-<body>
-<div class="toolbar">
-  <div class="info">
-    <div class="filename">onboarding.html</div>
-    <div class="desc">6-step onboarding form</div>
-    <div class="lines" id="lc"></div>
-  </div>
-  <button class="copy-btn" id="btn" onclick="copyIt()">📋 Copy</button>
-</div>
-<div class="code-wrap"><pre id="code"></pre></div>
-<script>
-const CONTENT = `<!DOCTYPE html>
-<html lang="en">
-<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#090b10">
@@ -43,7 +10,7 @@ const CONTENT = `<!DOCTYPE html>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles-light-full.css">
 
   <title>FitForge — Let's Build Your Plan</title>
 
@@ -769,7 +736,7 @@ const CONTENT = `<!DOCTYPE html>
 
   </div><!-- end onboarding-shell -->
 
-  <script src="script.js"></script>
+  <script src="script-merged.js"></script>
 
   <script>
     /**
@@ -782,7 +749,7 @@ const CONTENT = `<!DOCTYPE html>
      *
      * KEY CONCEPTS:
      * - Step machine: currentStepIndex controls which step is visible
-     * - Form data accumulates in the \`formData\` object as user progresses
+     * - Form data accumulates in the `formData` object as user progresses
      * - On the final step, FitnessCalculator computes nutrition targets
      * - On completion, AppState.saveProfile() persists everything
      * ============================================================
@@ -893,7 +860,7 @@ const CONTENT = `<!DOCTYPE html>
 
        This is the core rendering function. When called, it:
        1. Hides all steps
-       2. Shows the step at \`index\`
+       2. Shows the step at `index`
        3. Updates the progress bar, counter, and button state
     ─────────────────────────────────────────────────────────── */
     function goToStep(index) {
@@ -920,7 +887,7 @@ const CONTENT = `<!DOCTYPE html>
       const progressFill    = document.getElementById('progress-bar-fill');
       const progressBar     = document.getElementById('progress-bar-container');
 
-      if (progressFill) progressFill.style.width = \`\${progressPercent}%\`;
+      if (progressFill) progressFill.style.width = `${progressPercent}%`;
       if (progressBar)  progressBar.setAttribute('aria-valuenow', Math.round(progressPercent));
 
       // ── Update step counter text ──────────────────────────────
@@ -982,8 +949,8 @@ const CONTENT = `<!DOCTYPE html>
        Handles clicks on the large option cards (goal, activity level,
        equipment). These are single-select within their group.
 
-       The \`data-group\` attribute identifies which formData key to update.
-       The \`data-value\` attribute is the value to store.
+       The `data-group` attribute identifies which formData key to update.
+       The `data-value` attribute is the value to store.
     ─────────────────────────────────────────────────────────── */
     function handleOptionChipClick(event) {
       // .closest() walks up the DOM tree to find the chip element
@@ -1001,7 +968,7 @@ const CONTENT = `<!DOCTYPE html>
         // ── Single-select: deselect all siblings, select this one ──
 
         // Find all chips in the same group and deselect them
-        document.querySelectorAll(\`[data-group="\${group}"]\`).forEach(el => {
+        document.querySelectorAll(`[data-group="${group}"]`).forEach(el => {
           el.classList.remove('is-selected');
           el.setAttribute('aria-checked', 'false');
         });
@@ -1027,14 +994,14 @@ const CONTENT = `<!DOCTYPE html>
         } else {
           // Special case: selecting 'none' clears all other selections
           if (value === 'none') {
-            document.querySelectorAll(\`[data-group="\${group}"]\`).forEach(el => {
+            document.querySelectorAll(`[data-group="${group}"]`).forEach(el => {
               el.classList.remove('is-selected');
               el.setAttribute('aria-pressed', 'false');
             });
             formData[group] = [];
           } else {
             // Deselect 'none' if it was selected
-            const noneChip = document.querySelector(\`[data-group="\${group}"][data-value="none"]\`);
+            const noneChip = document.querySelector(`[data-group="${group}"][data-value="none"]`);
             if (noneChip) {
               noneChip.classList.remove('is-selected');
               noneChip.setAttribute('aria-pressed', 'false');
@@ -1064,7 +1031,7 @@ const CONTENT = `<!DOCTYPE html>
     function inchesToFeetStr(totalInches) {
       const feet   = Math.floor(totalInches / 12);
       const inches = totalInches % 12;
-      return \`\${feet}′ \${inches}″\`;
+      return `${feet}′ ${inches}″`;
     }
 
     function initSliders() {
@@ -1149,17 +1116,17 @@ const CONTENT = `<!DOCTYPE html>
         extra_active: 'Athlete',
       };
 
-      resultsContent.innerHTML = \`
+      resultsContent.innerHTML = `
         <!-- Headline calorie number -->
         <div style="margin-bottom:var(--space-5);">
           <div class="label" style="margin-bottom:var(--space-2);">Daily Calorie Target</div>
           <div style="font-family:var(--font-mono); font-size:var(--text-3xl); color:var(--color-accent); line-height:1; letter-spacing:-0.03em;">
-            \${nutritionPlan.targetCalories.toLocaleString()}
+            ${nutritionPlan.targetCalories.toLocaleString()}
             <span style="font-size:var(--text-sm); color:var(--color-text-secondary);">kcal</span>
           </div>
           <div style="font-size:var(--text-sm); color:var(--color-text-secondary); margin-top:var(--space-2);">
-            TDEE: \${nutritionPlan.tdee.toLocaleString()} kcal
-            · BMR: \${nutritionPlan.bmr.toLocaleString()} kcal
+            TDEE: ${nutritionPlan.tdee.toLocaleString()} kcal
+            · BMR: ${nutritionPlan.bmr.toLocaleString()} kcal
           </div>
         </div>
 
@@ -1172,7 +1139,7 @@ const CONTENT = `<!DOCTYPE html>
             Protein
           </div>
           <div class="results-macro-row__value">
-            \${nutritionPlan.proteinG}g
+            ${nutritionPlan.proteinG}g
             <span style="font-size:var(--text-xs); color:var(--color-text-muted);">/day</span>
           </div>
         </div>
@@ -1183,7 +1150,7 @@ const CONTENT = `<!DOCTYPE html>
             Carbohydrates
           </div>
           <div class="results-macro-row__value">
-            \${nutritionPlan.carbsG}g
+            ${nutritionPlan.carbsG}g
             <span style="font-size:var(--text-xs); color:var(--color-text-muted);">/day</span>
           </div>
         </div>
@@ -1194,7 +1161,7 @@ const CONTENT = `<!DOCTYPE html>
             Fat
           </div>
           <div class="results-macro-row__value">
-            \${nutritionPlan.fatG}g
+            ${nutritionPlan.fatG}g
             <span style="font-size:var(--text-xs); color:var(--color-text-muted);">/day</span>
           </div>
         </div>
@@ -1203,12 +1170,12 @@ const CONTENT = `<!DOCTYPE html>
 
         <!-- Profile summary pills -->
         <div style="display:flex; flex-wrap:wrap; gap:var(--space-2);">
-          <span class="badge badge--accent">\${UIHelpers.escapeHTML(goalLabels[formData.goal] ?? formData.goal)}</span>
-          <span class="badge badge--info">\${UIHelpers.escapeHTML(activityLabels[formData.activityLevel] ?? formData.activityLevel)}</span>
-          <span class="badge badge--success">\${formData.weightLbs} lbs</span>
-          \${formData.sex ? \`<span class="badge badge--success">\${UIHelpers.escapeHTML(formData.sex)}</span>\` : ''}
+          <span class="badge badge--accent">${UIHelpers.escapeHTML(goalLabels[formData.goal] ?? formData.goal)}</span>
+          <span class="badge badge--info">${UIHelpers.escapeHTML(activityLabels[formData.activityLevel] ?? formData.activityLevel)}</span>
+          <span class="badge badge--success">${formData.weightLbs} lbs</span>
+          ${formData.sex ? `<span class="badge badge--success">${UIHelpers.escapeHTML(formData.sex)}</span>` : ''}
         </div>
-      \`;
+      `;
 
       // 4. Render workout plan summary
       const workoutPlanNames = {
@@ -1225,7 +1192,7 @@ const CONTENT = `<!DOCTYPE html>
       // 5. Update the subtitle with the user's name
       UIHelpers.setText(
         '#results-subtitle',
-        \`\${formData.name ? \`\${UIHelpers.escapeHTML(formData.name)}, your\` : 'Your'} personalized plan is built. Here are your daily targets.\`
+        `${formData.name ? `${UIHelpers.escapeHTML(formData.name)}, your` : 'Your'} personalized plan is built. Here are your daily targets.`
       );
     }
 
@@ -1247,7 +1214,7 @@ const CONTENT = `<!DOCTYPE html>
       // Assemble the complete UserProfile object
       const userProfile = {
         // In production, id comes from Supabase Auth
-        id:                  \`local-\${Date.now()}\`,
+        id:                  `local-${Date.now()}`,
         name:                formData.name,
         email:               '',  // Added after Google sign-in
 
@@ -1339,25 +1306,5 @@ const CONTENT = `<!DOCTYPE html>
       goToStep(0);
     });
   </script>
-</body>
-</html>
-`;
-const pre = document.getElementById('code');
-pre.textContent = CONTENT;
-document.getElementById('lc').textContent = CONTENT.split('\n').length.toLocaleString() + ' lines';
-function copyIt() {
-  const btn = document.getElementById('btn');
-  navigator.clipboard.writeText(CONTENT).then(ok).catch(() => {
-    const t = document.createElement('textarea');
-    t.value = CONTENT; t.style.cssText = 'position:fixed;opacity:0';
-    document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
-    ok();
-  });
-  function ok() {
-    btn.classList.add('copied'); btn.textContent = '✓ Copied!';
-    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 Copy'; }, 2500);
-  }
-}
-</script>
 </body>
 </html>
