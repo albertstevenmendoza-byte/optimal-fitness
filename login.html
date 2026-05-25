@@ -1,45 +1,387 @@
-Role & Objective:
-Act as an expert Front-End Web Developer and Technical Mentor. Your task is to build the foundational architecture and first core pages for a mobile-first fitness and nutrition tracking app. We are building this using exclusively vanilla web technologies.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>login.html</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f1923; color: #f0f4ff; min-height: 100vh; display: flex; flex-direction: column; }
+.toolbar { position: sticky; top: 0; z-index: 10; background: #1a2133; border-bottom: 1px solid rgba(200,255,0,0.2); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.info { display: flex; flex-direction: column; gap: 3px; }
+.filename { font-family: "SF Mono","Fira Code",monospace; font-size: 15px; font-weight: 700; color: #c8ff00; }
+.desc { font-size: 11px; color: #8a9ab8; }
+.lines { font-family: "SF Mono",monospace; font-size: 10px; color: #4a5568; margin-top: 1px; }
+.copy-btn { display: flex; align-items: center; gap: 8px; padding: 12px 22px; background: #c8ff00; color: #0f1923; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 150ms ease; white-space: nowrap; flex-shrink: 0; font-family: inherit; }
+.copy-btn:hover { background: #d4ff1a; }
+.copy-btn:active { transform: scale(0.97); }
+.copy-btn.copied { background: #22c55e; color: #fff; }
+.code-wrap { flex: 1; overflow: auto; padding: 20px; }
+pre { font-family: "SF Mono","Fira Code","Courier New",monospace; font-size: 11.5px; line-height: 1.65; color: #c9d1d9; white-space: pre-wrap; word-break: break-all; tab-size: 2; }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <div class="info">
+    <div class="filename">login.html</div>
+    <div class="desc">Entry point — Google OAuth, routing logic</div>
+    <div class="lines" id="lc"></div>
+  </div>
+  <button class="copy-btn" id="btn" onclick="copyIt()">📋 Copy</button>
+</div>
+<div class="code-wrap"><pre id="code"></pre></div>
+<script>
+const CONTENT = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#090b10">
+  <meta name="description" content="FitForge — AI-powered fitness and nutrition tracking">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-Context:
-My programming background is primarily in Python and machine learning. I am a novice in web development. I need the JavaScript logic to be highly modular, explicitly clear, and heavily commented so I understand exactly how the DOM manipulation and state management are functioning.
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
-Tech Stack Requirements:
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles-phase3-additions.css">
 
-HTML5: Semantic, accessible, and structured for a native mobile app feel.
+  <title>FitForge — Sign In</title>
 
-CSS3: Vanilla CSS only. No Tailwind or Bootstrap. Use CSS Grid/Flexbox. Set up a comprehensive :root system with CSS variables for a modern, dark-mode-friendly fitness aesthetic. Ensure mobile responsiveness is the default.
+  <style>
+    /* ── ADDITIONAL LOGIN-SPECIFIC STYLES ──────────────────────── */
 
-JavaScript (ES6+): Vanilla JS only. Keep the logic clean. Set up the data structures to be ready to connect to a Supabase backend via API calls later (use placeholder async functions for fetching/pushing data).
+    /* Google logo SVG inline */
+    .google-logo {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
 
-Project Scope (The 8-Page Ecosystem):
-I am building an app with the following screens:
+    /* Animated shimmer on the logo */
+    @keyframes logoPulse {
+      0%, 100% { text-shadow: 0 0 0 transparent; }
+      50%       { text-shadow: 0 0 30px rgba(200,255,0,0.2); }
+    }
 
-login.html: Google sign-in/sign-up.
+    .login-hero__logo {
+      animation: logoPulse 4s ease-in-out infinite;
+    }
 
-onboarding.html: The core logic center. Asks for activity level, goals, and favorite foods to trigger tailored recipes and plans.
+    /* Stat counters in the hero */
+    .login-stats {
+      display: flex;
+      gap: var(--space-6);
+      margin-top: var(--space-6);
+    }
 
-index.html: Main dashboard with metric cards summarizing data from other pages.
+    .login-stat__value {
+      font-family: var(--font-mono);
+      font-size: var(--text-xl);
+      color: var(--color-text-primary);
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
 
-workouts.html: Weekly plan, rest day tracking, check-offs, and exercise swap logic for injuries.
+    .login-stat__label {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 2px;
+    }
 
-nutrition.html: Optimal plan syncing with prepped groceries, including macro-friendly recipe references.
+    /* Error message */
+    .login-error {
+      background: var(--color-danger-glow);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--color-danger);
+      text-align: center;
+      display: none;
+    }
+    .login-error.is-visible { display: block; }
+  </style>
+</head>
 
-grocery-list.html: Interactive checklist filtered by Proteins, Fats, Carbs, etc.
+<body>
+  <!--
+    LOGIN PAGE LAYOUT NOTE:
+    This page does NOT use the .app-shell wrapper used by other pages.
+    It's a full-viewport layout because it's a standalone entry screen.
+    Other pages use .app-shell to create the 430px phone-frame constraint.
+  -->
+  <div class="login-page">
 
-stats.html: Data visualization for strength trends and progress photos.
+    <!-- Decorative background layers -->
+    <div class="login-page__bg" aria-hidden="true">
+      <div class="login-page__bg-grid"></div>
+      <div class="login-page__bg-shard"></div>
+      <!-- Secondary diagonal accent -->
+      <div style="
+        position:absolute; bottom:-10%; right:-15%;
+        width:60%; height:50%;
+        background: radial-gradient(ellipse, rgba(0,200,255,0.04) 0%, transparent 70%);
+        border-radius:50%;
+      "></div>
+    </div>
 
-progress-log.html: Input forms for measurements and photos.
+    <!-- ══════════════════════════════════════════════════
+         HERO — Brand section at top of screen
+         ════════════════════════════════════════════════ -->
+    <div class="login-hero" role="banner">
+      <p class="login-hero__eyebrow">Train. Track. Transform.</p>
 
-Immediate Output Instructions (Phase 1):
-Do not attempt to write all 8 pages at once. For this initial response, please provide the complete, production-ready code for the foundational files:
+      <h1 class="login-hero__logo">Fit<span>Forge</span></h1>
 
-styles.css: The global stylesheet, CSS variables, and core utility classes that will unify all 8 pages.
+      <p class="login-hero__tagline">
+        Your personalized fitness and nutrition engine.
+        Built around your body, your goal, your food.
+      </p>
 
-script.js: The global JavaScript file containing the Supabase placeholder logic, routing structure, and state management scaffolding.
+      <!-- App feature pills -->
+      <div class="login-features" role="list">
+        <div class="login-feature-pill" role="listitem">⚡ TDEE Calculated</div>
+        <div class="login-feature-pill" role="listitem">📊 Progress Charts</div>
+        <div class="login-feature-pill" role="listitem">🍗 Macro Recipes</div>
+        <div class="login-feature-pill" role="listitem">🏋️ Weekly Plans</div>
+      </div>
 
-index.html (Dashboard): The HTML for the main dashboard featuring the metric cards.
+      <!-- Vanity stats (static demo numbers) -->
+      <div class="login-stats" aria-label="App statistics">
+        <div>
+          <div class="login-stat__value">8</div>
+          <div class="login-stat__label">Pages</div>
+        </div>
+        <div>
+          <div class="login-stat__value">100%</div>
+          <div class="login-stat__label">Vanilla</div>
+        </div>
+        <div>
+          <div class="login-stat__value">∞</div>
+          <div class="login-stat__label">Goals</div>
+        </div>
+      </div>
+    </div>
 
-onboarding.html: The HTML and specific JS logic for the questionnaire, as this drives the data for the rest of the app.
+    <!-- ══════════════════════════════════════════════════
+         LOGIN PANEL — Auth controls at bottom of screen
+         ════════════════════════════════════════════════ -->
+    <div class="login-panel" role="main">
 
-Provide the code in fully complete blocks. Before writing the code, outline your step-by-step logic for how the state from the onboarding.html form will eventually feed into the nutrition.html and workouts.html pages.
+      <!-- Error message (hidden by default, shown on failed auth) -->
+      <div class="login-error" id="login-error" role="alert" aria-live="polite"></div>
+
+      <!-- Primary CTA: Google Sign-In -->
+      <button
+        class="btn btn--secondary btn--lg btn--full btn--google"
+        id="btn-google-signin"
+        aria-label="Sign in with Google"
+        onclick="handleGoogleSignIn()"
+      >
+        <!--
+          Google logo SVG inline.
+          Using the official Google "G" logo colors (not a third-party import).
+          This is safe to inline in vanilla HTML.
+        -->
+        <svg class="google-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <!-- Divider -->
+      <div class="login-divider" aria-hidden="true">
+        <div class="login-divider__line"></div>
+        <span class="login-divider__text">or</span>
+        <div class="login-divider__line"></div>
+      </div>
+
+      <!-- Secondary CTA: Guest / demo mode -->
+      <button
+        class="btn btn--ghost btn--lg btn--full"
+        id="btn-guest"
+        aria-label="Continue without signing in (demo mode)"
+        onclick="handleGuestMode()"
+      >
+        <span>Continue as Guest</span>
+        <span style="font-size:var(--text-xs); color:var(--color-text-muted);">· No account needed</span>
+      </button>
+
+      <!-- Legal disclaimer -->
+      <p class="login-legal">
+        By continuing, you agree to our
+        <a href="#" onclick="return false;">Terms of Service</a>
+        and
+        <a href="#" onclick="return false;">Privacy Policy</a>.
+        Your data stays on your device until you sign in.
+      </p>
+
+    </div><!-- end .login-panel -->
+  </div><!-- end .login-page -->
+
+  <!--
+    script.js loaded LAST so CONFIG, AppState, Router, etc.
+    are all available when the inline script below runs.
+  -->
+  <script src="script.js"></script>
+  <script src="script-phase3-additions.js"></script>
+
+  <script>
+    /**
+     * ============================================================
+     * LOGIN PAGE SCRIPT
+     * login.html — inline script
+     *
+     * ROUTING LOGIC (runs immediately on page load):
+     *
+     *   Check 1: Is there an auth token in localStorage?
+     *     No  → Stay on login page (user must sign in)
+     *     Yes → Check 2:
+     *
+     *   Check 2: Is there a completed UserProfile?
+     *     No  → Redirect to onboarding.html (new user, logged in)
+     *     Yes → Redirect to index.html (returning user, all set)
+     *
+     * Python analogy: this is like middleware in a Flask app —
+     * it runs before the page renders and redirects if conditions
+     * aren't met.
+     * ============================================================
+     */
+
+    /* ─── IMMEDIATE ROUTING CHECK ───────────────────────────────
+       Runs synchronously before the DOM renders (no flash of
+       the login UI for already-authenticated users).
+    ─────────────────────────────────────────────────────────── */
+    (function checkExistingAuth() {
+      const token   = localStorage.getItem(CONFIG.STORAGE_KEYS.AUTH_TOKEN);
+      const profile = AppState.getProfile();
+
+      if (token && profile?.onboardingComplete) {
+        // Returning user: fully set up → go straight to dashboard
+        window.location.replace('index.html');
+        return;
+      }
+
+      if (token && !profile?.onboardingComplete) {
+        // New user: signed in but hasn't finished onboarding
+        window.location.replace('onboarding.html');
+        return;
+      }
+
+      // No token → stay on login page (do nothing)
+    })();
+
+
+    /* ─── GOOGLE SIGN-IN HANDLER ────────────────────────────────
+       Called when user taps the "Continue with Google" button.
+    ─────────────────────────────────────────────────────────── */
+    async function handleGoogleSignIn() {
+      const btn = document.getElementById('btn-google-signin');
+      hideError();
+
+      // Show loading state — btn--loading class hides text and shows spinner
+      btn.classList.add('btn--loading');
+      btn.disabled = true;
+
+      try {
+        // Call the placeholder (returns mock user data in Phase 3)
+        // In production, Supabase triggers an OAuth redirect here.
+        // The user would leave the page, sign in at Google, then
+        // return to a callback URL that sets the session.
+        const { user, session } = await SupabaseAPI.signInWithGoogle();
+
+        // Store the auth token in localStorage
+        // In production, Supabase auto-manages this via supabase.auth.onAuthStateChange()
+        localStorage.setItem(CONFIG.STORAGE_KEYS.AUTH_TOKEN, session.access_token);
+
+        // Store the mock user object in AppState
+        AppState.set('user', user);
+
+        // Now check if this user has completed onboarding
+        const existingProfile = await SupabaseAPI.getProfile(user.id);
+
+        if (existingProfile?.onboardingComplete) {
+          // Returning user → update AppState and go to dashboard
+          await AppState.saveProfile(existingProfile);
+          window.location.replace('index.html');
+        } else {
+          // New user → go to onboarding
+          window.location.replace('onboarding.html');
+        }
+
+      } catch (error) {
+        console.error('Google sign-in failed:', error);
+        showError('Sign-in failed. Please try again or use Guest mode.');
+        btn.classList.remove('btn--loading');
+        btn.disabled = false;
+      }
+    }
+
+
+    /* ─── GUEST MODE HANDLER ────────────────────────────────────
+       Creates a local-only "guest" session — no real auth.
+       Perfect for demoing the app without a backend.
+    ─────────────────────────────────────────────────────────── */
+    function handleGuestMode() {
+      // Create a guest token (not a real JWT — just a flag)
+      const guestToken = \`guest-\${Date.now()}\`;
+      localStorage.setItem(CONFIG.STORAGE_KEYS.AUTH_TOKEN, guestToken);
+
+      // Check if onboarding was previously completed (guest may have done this before)
+      const existingProfile = AppState.getProfile();
+
+      if (existingProfile?.onboardingComplete) {
+        // Guest has completed onboarding in a previous session
+        window.location.replace('index.html');
+      } else {
+        // First time → go to onboarding
+        window.location.replace('onboarding.html');
+      }
+    }
+
+
+    /* ─── UI HELPERS (local to this page) ──────────────────────
+    ─────────────────────────────────────────────────────────── */
+    function showError(message) {
+      const errorEl = document.getElementById('login-error');
+      if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.add('is-visible');
+      }
+    }
+
+    function hideError() {
+      const errorEl = document.getElementById('login-error');
+      if (errorEl) errorEl.classList.remove('is-visible');
+    }
+  </script>
+</body>
+</html>
+`;
+const pre = document.getElementById('code');
+pre.textContent = CONTENT;
+document.getElementById('lc').textContent = CONTENT.split('\n').length.toLocaleString() + ' lines';
+function copyIt() {
+  const btn = document.getElementById('btn');
+  navigator.clipboard.writeText(CONTENT).then(ok).catch(() => {
+    const t = document.createElement('textarea');
+    t.value = CONTENT; t.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
+    ok();
+  });
+  function ok() {
+    btn.classList.add('copied'); btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 Copy'; }, 2500);
+  }
+}
+</script>
+</body>
+</html>
