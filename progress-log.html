@@ -9,142 +9,78 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles-light-full.css">
   
-  <title>FitForge — Stats</title>
+  <title>FitForge — Log Progress</title>
 
   <style>
     /* ── PAGE-SPECIFIC STYLES ──────────────────────────────────── */
 
-    /* Chart header: title left, current value right */
-    .chart-header {
+    .form-section {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: var(--space-4);
+      flex-direction: column;
+      gap: var(--space-3);
     }
 
-    .chart-header__left {}
-
-    .chart-header__label {
+    .form-section-label {
       font-size: var(--text-xs);
       font-weight: var(--weight-bold);
       letter-spacing: var(--tracking-widest);
       text-transform: uppercase;
-      color: var(--color-text-secondary);
-      margin-bottom: var(--space-2);
-    }
-
-    .chart-header__value {
-      font-family: var(--font-mono);
-      font-size: var(--text-2xl);
-      color: var(--color-text-primary);
-      letter-spacing: -0.03em;
-      line-height: 1;
-    }
-
-    .chart-header__unit {
-      font-size: var(--text-sm);
-      color: var(--color-text-secondary);
-    }
-
-    .chart-header__delta {
-      font-size: var(--text-sm);
-      margin-top: var(--space-1);
-    }
-
-    /* Demo data disclaimer */
-    .demo-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: var(--text-xs);
-      color: var(--color-text-muted);
-      background: var(--color-bg-elevated);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-full);
-      padding: 2px 8px;
-    }
-
-    /* Strength chart: two-line legend */
-    .chart-legend {
-      display: flex;
-      gap: var(--space-4);
-      align-items: center;
-    }
-
-    .chart-legend-item {
+      color: var(--color-accent);
       display: flex;
       align-items: center;
       gap: var(--space-2);
+    }
+
+    /* File input hidden — we use the zone as the click target */
+    #photo-file-input { display: none; }
+
+    /* Notes character counter */
+    .notes-counter {
+      font-family: var(--font-mono);
       font-size: var(--text-xs);
-      color: var(--color-text-secondary);
+      color: var(--color-text-muted);
+      text-align: right;
     }
 
-    .chart-legend-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-
-    /* Tooltip display: shows value on point tap/hover */
-    .chart-tooltip-bar {
+    /* Previous entry card */
+    .prev-entry-card {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: var(--space-2) var(--space-3);
-      background: var(--color-bg-elevated);
-      border-radius: var(--radius-sm);
-      min-height: 32px;
     }
 
-    .chart-tooltip-bar__date {
+    .prev-entry-card__label {
       font-size: var(--text-xs);
       color: var(--color-text-muted);
-      font-family: var(--font-mono);
-    }
-
-    .chart-tooltip-bar__value {
-      font-family: var(--font-mono);
-      font-size: var(--text-sm);
-      font-weight: var(--weight-bold);
-      color: var(--color-text-primary);
-    }
-
-    /* Measurement trend mini-cards */
-    .measurement-snapshot-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-2);
-    }
-
-    .measurement-snapshot {
-      background: var(--color-bg-surface);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      padding: var(--space-3) var(--space-4);
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .measurement-snapshot__label {
-      font-size: 9px;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: var(--color-text-muted);
       font-weight: var(--weight-bold);
     }
 
-    .measurement-snapshot__value {
+    .prev-entry-card__delta {
       font-family: var(--font-mono);
-      font-size: var(--text-md);
-      color: var(--color-text-primary);
-      line-height: 1;
+      font-size: var(--text-sm);
     }
 
-    .measurement-snapshot__delta {
-      font-size: var(--text-xs);
-      color: var(--color-success);
+    .prev-entry-card__delta--positive { color: var(--color-success); }
+    .prev-entry-card__delta--negative { color: var(--color-danger); }
+
+    /* Upload progress indicator */
+    .upload-progress {
+      display: none;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      background: var(--color-bg-elevated);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
     }
+    .upload-progress.is-visible { display: flex; }
   </style>
 </head>
 
@@ -154,157 +90,302 @@
     <!-- HEADER -->
     <header class="app-header">
       <div class="app-header__logo">Fit<span>Forge</span></div>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <!-- Log new entry button -->
-        <a
-          href="progress-log.html"
-          class="btn btn--ghost btn--sm"
-          aria-label="Log a new progress entry"
-          style="font-size:var(--text-xs); padding:4px 12px;"
-        >+ Log</a>
+      <div id="entry-date-display" style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-secondary); background:var(--color-bg-elevated); border:1px solid var(--color-border); border-radius:var(--radius-full); padding:4px 12px;">
+        Today
       </div>
     </header>
 
     <main class="page-content" id="page-content">
 
-      <!-- SECTION 1: Page Title + Range Selector -->
+      <!-- ── SECTION 1: Page Title ──────────────────────────── -->
       <section style="padding: var(--space-4) 0 var(--space-2);">
-        <div style="display:flex; justify-content:space-between; align-items:flex-end;">
-          <div>
-            <p class="label" style="color:var(--color-blue); margin-bottom:var(--space-2);">Your Progress</p>
-            <h1 class="heading-1" style="font-family:var(--font-display); letter-spacing:var(--tracking-tight);">
-              Stats
-            </h1>
-          </div>
+        <p class="label" style="color:var(--color-accent); margin-bottom:var(--space-2);">Log Entry</p>
+        <h1 class="heading-1" style="font-family:var(--font-display); letter-spacing:var(--tracking-tight);">
+          Progress Check-In
+        </h1>
+        <p style="font-size:var(--text-sm); color:var(--color-text-secondary); margin-top:var(--space-2);">
+          Track weight, measurements, and a progress photo.
+        </p>
+      </section>
 
-          <!-- Time range selector — switches how many weeks of data to display -->
-          <div class="time-range-selector" role="group" aria-label="Time range" id="time-range-selector">
-            <button class="time-range-btn" data-range="7"   onclick="setTimeRange(7,   this)">1W</button>
-            <button class="time-range-btn is-active" data-range="30"  onclick="setTimeRange(30,  this)">1M</button>
-            <button class="time-range-btn" data-range="90"  onclick="setTimeRange(90,  this)">3M</button>
-            <button class="time-range-btn" data-range="inf" onclick="setTimeRange(Infinity, this)">All</button>
+      <!-- ── SECTION 2: Previous Entry Comparison ──────────── -->
+      <div class="prev-entry-card animate-fade-in-up" id="prev-entry-card">
+        <div>
+          <div class="prev-entry-card__label">Last logged</div>
+          <div style="font-size:var(--text-base); color:var(--color-text-primary); margin-top:3px;" id="prev-entry-date">
+            No previous entry
           </div>
         </div>
+        <div style="text-align:right;">
+          <div class="prev-entry-card__label">Previous weight</div>
+          <div class="prev-entry-card__delta" id="prev-entry-weight" style="font-family:var(--font-mono); font-size:var(--text-md); color:var(--color-text-primary); margin-top:3px;">—</div>
+        </div>
+      </div>
 
-        <!-- Demo data disclaimer -->
-        <div style="margin-top:var(--space-3);" id="demo-notice">
-          <span class="demo-badge" id="demo-badge">
-            <span>⚡</span>
-            <span id="demo-badge-text">Using demo data — log entries to see your real progress</span>
-          </span>
+      <!-- ── SECTION 3: Date Selector ──────────────────────── -->
+      <div class="form-group animate-fade-in-up">
+        <label class="form-label" for="log-date">Entry Date</label>
+        <input
+          type="date"
+          class="form-input"
+          id="log-date"
+          aria-label="Date of this progress log entry"
+        >
+      </div>
+
+      <!-- ── SECTION 4: Body Weight ─────────────────────────── -->
+      <section class="form-section animate-fade-in-up" aria-label="Body weight">
+        <p class="form-section-label">⚖️ Body Weight</p>
+
+        <!-- Large monospaced weight input -->
+        <div class="weight-input-wrap">
+          <input
+            type="number"
+            class="weight-input"
+            id="log-weight"
+            placeholder="175.0"
+            min="50" max="600"
+            step="0.1"
+            aria-label="Body weight in pounds"
+            inputmode="decimal"
+          >
+          <span class="weight-input__unit" id="weight-unit">lbs</span>
+        </div>
+
+        <!-- Delta display: shows change from last log -->
+        <div id="weight-delta-display" style="font-size:var(--text-sm); color:var(--color-text-muted); display:none; padding-left:var(--space-2);">
+          vs last: <span id="weight-delta-value" style="font-family:var(--font-mono); font-weight:700;"></span>
         </div>
       </section>
 
-      <!-- SECTION 2: Bodyweight Chart ────────────────────────── -->
-      <section aria-label="Bodyweight trend">
-        <div class="chart-card animate-fade-in-up">
+      <!-- ── SECTION 5: Energy & Mood ──────────────────────── -->
+      <section class="form-section animate-fade-in-up" aria-label="Energy and mood">
+        <p class="form-section-label">🧠 How do you feel today?</p>
+        <div class="quick-metrics">
 
-          <div class="chart-header">
-            <div class="chart-header__left">
-              <div class="chart-header__label">Bodyweight Trend</div>
+          <!-- Energy level selector -->
+          <div class="emoji-selector">
+            <div class="emoji-selector__label">Energy</div>
+            <div class="emoji-row" role="radiogroup" aria-label="Energy level" id="energy-selector">
+              <button class="emoji-btn" data-value="1" data-group="energy" role="radio" aria-checked="false" aria-label="Low energy" onclick="selectEmoji(this)">😴</button>
+              <button class="emoji-btn" data-value="2" data-group="energy" role="radio" aria-checked="false" aria-label="Medium energy" onclick="selectEmoji(this)">😐</button>
+              <button class="emoji-btn" data-value="3" data-group="energy" role="radio" aria-checked="false" aria-label="High energy" onclick="selectEmoji(this)">⚡</button>
+            </div>
+          </div>
+
+          <!-- Mood selector -->
+          <div class="emoji-selector">
+            <div class="emoji-selector__label">Mood</div>
+            <div class="emoji-row" role="radiogroup" aria-label="Mood" id="mood-selector">
+              <button class="emoji-btn" data-value="1" data-group="mood" role="radio" aria-checked="false" aria-label="Low mood" onclick="selectEmoji(this)">😔</button>
+              <button class="emoji-btn" data-value="2" data-group="mood" role="radio" aria-checked="false" aria-label="Neutral mood" onclick="selectEmoji(this)">🙂</button>
+              <button class="emoji-btn" data-value="3" data-group="mood" role="radio" aria-checked="false" aria-label="Great mood" onclick="selectEmoji(this)">🔥</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SECTION 6: Body Measurements (Accordion) ──────── -->
+      <section class="animate-fade-in-up" aria-label="Body measurements">
+        <div class="accordion" id="measurements-accordion">
+
+          <button
+            class="accordion__trigger"
+            aria-expanded="false"
+            aria-controls="measurements-body"
+            onclick="toggleAccordion('measurements-accordion')"
+          >
+            <div class="accordion__trigger-left">
+              <span style="font-size:16px;">📏</span>
               <div>
-                <span class="chart-header__value" id="weight-current-val">—</span>
-                <span class="chart-header__unit"> lbs</span>
-              </div>
-              <div class="chart-header__delta" id="weight-delta-display">—</div>
-            </div>
-          </div>
-
-          <!-- Tooltip bar: updates when data point is tapped -->
-          <div class="chart-tooltip-bar" id="weight-tooltip">
-            <span class="chart-tooltip-bar__date">Hover or tap a point</span>
-            <span class="chart-tooltip-bar__value" id="weight-tooltip-val">—</span>
-          </div>
-
-          <!-- SVG injected here by renderWeightChart() -->
-          <div id="weight-chart-container" aria-label="Bodyweight line chart" role="img">
-            <div class="skeleton" style="height:160px; border-radius:var(--radius-md);"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SECTION 3: Strength Chart (two lines: bench + squat) ── -->
-      <section aria-label="Strength trends">
-        <div class="chart-card animate-fade-in-up">
-
-          <div class="chart-header">
-            <div class="chart-header__left">
-              <div class="chart-header__label">Strength Progress</div>
-              <div class="chart-legend">
-                <div class="chart-legend-item">
-                  <div class="chart-legend-dot" style="background:var(--color-accent);"></div>
-                  <span>Bench Press</span>
-                </div>
-                <div class="chart-legend-item">
-                  <div class="chart-legend-dot" style="background:var(--color-blue);"></div>
-                  <span>Squat</span>
-                </div>
+                <div class="accordion__trigger-title">Body Measurements</div>
+                <div class="accordion__trigger-sub">Optional — chest, waist, hips, arms, thighs</div>
               </div>
             </div>
+            <span class="accordion__chevron" aria-hidden="true">▼</span>
+          </button>
+
+          <div class="accordion__body" id="measurements-body">
+            <div class="measurement-grid">
+              <!-- Each field: label + number input with "in" suffix -->
+              <div class="measurement-field">
+                <label class="measurement-field__label" for="m-chest">Chest (in)</label>
+                <div class="input-with-suffix">
+                  <input type="number" class="form-input" id="m-chest" step="0.25" min="20" max="80" placeholder="40.0" inputmode="decimal">
+                  <span class="input-with-suffix__suffix">in</span>
+                </div>
+              </div>
+              <div class="measurement-field">
+                <label class="measurement-field__label" for="m-waist">Waist (in)</label>
+                <div class="input-with-suffix">
+                  <input type="number" class="form-input" id="m-waist" step="0.25" min="20" max="80" placeholder="34.0" inputmode="decimal">
+                  <span class="input-with-suffix__suffix">in</span>
+                </div>
+              </div>
+              <div class="measurement-field">
+                <label class="measurement-field__label" for="m-hips">Hips (in)</label>
+                <div class="input-with-suffix">
+                  <input type="number" class="form-input" id="m-hips" step="0.25" min="20" max="80" placeholder="38.0" inputmode="decimal">
+                  <span class="input-with-suffix__suffix">in</span>
+                </div>
+              </div>
+              <div class="measurement-field">
+                <label class="measurement-field__label" for="m-l-arm">L. Arm (in)</label>
+                <div class="input-with-suffix">
+                  <input type="number" class="form-input" id="m-l-arm" step="0.25" min="8" max="30" placeholder="14.5" inputmode="decimal">
+                  <span class="input-with-suffix__suffix">in</span>
+                </div>
+              </div>
+              <div class="measurement-field">
+                <label class="measurement-field__label" for="m-r-arm">R. Arm (in)</label>
+                <div class="input-with-suffix">
+                  <input type="number" class="form-input" id="m-r-arm" step="0.25" min="8" max="30" placeholder="14.5" inputmode="decimal">
+                  <span class="input-with-suffix__suffix">in</span>
+                </div>
+              </div>
+              <div class="measurement-field">
+                <label class="measurement-field__label" for="m-l-thigh">L. Thigh (in)</label>
+                <div class="input-with-suffix">
+                  <input type="number" class="form-input" id="m-l-thigh" step="0.25" min="12" max="40" placeholder="24.0" inputmode="decimal">
+                  <span class="input-with-suffix__suffix">in</span>
+                </div>
+              </div>
+              <div class="measurement-field">
+                <label class="measurement-field__label" for="m-r-thigh">R. Thigh (in)</label>
+                <div class="input-with-suffix">
+                  <input type="number" class="form-input" id="m-r-thigh" step="0.25" min="12" max="40" placeholder="24.0" inputmode="decimal">
+                  <span class="input-with-suffix__suffix">in</span>
+                </div>
+              </div>
+              <div class="measurement-field">
+                <label class="measurement-field__label" for="m-neck">Neck (in)</label>
+                <div class="input-with-suffix">
+                  <input type="number" class="form-input" id="m-neck" step="0.25" min="10" max="30" placeholder="15.0" inputmode="decimal">
+                  <span class="input-with-suffix__suffix">in</span>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <!-- Tooltip -->
-          <div class="chart-tooltip-bar" id="strength-tooltip">
-            <span class="chart-tooltip-bar__date">Tap a point to see details</span>
-            <span class="chart-tooltip-bar__value" id="strength-tooltip-val">—</span>
+      <!-- ── SECTION 7: Progress Photo Upload ──────────────── -->
+      <section class="form-section animate-fade-in-up" aria-label="Progress photo">
+        <p class="form-section-label">📷 Progress Photo</p>
+        <p style="font-size:var(--text-xs); color:var(--color-text-muted);">
+          Stored locally on device. Sign in to sync to cloud.
+        </p>
+
+        <!-- Hidden native file input — triggered by .upload-zone click -->
+        <input
+          type="file"
+          id="photo-file-input"
+          accept="image/*"
+          capture="environment"
+          aria-label="Select a progress photo"
+        >
+
+        <!--
+          Upload Zone — the visible click target.
+          Shows placeholder OR preview depending on state.
+          Both are shown/hidden via the 'hidden' CSS class.
+        -->
+
+        <!-- PLACEHOLDER STATE: shown before photo is selected -->
+        <div
+          class="upload-zone"
+          id="upload-zone"
+          role="button"
+          tabindex="0"
+          aria-label="Upload a progress photo"
+          onclick="document.getElementById('photo-file-input').click()"
+          onkeydown="if(event.key==='Enter'||event.key===' ') document.getElementById('photo-file-input').click()"
+        >
+          <div class="upload-zone__icon" aria-hidden="true">📷</div>
+          <div class="upload-zone__title">Add a Progress Photo</div>
+          <div class="upload-zone__sub">Tap to browse · or drag & drop</div>
+          <div class="upload-zone__sub" style="font-family:var(--font-mono); font-size:var(--text-xs);">
+            JPEG · PNG · WEBP · max 10 MB
           </div>
+        </div>
 
-          <!--
-            Two SVG charts stacked vertically — one per lift.
-            Using separate SVGs rather than a multi-line chart for
-            simplicity. A multi-line chart requires careful legend
-            and tooltip handling that adds significant complexity.
-          -->
-          <div id="bench-chart-container" role="img" aria-label="Bench press line chart"></div>
-          <div id="squat-chart-container" role="img" aria-label="Squat line chart" style="margin-top:var(--space-3);"></div>
+        <!-- PREVIEW STATE: shown after FileReader loads the image (hidden by default) -->
+        <div class="upload-preview hidden" id="upload-preview">
+          <img id="preview-img" alt="Your progress photo preview">
+
+          <!-- Overlay buttons on the preview -->
+          <div class="upload-preview__overlay">
+            <button
+              class="btn btn--secondary btn--sm"
+              onclick="document.getElementById('photo-file-input').click()"
+              aria-label="Replace photo"
+            >↺ Replace</button>
+            <button
+              class="btn btn--danger btn--sm"
+              onclick="clearPhoto()"
+              aria-label="Remove photo"
+            >✕ Remove</button>
+          </div>
+        </div>
+
+        <!-- File metadata (shown after selection) -->
+        <div class="upload-preview__meta hidden" id="upload-meta">
+          <span id="meta-filename"></span>
+          <span id="meta-size"></span>
+          <span id="meta-dims"></span>
+        </div>
+
+        <!-- Upload progress indicator (shown during Supabase upload) -->
+        <div class="upload-progress" id="upload-progress">
+          <div class="spinner" style="width:18px; height:18px; border-width:2px;"></div>
+          <span>Uploading to cloud...</span>
         </div>
       </section>
 
-      <!-- SECTION 4: Personal Records Grid ───────────────────── -->
-      <section aria-label="Personal records">
-        <div class="section-header">
-          <h2 class="section-header__title">Personal Records</h2>
-          <a href="progress-log.html" class="section-header__link">+ Update</a>
-        </div>
-
-        <div class="pr-grid" id="pr-grid">
-          <!-- Skeleton placeholders -->
-          <div class="skeleton" style="height:110px; border-radius:var(--radius-lg);"></div>
-          <div class="skeleton" style="height:110px; border-radius:var(--radius-lg);"></div>
-          <div class="skeleton" style="height:110px; border-radius:var(--radius-lg);"></div>
-          <div class="skeleton" style="height:110px; border-radius:var(--radius-lg);"></div>
-        </div>
+      <!-- ── SECTION 8: Notes ──────────────────────────────── -->
+      <section class="form-section animate-fade-in-up">
+        <p class="form-section-label">📝 Notes</p>
+        <textarea
+          class="form-input"
+          id="log-notes"
+          placeholder="How did you feel this week? Any observations about your body, sleep, stress, or training?"
+          rows="4"
+          maxlength="500"
+          aria-label="Progress notes"
+        ></textarea>
+        <p class="notes-counter"><span id="notes-chars">0</span> / 500</p>
       </section>
 
-      <!-- SECTION 5: Body Measurements Snapshot ──────────────── -->
-      <section aria-label="Body measurements">
-        <div class="section-header">
-          <h2 class="section-header__title">Measurements</h2>
-          <span class="section-header__link" id="measurements-date">Latest entry</span>
-        </div>
-
-        <div class="measurement-snapshot-grid" id="measurements-grid">
-          <!-- Populated by JS -->
-        </div>
+      <!-- ── SECTION 9: Submit Button ──────────────────────── -->
+      <section class="animate-fade-in-up">
+        <button
+          class="btn btn--primary btn--lg btn--full"
+          id="submit-btn"
+          onclick="handleSubmit()"
+          aria-label="Save progress log entry"
+        >
+          <span>Save Today's Entry</span>
+          <span>→</span>
+        </button>
       </section>
 
-      <!-- SECTION 6: Progress Photos ─────────────────────────── -->
-      <section aria-label="Progress photos">
-        <div class="section-header">
-          <h2 class="section-header__title">Progress Photos</h2>
-          <a href="progress-log.html" class="section-header__link">Add Photo</a>
+      <!-- ── SECTION 10: Success Confirmation (hidden until save) -->
+      <div class="save-confirmation hidden" id="save-confirmation">
+        <div class="save-confirmation__icon">✅</div>
+        <div class="save-confirmation__title">Entry Saved!</div>
+        <div class="save-confirmation__sub" id="save-confirmation-sub">
+          Progress logged for today.
         </div>
-
-        <div class="photo-grid" id="photo-grid">
-          <!-- Populated by JS — shows stored photos or empty placeholders -->
-        </div>
-      </section>
+        <a href="stats.html" class="btn btn--ghost btn--md" style="margin-top:var(--space-3);">
+          View Stats →
+        </a>
+      </div>
 
       <div style="height: var(--space-8);"></div>
     </main>
 
     <div id="bottom-nav-container"></div>
-  </div>
+  </div><!-- end .app-shell -->
 
   <script src="script-merged.js"></script>
   
@@ -312,400 +393,436 @@
   <script>
     /**
      * ============================================================
-     * STATS PAGE SCRIPT
-     * stats.html — inline script
+     * PROGRESS LOG PAGE SCRIPT
+     * progress-log.html — inline script
      *
-     * KEY EDUCATIONAL CONCEPTS ON THIS PAGE:
+     * KEY FEATURES:
+     *   1. FileReader API — loads image file into base64 for preview
+     *   2. Accordion toggle — collapsible measurements section
+     *   3. Form assembly — collects all fields into one log entry object
+     *   4. localStorage persistence via StorageHelpers
+     *   5. Supabase upload placeholder for the photo
      *
-     * 1. PURE SVG CHART GENERATION
-     *    All charts are built by ChartUtils.buildLineChart() which
-     *    accepts a data array and returns an SVG string.
-     *    No libraries — every pixel is calculated from the coordinate
-     *    scaling math outlined at the top of this response.
-     *
-     * 2. DATA PIPELINE
-     *    Real data: StorageHelpers.getProgressLogs() → filter by range
-     *    Mock data: ChartUtils.generateMockWeightData() → same shape
-     *    Both pipelines produce [{value, date, label}] arrays.
-     *    The chart function doesn't know or care which source provided
-     *    the data — it just receives the array.
-     *
-     * 3. TIME RANGE SWITCHING
-     *    ChartUtils.filterByRange(fullDataset, days) slices the
-     *    full dataset to the selected window (7/30/90/∞ days).
-     *    All charts re-render from the filtered slice.
+     * DATA SHAPE (what gets saved):
+     *   {
+     *     id:           string (timestamp-based UUID),
+     *     date:         'YYYY-MM-DD',
+     *     weightLbs:    number | null,
+     *     energy:       1|2|3 | null,
+     *     mood:         1|2|3 | null,
+     *     measurements: { chest, waist, hips, leftArm, rightArm, leftThigh, rightThigh, neck },
+     *     photoDataUrl: string | null  (base64 — used locally until Supabase upload),
+     *     photoCloudUrl:string | null  (Supabase Storage public URL after upload),
+     *     notes:        string,
+     *     savedAt:      ISO timestamp,
+     *   }
      * ============================================================
      */
 
     /* ─── PAGE STATE ─────────────────────────────────────────────
+       One object tracks everything ephemeral about this page session.
     ─────────────────────────────────────────────────────────── */
-    let currentRange  = 30;      // Days to show (default: 1 month)
-    let profile       = null;
-
-    // Full datasets (all-time) — filtered before rendering
-    let weightDataFull  = [];
-    let benchDataFull   = [];
-    let squatDataFull   = [];
-
-
-    /* ─── MOCK PERSONAL RECORDS ─────────────────────────────────
-       Static mock PRs shown until real data is available.
-       In production: await SupabaseAPI.getPersonalRecords(userId)
-    ─────────────────────────────────────────────────────────── */
-    const MOCK_PRs = [
-      { lift: 'Bench Press',   current: 185, prev: 180, unit: 'lbs', date: 'Apr 15', improved: true },
-      { lift: 'Barbell Squat', current: 265, prev: 255, unit: 'lbs', date: 'Apr 8',  improved: true },
-      { lift: 'Deadlift',      current: 315, prev: 315, unit: 'lbs', date: 'Mar 22', improved: false },
-      { lift: 'Overhead Press',current: 125, prev: 120, unit: 'lbs', date: 'Apr 1',  improved: true },
-    ];
-
-    /* ─── MEASUREMENT DISPLAY CONFIG ────────────────────────────
-    ─────────────────────────────────────────────────────────── */
-    const MEASUREMENT_FIELDS = [
-      { key: 'chest',      label: 'Chest',   unit: 'in' },
-      { key: 'waist',      label: 'Waist',   unit: 'in' },
-      { key: 'hips',       label: 'Hips',    unit: 'in' },
-      { key: 'leftArm',    label: 'L. Arm',  unit: 'in' },
-      { key: 'rightArm',   label: 'R. Arm',  unit: 'in' },
-      { key: 'neck',       label: 'Neck',    unit: 'in' },
-    ];
+    const logState = {
+      energy:       null, // 1|2|3 selected emoji value
+      mood:         null, // 1|2|3 selected emoji value
+      pendingPhoto: null, // { dataUrl, filename, mimeType, sizeBytes, width, height }
+    };
 
 
     /* ─── INITIALIZATION ────────────────────────────────────────
     ─────────────────────────────────────────────────────────── */
-    document.addEventListener('DOMContentLoaded', async () => {
-      profile = AppState.getProfile();
+    document.addEventListener('DOMContentLoaded', () => {
 
-      // ── Load real progress logs from localStorage ────────────
-      const realLogs = StorageHelpers.getProgressLogs();
-      const hasRealData = realLogs.length >= 2;
+      // Set the date input to today
+      const today = UIHelpers.getTodayString();
+      const dateInput = document.getElementById('log-date');
+      if (dateInput) dateInput.value = today;
+      UIHelpers.setText('#entry-date-display', UIHelpers.formatDate(new Date(), 'short'));
 
-      if (hasRealData) {
-        // Real data path: build datasets from stored log entries
-        weightDataFull = realLogs
-          .filter(l => l.weightLbs)
-          .map(l => ({
-            value: l.weightLbs,
-            date:  l.date,
-            label: new Date(l.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          }));
+      // Pre-fill weight with last logged value
+      prefillFromLastEntry();
 
-        // Strength data from stored PRs (placeholder — full implementation
-        // would log individual set data in the progress-log form)
-        benchDataFull = [];
-        squatDataFull = [];
+      // Wire up notes character counter
+      document.getElementById('log-notes')?.addEventListener('input', (e) => {
+        UIHelpers.setText('#notes-chars', e.target.value.length);
+      });
 
-        // Hide demo badge when real data is present
-        const demoBadge = document.getElementById('demo-badge');
-        if (demoBadge) {
-          UIHelpers.setText('#demo-badge-text', `${realLogs.length} logged entries`);
-        }
+      // Wire up weight input → live delta calculation
+      document.getElementById('log-weight')?.addEventListener('input', updateWeightDelta);
 
-      } else {
-        // Demo data path: generate plausible mock data from profile
-        weightDataFull = ChartUtils.generateMockWeightData(profile, 12);
-        benchDataFull  = ChartUtils.generateMockStrengthData(185, 10, 2.5);
-        squatDataFull  = ChartUtils.generateMockStrengthData(265, 10, 3.5);
-      }
+      // Wire up date input → update header display
+      dateInput?.addEventListener('change', (e) => {
+        const d = e.target.value ? new Date(e.target.value + 'T12:00:00') : new Date();
+        UIHelpers.setText('#entry-date-display', UIHelpers.formatDate(d, 'short'));
+      });
 
-      // ── Render all sections ──────────────────────────────────
-      renderAllCharts();
-      renderPRGrid(MOCK_PRs);
-      renderMeasurements(realLogs);
-      renderPhotoGrid();
+      // Wire up photo file input → FileReader
+      document.getElementById('photo-file-input')?.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (file) processPhotoFile(file);
+      });
+
+      // Wire up drag-and-drop on the upload zone
+      initDragAndDrop();
     });
 
 
     /* ─────────────────────────────────────────────────────────────
-       SET TIME RANGE — called by the 1W / 1M / 3M / All buttons
+       PREFILL FROM LAST ENTRY
+       Loads the most recent log and pre-fills the weight field.
     ─────────────────────────────────────────────────────────── */
-    function setTimeRange(days, btn) {
-      currentRange = days;
+    function prefillFromLastEntry() {
+      const logs = StorageHelpers.getProgressLogs();
+      if (logs.length === 0) return;
 
-      // Update active button
-      document.querySelectorAll('.time-range-btn').forEach(b => {
-        b.classList.toggle('is-active', b === btn);
-      });
+      // Most recent log (array is sorted ascending, so last element = newest)
+      const last = logs[logs.length - 1];
 
-      // Re-render all charts with filtered data
-      renderAllCharts();
-    }
+      // Show "last logged" comparison card
+      UIHelpers.setText('#prev-entry-date', UIHelpers.formatDate(last.date + 'T12:00:00'));
+      UIHelpers.setText('#prev-entry-weight', last.weightLbs ? `${last.weightLbs} lbs` : '—');
 
-
-    /* ─────────────────────────────────────────────────────────────
-       RENDER ALL CHARTS
-       Called on init and on range switch. Slices all full datasets
-       to currentRange, then renders each chart.
-    ─────────────────────────────────────────────────────────── */
-    function renderAllCharts() {
-      renderWeightChart();
-      renderStrengthCharts();
-    }
-
-
-    /* ─────────────────────────────────────────────────────────────
-       RENDER: BODYWEIGHT CHART
-
-       EDUCATIONAL FOCUS: This is where ChartUtils.buildLineChart()
-       is called. The function is purely mathematical — it takes a
-       data array and options, and returns an SVG string.
-       We inject that string into the DOM with innerHTML.
-    ─────────────────────────────────────────────────────────── */
-    function renderWeightChart() {
-      const container = document.getElementById('weight-chart-container');
-      if (!container) return;
-
-      // Filter to selected range
-      const data = ChartUtils.filterByRange(weightDataFull, currentRange);
-
-      // Build the SVG string
-      const svgString = ChartUtils.buildLineChart(data, {
-        color:  'var(--color-accent)', // Lime
-        gradId: 'weight',
-        unit:   'lbs',
-        W: 340, H: 160, P: 38,
-      });
-
-      container.innerHTML = svgString;
-
-      // ── Add interactive point circles ──────────────────────────
-      // After injecting SVG, make data points tappable.
-      // We find the <circle> elements and add click listeners.
-      // This is done AFTER innerHTML = ... because we need the
-      // SVG to be in the DOM first.
-      addChartInteractivity(container, data, 'weight', 'lbs');
-
-      // ── Update header values ───────────────────────────────────
-      if (data.length > 0) {
-        const latest = data[data.length - 1];
-        const first  = data[0];
-        const delta  = Math.round((latest.value - first.value) * 10) / 10;
-        const sign   = delta >= 0 ? '+' : '';
-
-        UIHelpers.setText('#weight-current-val', latest.value.toFixed(1));
-
-        const deltaEl = document.getElementById('weight-delta-display');
-        if (deltaEl) {
-          const color = delta < 0 ? 'var(--color-success)' : 'var(--color-danger)';
-          deltaEl.innerHTML = `
-            <span style="color:${color}; font-family:var(--font-mono); font-size:var(--text-sm); font-weight:700;">
-              ${sign}${delta} lbs
-            </span>
-            <span style="color:var(--color-text-muted); font-size:var(--text-xs);">
-              vs ${data.length > 1 ? data[0].label : '—'}
-            </span>
-          `;
-        }
+      // Pre-fill weight input with last value as a starting point
+      const weightInput = document.getElementById('log-weight');
+      if (weightInput && last.weightLbs) {
+        weightInput.value = last.weightLbs;
       }
     }
 
+    /** Compute and display weight delta vs. last entry */
+    function updateWeightDelta() {
+      const logs = StorageHelpers.getProgressLogs();
+      if (logs.length === 0) return;
 
-    /* ─────────────────────────────────────────────────────────────
-       RENDER: STRENGTH CHARTS (Bench + Squat)
-    ─────────────────────────────────────────────────────────── */
-    function renderStrengthCharts() {
-      // Bench Press (lime)
-      const benchData = ChartUtils.filterByRange(benchDataFull, currentRange);
-      document.getElementById('bench-chart-container').innerHTML =
-        ChartUtils.buildLineChart(benchData, {
-          color: 'var(--color-accent)',
-          gradId: 'bench', unit: 'lbs', W: 340, H: 140, P: 38,
-        });
+      const lastWeight = logs[logs.length - 1]?.weightLbs;
+      const currentRaw = document.getElementById('log-weight')?.value;
 
-      addChartInteractivity(
-        document.getElementById('bench-chart-container'),
-        benchData, 'strength', 'lbs', 'Bench'
-      );
-
-      // Squat (blue)
-      const squatData = ChartUtils.filterByRange(squatDataFull, currentRange);
-      document.getElementById('squat-chart-container').innerHTML =
-        ChartUtils.buildLineChart(squatData, {
-          color: 'var(--color-blue)',
-          gradId: 'squat', unit: 'lbs', W: 340, H: 140, P: 38,
-        });
-
-      addChartInteractivity(
-        document.getElementById('squat-chart-container'),
-        squatData, 'strength', 'lbs', 'Squat'
-      );
-    }
-
-
-    /* ─────────────────────────────────────────────────────────────
-       ADD CHART INTERACTIVITY
-       After SVG is injected, makes data points tappable.
-       On tap: updates the tooltip bar above the chart.
-
-       We identify data points by their position among <circle>
-       elements in the SVG. The order matches the data array.
-    ─────────────────────────────────────────────────────────── */
-    function addChartInteractivity(container, data, chartId, unit, prefix = '') {
-      if (!container || !data || data.length === 0) return;
-
-      // Select all circles that are data points.
-      // The last point in buildLineChart is the large filled circle (latest value).
-      const circles = container.querySelectorAll('circle');
-
-      circles.forEach((circle, idx) => {
-        if (idx >= data.length) return; // guard
-
-        const point = data[idx];
-
-        // Make each circle larger for easier tapping on mobile
-        // by adding an invisible hit-area circle behind it
-        circle.style.cursor = 'pointer';
-
-        circle.addEventListener('click', () => {
-          updateTooltip(chartId, point, unit, prefix);
-        });
-
-        // Desktop hover
-        circle.addEventListener('mouseenter', () => {
-          updateTooltip(chartId, point, unit, prefix);
-        });
-      });
-    }
-
-    function updateTooltip(chartId, point, unit, prefix) {
-      const tooltipEl   = document.getElementById(`${chartId}-tooltip`);
-      if (!tooltipEl) return;
-
-      const dateEl  = tooltipEl.querySelector('.chart-tooltip-bar__date');
-      const valueEl = tooltipEl.querySelector('.chart-tooltip-bar__value');
-
-      if (dateEl)  dateEl.textContent  = point.label;
-      if (valueEl) valueEl.textContent = `${prefix ? prefix + ': ' : ''}${point.value} ${unit}`;
-    }
-
-
-    /* ─────────────────────────────────────────────────────────────
-       RENDER: PERSONAL RECORD GRID
-    ─────────────────────────────────────────────────────────── */
-    function renderPRGrid(records) {
-      const grid = document.getElementById('pr-grid');
-      if (!grid) return;
-
-      grid.innerHTML = records.map(pr => {
-        const improvement = pr.current - pr.prev;
-        const sign        = improvement >= 0 ? '+' : '';
-
-        return `
-          <div class="pr-card">
-            <div class="pr-card__badge">PR</div>
-            <div class="pr-card__lift">${UIHelpers.escapeHTML(pr.lift)}</div>
-            <div>
-              <span class="pr-card__weight">${pr.current}</span>
-              <span class="pr-card__unit"> ${pr.unit}</span>
-            </div>
-            <div class="pr-card__improvement pr-card__improvement--${pr.improved ? 'up' : 'same'}">
-              ${pr.improved
-                ? `<span>↑</span><span>${sign}${improvement} ${pr.unit}</span>`
-                : `<span>→</span><span>No change</span>`}
-            </div>
-            <div class="pr-card__date">${UIHelpers.escapeHTML(pr.date)}</div>
-          </div>
-        `;
-      }).join('');
-    }
-
-
-    /* ─────────────────────────────────────────────────────────────
-       RENDER: BODY MEASUREMENTS SNAPSHOT
-       Shows the most recent logged measurements.
-    ─────────────────────────────────────────────────────────── */
-    function renderMeasurements(logs) {
-      const grid = document.getElementById('measurements-grid');
-      if (!grid) return;
-
-      // Find the most recent log with at least one measurement
-      const latest = [...logs]
-        .reverse()
-        .find(l => l.measurements && Object.values(l.measurements).some(v => v !== null));
-
-      if (!latest) {
-        grid.innerHTML = `
-          <div style="grid-column:1/-1; text-align:center; padding:var(--space-6); color:var(--color-text-muted); font-size:var(--text-sm);">
-            No measurements logged yet.
-            <br>
-            <a href="progress-log.html" style="color:var(--color-accent); margin-top:var(--space-2); display:inline-block;">
-              Log your first measurement →
-            </a>
-          </div>
-        `;
+      if (!lastWeight || !currentRaw) {
+        UIHelpers.hide('#weight-delta-display');
         return;
       }
 
-      UIHelpers.setText(
-        '#measurements-date',
-        UIHelpers.formatDate(latest.date + 'T12:00:00', 'short')
-      );
+      const current = parseFloat(currentRaw);
+      const delta   = Math.round((current - lastWeight) * 10) / 10;
+      const sign    = delta >= 0 ? '+' : '';
+      const color   = delta < 0 ? 'var(--color-success)' : 'var(--color-danger)';
+      // Fat loss: lower = good (green). Muscle gain: higher = good. We keep it neutral.
 
-      grid.innerHTML = MEASUREMENT_FIELDS.map(field => {
-        const val = latest.measurements?.[field.key];
-        if (val === null || val === undefined) return '';
+      const deltaEl = document.getElementById('weight-delta-value');
+      if (deltaEl) {
+        deltaEl.textContent = `${sign}${delta} lbs`;
+        deltaEl.style.color = Math.abs(delta) < 0.1 ? 'var(--color-text-muted)' : color;
+      }
 
-        return `
-          <div class="measurement-snapshot">
-            <div class="measurement-snapshot__label">${field.label}</div>
-            <div class="measurement-snapshot__value">${val}"</div>
-          </div>
-        `;
-      }).filter(Boolean).join('') || `
-        <div style="grid-column:1/-1; color:var(--color-text-muted); font-size:var(--text-sm); text-align:center; padding:var(--space-4);">
-          No measurements in latest entry.
-        </div>
-      `;
+      UIHelpers.show('#weight-delta-display');
     }
 
 
     /* ─────────────────────────────────────────────────────────────
-       RENDER: PROGRESS PHOTO GRID
-       Shows stored photos + empty placeholder slots (up to 6 total).
+       FILE READER — PHOTO UPLOAD
+       This is the most educationally important function on this page.
+
+       The FileReader API is a browser-native way to read files
+       selected by the user WITHOUT uploading them to a server first.
+       It converts the file to a base64 "data URL" string that you
+       can use directly as an <img src> attribute.
+
+       FLOW:
+         1. User selects/drops a file
+         2. We validate type and size
+         3. Create a FileReader instance (like opening a file handle)
+         4. Register reader.onload callback (called when reading finishes)
+         5. Call reader.readAsDataURL(file) — starts the async read
+         6. onload fires with event.target.result = the base64 string
+         7. We set <img src> to that string → image appears instantly
+         8. We save the string to logState.pendingPhoto for form submission
+
+       Python analogy:
+         with open(filepath, 'rb') as f:
+             data = f.read()
+         base64_str = base64.b64encode(data).decode()
+         # Then use base64_str as the image source
     ─────────────────────────────────────────────────────────── */
-    function renderPhotoGrid() {
-      const grid = document.getElementById('photo-grid');
-      if (!grid) return;
+    function processPhotoFile(file) {
 
-      const photos    = StorageHelpers.getProgressPhotos().slice(0, 6);
-      const GRID_SIZE = 6; // Always show 6 cells
-      const emptyCells = Math.max(0, GRID_SIZE - photos.length);
+      // ── Step 1: Validate file type ─────────────────────────
+      if (!file.type.startsWith('image/')) {
+        UIHelpers.showToast('Please select an image file (JPEG, PNG, WEBP).', 'error');
+        return;
+      }
 
-      // Build filled cells (actual photos)
-      const filledCells = photos.map(photo => {
-        if (photo.dataUrl) {
-          // Has a base64 photo
-          return `
-            <div class="photo-cell">
-              <img
-                src="${photo.dataUrl}"
-                alt="Progress photo from ${UIHelpers.formatDate(photo.date + 'T12:00:00', 'short')}"
-                loading="lazy"
-              >
-              <div class="photo-cell__date">
-                ${UIHelpers.formatDate(photo.date + 'T12:00:00', 'short')}
-              </div>
-            </div>
-          `;
-        } else {
-          // Photo metadata only (base64 was pruned due to storage limits)
-          return `
-            <div class="photo-cell" style="background:var(--color-bg-elevated);">
-              <div class="photo-cell__date">${UIHelpers.formatDate(photo.date + 'T12:00:00', 'short')}</div>
-              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%); font-size:20px; opacity:0.3;">📷</div>
-            </div>
-          `;
-        }
+      // ── Step 2: Validate file size (10MB max) ──────────────
+      const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
+      if (file.size > MAX_BYTES) {
+        UIHelpers.showToast(`Image too large. Max size is 10 MB (yours: ${(file.size / 1024 / 1024).toFixed(1)} MB)`, 'error');
+        return;
+      }
+
+      // ── Step 3: Create a FileReader instance ───────────────
+      // FileReader is a browser-built-in class — no import needed.
+      // It's like a worker that reads files asynchronously.
+      const reader = new FileReader();
+
+      // ── Step 4: Register the onload callback ───────────────
+      // This function runs AFTER the file has been fully read.
+      // event.target.result = the base64 data URL string.
+      reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        // dataUrl looks like: "data:image/jpeg;base64,/9j/4AAQSkZJRgAB..."
+
+        // ── Step 5a: Show the preview image ─────────────────
+        const previewImg = document.getElementById('preview-img');
+        if (previewImg) previewImg.src = dataUrl;
+
+        // ── Step 5b: Swap placeholder ↔ preview ─────────────
+        UIHelpers.hide('#upload-zone');
+        UIHelpers.show('#upload-preview');
+
+        // ── Step 5c: Show file metadata ──────────────────────
+        UIHelpers.show('#upload-meta');
+        UIHelpers.setText('#meta-filename', file.name);
+        UIHelpers.setText('#meta-size', `${(file.size / 1024).toFixed(0)} KB`);
+
+        // Get image dimensions from the loaded image element
+        previewImg.onload = () => {
+          UIHelpers.setText('#meta-dims', `${previewImg.naturalWidth}×${previewImg.naturalHeight}`);
+        };
+
+        // ── Step 5d: Store for form submission ───────────────
+        // This is kept in logState.pendingPhoto — it will be:
+        //   a) Saved to localStorage immediately (local backup)
+        //   b) Uploaded to Supabase Storage on form submit
+        logState.pendingPhoto = {
+          dataUrl,                     // The full base64 string
+          filename:  file.name,
+          mimeType:  file.type,
+          sizeBytes: file.size,
+        };
+      };
+
+      // ── Register error handler ──────────────────────────────
+      reader.onerror = () => {
+        UIHelpers.showToast('Failed to read the image file. Please try again.', 'error');
+      };
+
+      // ── Step 5: START reading the file ─────────────────────
+      // readAsDataURL() is the trigger that starts the async read.
+      // It automatically encodes the file as base64.
+      // When complete, reader.onload fires with the result.
+      reader.readAsDataURL(file);
+    }
+
+    /** Clear the selected photo — reset to placeholder state */
+    function clearPhoto() {
+      logState.pendingPhoto = null;
+
+      // Reset the file input so the same file can be re-selected
+      const input = document.getElementById('photo-file-input');
+      if (input) input.value = '';
+
+      // Reset the preview image src
+      const previewImg = document.getElementById('preview-img');
+      if (previewImg) previewImg.src = '';
+
+      // Swap preview → placeholder
+      UIHelpers.show('#upload-zone');
+      UIHelpers.hide('#upload-preview');
+      UIHelpers.hide('#upload-meta');
+    }
+
+    /** Initialize drag-and-drop listeners on the upload zone */
+    function initDragAndDrop() {
+      const zone = document.getElementById('upload-zone');
+      if (!zone) return;
+
+      // dragover: must call preventDefault() to allow the drop
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.classList.add('is-drag-over');
       });
 
-      // Build empty placeholder cells
-      const emptyHTML = Array.from({ length: emptyCells }, () => `
-        <a class="photo-cell photo-cell--empty" href="progress-log.html" aria-label="Add a progress photo">
-          <div class="photo-cell--empty__icon">+</div>
-        </a>
-      `);
+      zone.addEventListener('dragleave', () => {
+        zone.classList.remove('is-drag-over');
+      });
 
-      grid.innerHTML = [...filledCells, ...emptyHTML].join('');
+      // drop: extract the file from the drag event and process it
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('is-drag-over');
+        const file = e.dataTransfer?.files?.[0];
+        if (file) processPhotoFile(file);
+      });
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────
+       EMOJI SELECTOR — Energy & Mood
+    ─────────────────────────────────────────────────────────── */
+    function selectEmoji(btn) {
+      const group = btn.dataset.group; // 'energy' or 'mood'
+      const value = parseInt(btn.dataset.value, 10);
+
+      // Deselect all in the same group
+      document.querySelectorAll(`[data-group="${group}"]`).forEach(el => {
+        el.classList.remove('is-selected');
+        el.setAttribute('aria-checked', 'false');
+      });
+
+      // Select this one
+      btn.classList.add('is-selected');
+      btn.setAttribute('aria-checked', 'true');
+
+      // Store in logState
+      logState[group] = value;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────
+       ACCORDION TOGGLE — Body Measurements
+    ─────────────────────────────────────────────────────────── */
+    function toggleAccordion(accordionId) {
+      const accordion = document.getElementById(accordionId);
+      if (!accordion) return;
+
+      const isOpen  = accordion.classList.contains('is-open');
+      const trigger = accordion.querySelector('.accordion__trigger');
+
+      accordion.classList.toggle('is-open', !isOpen);
+      trigger?.setAttribute('aria-expanded', String(!isOpen));
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────
+       FORM SUBMISSION — Assemble and Save
+    ─────────────────────────────────────────────────────────── */
+    async function handleSubmit() {
+      const submitBtn = document.getElementById('submit-btn');
+
+      // ── Validate: weight is the only required field ─────────
+      const weightRaw = document.getElementById('log-weight')?.value;
+      if (!weightRaw || isNaN(parseFloat(weightRaw))) {
+        UIHelpers.showToast('Please enter your body weight to continue.', 'error');
+        document.getElementById('log-weight')?.focus();
+        return;
+      }
+
+      // Show loading state
+      submitBtn.disabled = true;
+      const btnText = document.getElementById('submit-btn');
+      btnText.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;margin:0 auto;"></div>';
+
+      try {
+        // ── Collect all form values ──────────────────────────
+        const date      = document.getElementById('log-date')?.value ?? UIHelpers.getTodayString();
+        const weightLbs = parseFloat(weightRaw);
+
+        // Measurements (null if field is empty)
+        const getM = id => {
+          const val = document.getElementById(id)?.value;
+          return val ? parseFloat(val) : null;
+        };
+
+        const measurements = {
+          chest:      getM('m-chest'),
+          waist:      getM('m-waist'),
+          hips:       getM('m-hips'),
+          leftArm:    getM('m-l-arm'),
+          rightArm:   getM('m-r-arm'),
+          leftThigh:  getM('m-l-thigh'),
+          rightThigh: getM('m-r-thigh'),
+          neck:       getM('m-neck'),
+        };
+
+        const notes = document.getElementById('log-notes')?.value.trim() ?? '';
+
+        // ── Handle photo upload ──────────────────────────────
+        let photoCloudUrl = null;
+
+        if (logState.pendingPhoto) {
+          // Show upload progress indicator
+          UIHelpers.show('#upload-progress');
+
+          try {
+            const profile = AppState.getProfile();
+            const result  = await SupabaseAPI.uploadPhoto(
+              logState.pendingPhoto.dataUrl,
+              logState.pendingPhoto.filename,
+              profile?.id ?? 'guest'
+            );
+            photoCloudUrl = result.publicUrl;
+          } catch (uploadErr) {
+            console.warn('Photo upload failed (will use local copy):', uploadErr);
+            // Non-fatal: we still save the local base64 copy
+          } finally {
+            UIHelpers.hide('#upload-progress');
+          }
+        }
+
+        // ── Assemble the complete log entry object ────────────
+        const entry = {
+          id:            `log-${Date.now()}`,
+          date,
+          weightLbs,
+          energy:        logState.energy,
+          mood:          logState.mood,
+          measurements,
+          photoDataUrl:  logState.pendingPhoto?.dataUrl ?? null,  // local copy
+          photoCloudUrl,                                           // Supabase URL
+          notes,
+          savedAt:       new Date().toISOString(),
+        };
+
+        // ── Save to localStorage (immediate, synchronous) ─────
+        StorageHelpers.saveProgressLog(entry);
+
+        // ── Save photo metadata separately ───────────────────
+        if (logState.pendingPhoto || photoCloudUrl) {
+          StorageHelpers.saveProgressPhoto({
+            id:      entry.id,
+            date:    entry.date,
+            dataUrl: entry.photoDataUrl,
+            cloudUrl:entry.photoCloudUrl,
+            caption: notes.slice(0, 60) || '',
+          });
+        }
+
+        // ── Supabase sync placeholder ─────────────────────────
+        SupabaseAPI.saveProgressLog(entry).catch(err => {
+          console.warn('Supabase progress log sync failed:', err);
+        });
+
+        // ── Show success state ────────────────────────────────
+        showSaveConfirmation(entry);
+
+      } catch (error) {
+        console.error('Save failed:', error);
+        UIHelpers.showToast('Failed to save entry. Please try again.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Save Today\'s Entry</span><span>→</span>';
+      }
+    }
+
+    /** Show the success confirmation card and hide the submit button */
+    function showSaveConfirmation(entry) {
+      // Hide the submit button
+      UIHelpers.hide('#submit-btn');
+
+      // Update the confirmation subtitle with what was saved
+      const summaryParts = [`${entry.weightLbs} lbs`];
+      if (entry.photoDataUrl) summaryParts.push('photo saved');
+      if (Object.values(entry.measurements).some(v => v !== null)) summaryParts.push('measurements logged');
+
+      UIHelpers.setText('#save-confirmation-sub',
+        `${summaryParts.join(' · ')} — ${UIHelpers.formatDate(entry.date + 'T12:00:00', 'short')}`
+      );
+
+      // Show the confirmation card
+      UIHelpers.show('#save-confirmation');
+
+      // Scroll to the confirmation
+      document.getElementById('save-confirmation')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      UIHelpers.showToast('Progress logged! 📊', 'success');
     }
   </script>
 </body>
