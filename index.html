@@ -233,7 +233,7 @@
 
       if (token && profile?.onboardingComplete) {
         // Returning user: fully set up → go straight to dashboard
-        window.location.replace('index.html');
+        window.location.replace('dashboard.html');
         return;
       }
 
@@ -278,7 +278,7 @@
         if (existingProfile?.onboardingComplete) {
           // Returning user → update AppState and go to dashboard
           await AppState.saveProfile(existingProfile);
-          window.location.replace('index.html');
+          window.location.replace('dashboard.html');
         } else {
           // New user → go to onboarding
           window.location.replace('onboarding.html');
@@ -307,7 +307,7 @@
 
       if (existingProfile?.onboardingComplete) {
         // Guest has completed onboarding in a previous session
-        window.location.replace('index.html');
+        window.location.replace('dashboard.html');
       } else {
         // First time → go to onboarding
         window.location.replace('onboarding.html');
