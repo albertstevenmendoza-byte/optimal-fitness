@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#090b10">
+  <meta name="description" content="FitForge Onboarding — Set up your personalized fitness plan">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <title>FitForge — Let's Build Your Plan</title>
+
+  <style>
+    /* ─── ONBOARDING-SPECIFIC LAYOUT ─────────────────────────── */
+
+    /* No bottom nav on onboarding — we use our own progress system */
+    body {
+      background: var(--color-bg-base);
+    }
+
+    .onboarding-shell {
+      width: 100%;
+      max-width: var(--max-width-app);
+      min-height: 100dvh;
+      background: var(--color-bg-base);
+      display: flex;
+      flex-direction: column;
+      margin: 0 auto;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ─── PROGRESS BAR (top of page) ─────────────────────────── */
+
+    .onboarding-progress-bar {
+      height: 3px;
+      background: var(--color-bg-elevated);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .onboarding-progress-bar__fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-accent-dim), var(--color-accent));
+      transition: width var(--transition-slow);
+      width: 0%;
+      border-radius: 0 var(--radius-full) var(--radius-full) 0;
+    }
+
+    /* ─── ONBOARDING HEADER ──────────────────────────────────── */
+
+    .onboarding-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-5);
+      height: var(--header-height);
+    }
+
+    .onboarding-header__back {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background: var(--color-bg-elevated);
+      border: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: all var(--transition-fast);
+      user-select: none;
+    }
+    .onboarding-header__back:hover {
+      border-color: var(--color-border-accent);
+    }
+    .onboarding-header__back.is-invisible {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .onboarding-header__step-label {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-bold);
+      letter-spacing: var(--tracking-widest);
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+    }
+
+    .onboarding-header__skip {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius-sm);
+      transition: color var(--transition-fast);
+    }
+    .onboarding-header__skip:hover {
+      color: var(--color-text-secondary);
+    }
+
+    /* ─── STEP CONTENT AREA ──────────────────────────────────── */
+
+    .onboarding-steps-viewport {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* 
+      Each step is a full-height, full-width panel.
+      Only the active step is visible; others are hidden.
+      Transitions handle the slide animation.
+    */
+    .onboarding-step {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: var(--space-6) var(--space-5);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+
+      /* Hidden by default */
+      opacity: 0;
+      transform: translateX(30px);
+      pointer-events: none;
+      transition: opacity 280ms ease, transform 280ms ease;
+    }
+
+    .onboarding-step.is-active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    /* Heading inside each step */
+    .step-heading {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .step-heading__eyebrow {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-bold);
+      letter-spacing: var(--tracking-widest);
+      text-transform: uppercase;
+      color: var(--color-accent);
+    }
+
+    .step-heading__title {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-text-primary);
+    }
+
+    .step-heading__subtitle {
+      font-size: var(--text-base);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+
+    /* ─── OPTIONS GRID (for goal/activity selection) ──────────── */
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    /* ─── BIOMETRIC INPUT FORM ───────────────────────────────── */
+
+    .biometric-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+
+    /* Sex toggle (Male / Female) */
+    .sex-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+    }
+
+    .sex-toggle__btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-4);
+      background: var(--color-bg-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-family: var(--font-body);
+    }
+
+    .sex-toggle__btn:hover {
+      border-color: rgba(200, 255, 0, 0.2);
+    }
+
+    .sex-toggle__btn.is-selected {
+      border-color: var(--color-accent);
+      background: var(--color-accent-subtle);
+    }
+
+    .sex-toggle__icon { font-size: 28px; }
+    .sex-toggle__label {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-bold);
+      color: var(--color-text-primary);
+    }
+
+    /* Weight/height display above the slider */
+    .slider-display {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: var(--space-2);
+    }
+
+    .slider-display__value {
+      font-family: var(--font-mono);
+      font-size: var(--text-2xl);
+      color: var(--color-text-primary);
+      letter-spacing: -0.03em;
+    }
+
+    .slider-display__unit {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+    }
+
+    /* ─── FOOD TAGS GRID ─────────────────────────────────────── */
+
+    .food-tags-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    /* ─── COMPLETION / RESULTS STEP ──────────────────────────── */
+
+    .results-card {
+      background: linear-gradient(135deg, var(--color-bg-surface), var(--color-bg-elevated));
+      border: 1px solid var(--color-border-accent);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .results-card::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(200, 255, 0, 0.08) 0%, transparent 70%);
+    }
+
+    .results-macro-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .results-macro-row:last-child {
+      border-bottom: none;
+    }
+
+    .results-macro-row__label {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .results-macro-row__dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .results-macro-row__value {
+      font-family: var(--font-mono);
+      font-size: var(--text-md);
+      font-weight: var(--weight-bold);
+      color: var(--color-text-primary);
+    }
+
+    /* ─── FOOTER CTA (Next / Finish button area) ─────────────── */
+
+    .onboarding-footer {
+      padding: var(--space-5) var(--space-5);
+      padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+      border-top: 1px solid var(--color-border);
+      background: rgba(9, 11, 16, 0.95);
+      backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="onboarding-shell" id="onboarding-shell">
+
+    <!-- ════════════════════════════════════════════════════
+         TOP PROGRESS BAR
+         Fills left-to-right as user completes steps.
+         ═════════════════════════════════════════════════ -->
+    <div class="onboarding-progress-bar" role="progressbar"
+         aria-label="Onboarding progress"
+         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+         id="progress-bar-container">
+      <div class="onboarding-progress-bar__fill" id="progress-bar-fill"></div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         HEADER with Back button and step counter
+         ═════════════════════════════════════════════════ -->
+    <header class="onboarding-header">
+      <button class="onboarding-header__back is-invisible"
+              id="btn-back"
+              aria-label="Go back to previous step">
+        ←
+      </button>
+
+      <span class="onboarding-header__step-label" id="step-counter">Step 1 of 6</span>
+
+      <button class="onboarding-header__skip" id="btn-skip" aria-label="Skip this step">
+        Skip
+      </button>
+    </header>
+
+    <!-- ════════════════════════════════════════════════════
+         STEPS VIEWPORT
+         All steps live here; only one is visible at a time.
+         ═════════════════════════════════════════════════ -->
+    <div class="onboarding-steps-viewport" id="steps-viewport">
+
+      <!-- ─── STEP 1: Welcome / Goal Selection ──────────────── -->
+      <section class="onboarding-step is-active" id="step-1" aria-label="Step 1: Choose your goal">
+        <div class="step-heading">
+          <span class="step-heading__eyebrow">Step 1 — Your Goal</span>
+          <h1 class="step-heading__title">What's your primary focus?</h1>
+          <p class="step-heading__subtitle">
+            This is the most important question. Your answer calibrates every
+            workout, macro target, and recipe recommendation in the app.
+          </p>
+        </div>
+
+        <div class="options-grid" role="radiogroup" aria-label="Select your primary goal">
+          <!-- Each option chip acts like a radio button -->
+          <button
+            class="option-chip"
+            data-group="goal"
+            data-value="fat_loss"
+            role="radio"
+            aria-checked="false"
+          >
+            <span class="option-chip__emoji">🔥</span>
+            <span class="option-chip__title">Lose Body Fat</span>
+            <span class="option-chip__desc">Burn fat while preserving muscle. Calorie deficit + high protein.</span>
+          </button>
+
+          <button
+            class="option-chip"
+            data-group="goal"
+            data-value="muscle_gain"
+            role="radio"
+            aria-checked="false"
+          >
+            <span class="option-chip__emoji">💪</span>
+            <span class="option-chip__title">Build Muscle</span>
+            <span class="option-chip__desc">Lean bulk with progressive overload. Calorie surplus + high volume.</span>
+          </button>
+
+          <button
+            class="option-chip"
+            data-group="goal"
+            data-value="recomp"
+            role="radio"
+            aria-checked="false"
+          >
+            <span class="option-chip__emoji">🔄</span>
+            <span class="option-chip__title">Body Recomposition</span>
+            <span class="option-chip__desc">Lose fat and gain muscle simultaneously. Requires patience + precision.</span>
+          </button>
+
+          <button
+            class="option-chip"
+            data-group="goal"
+            data-value="maintenance"
+            role="radio"
+            aria-checked="false"
+          >
+            <span class="option-chip__emoji">⚖️</span>
+            <span class="option-chip__title">Maintain & Perform</span>
+            <span class="option-chip__desc">Stay at current weight, optimize energy and performance.</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ─── STEP 2: Activity Level ─────────────────────────── -->
+      <section class="onboarding-step" id="step-2" aria-label="Step 2: Activity level">
+        <div class="step-heading">
+          <span class="step-heading__eyebrow">Step 2 — Activity</span>
+          <h1 class="step-heading__title">How active are you <em style="font-style:italic; color:var(--color-accent);">right now</em>?</h1>
+          <p class="step-heading__subtitle">
+            Be honest — not how active you want to be.
+            This determines your TDEE (total calories burned daily).
+          </p>
+        </div>
+
+        <div class="options-grid" role="radiogroup" aria-label="Select your current activity level">
+          <button class="option-chip" data-group="activityLevel" data-value="sedentary" role="radio" aria-checked="false">
+            <span class="option-chip__emoji">🪑</span>
+            <span class="option-chip__title">Sedentary</span>
+            <span class="option-chip__desc">Desk job, little to no exercise. Activity multiplier: ×1.2</span>
+          </button>
+
+          <button class="option-chip" data-group="activityLevel" data-value="light" role="radio" aria-checked="false">
+            <span class="option-chip__emoji">🚶</span>
+            <span class="option-chip__title">Lightly Active</span>
+            <span class="option-chip__desc">Light exercise 1–3 days/week. Activity multiplier: ×1.375</span>
+          </button>
+
+          <button class="option-chip" data-group="activityLevel" data-value="moderate" role="radio" aria-checked="false">
+            <span class="option-chip__emoji">🏃</span>
+            <span class="option-chip__title">Moderately Active</span>
+            <span class="option-chip__desc">Exercise 3–5 days/week. Activity multiplier: ×1.55</span>
+          </button>
+
+          <button class="option-chip" data-group="activityLevel" data-value="very_active" role="radio" aria-checked="false">
+            <span class="option-chip__emoji">🏋️</span>
+            <span class="option-chip__title">Very Active</span>
+            <span class="option-chip__desc">Hard exercise 6–7 days/week. Activity multiplier: ×1.725</span>
+          </button>
+
+          <button class="option-chip" data-group="activityLevel" data-value="extra_active" role="radio" aria-checked="false">
+            <span class="option-chip__emoji">⚡</span>
+            <span class="option-chip__title">Athlete / Physical Job</span>
+            <span class="option-chip__desc">Twice daily training or physical labor. Multiplier: ×1.9</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ─── STEP 3: Biometrics ─────────────────────────────── -->
+      <section class="onboarding-step" id="step-3" aria-label="Step 3: Your biometrics">
+        <div class="step-heading">
+          <span class="step-heading__eyebrow">Step 3 — Biometrics</span>
+          <h1 class="step-heading__title">Tell us about your body.</h1>
+          <p class="step-heading__subtitle">
+            Used for the Mifflin-St Jeor equation to calculate your
+            personal BMR (Basal Metabolic Rate). Never shared.
+          </p>
+        </div>
+
+        <div class="biometric-form">
+
+          <!-- Sex toggle -->
+          <div class="form-group">
+            <label class="form-label" id="sex-label">Biological sex</label>
+            <div class="sex-toggle" role="radiogroup" aria-labelledby="sex-label">
+              <button class="sex-toggle__btn" data-group="sex" data-value="male" role="radio" aria-checked="false">
+                <span class="sex-toggle__icon">♂️</span>
+                <span class="sex-toggle__label">Male</span>
+              </button>
+              <button class="sex-toggle__btn" data-group="sex" data-value="female" role="radio" aria-checked="false">
+                <span class="sex-toggle__icon">♀️</span>
+                <span class="sex-toggle__label">Female</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Age slider -->
+          <div class="form-group">
+            <div class="slider-display">
+              <div>
+                <span class="form-label">Age</span>
+              </div>
+              <div>
+                <span class="slider-display__value" id="age-display">25</span>
+                <span class="slider-display__unit"> yrs</span>
+              </div>
+            </div>
+            <input
+              type="range"
+              class="form-slider"
+              id="age-slider"
+              min="16" max="80" value="25" step="1"
+              aria-label="Age"
+              aria-valuemin="16" aria-valuemax="80" aria-valuenow="25"
+            >
+          </div>
+
+          <!-- Weight slider -->
+          <div class="form-group">
+            <div class="slider-display">
+              <div>
+                <span class="form-label">Weight</span>
+              </div>
+              <div>
+                <span class="slider-display__value" id="weight-display">165</span>
+                <span class="slider-display__unit"> lbs</span>
+              </div>
+            </div>
+            <input
+              type="range"
+              class="form-slider"
+              id="weight-slider"
+              min="80" max="400" value="165" step="1"
+              aria-label="Weight in pounds"
+            >
+          </div>
+
+          <!-- Height slider -->
+          <div class="form-group">
+            <div class="slider-display">
+              <div>
+                <span class="form-label">Height</span>
+              </div>
+              <div>
+                <span class="slider-display__value" id="height-display">5′ 9″</span>
+              </div>
+            </div>
+            <input
+              type="range"
+              class="form-slider"
+              id="height-slider"
+              min="58" max="84" value="69" step="1"
+              aria-label="Height in inches"
+            >
+          </div>
+
+          <!-- Name input -->
+          <div class="form-group">
+            <label class="form-label" for="name-input">Your first name</label>
+            <input
+              type="text"
+              class="form-input"
+              id="name-input"
+              placeholder="e.g. Alex"
+              autocomplete="given-name"
+              maxlength="50"
+            >
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ─── STEP 4: Dietary Preferences ───────────────────── -->
+      <section class="onboarding-step" id="step-4" aria-label="Step 4: Dietary restrictions">
+        <div class="step-heading">
+          <span class="step-heading__eyebrow">Step 4 — Diet</span>
+          <h1 class="step-heading__title">Any dietary restrictions?</h1>
+          <p class="step-heading__subtitle">
+            Select all that apply. Your grocery list and recipes will
+            automatically exclude incompatible items.
+          </p>
+        </div>
+
+        <div class="food-tags-grid" role="group" aria-label="Dietary restrictions" id="restrictions-group">
+          <!-- Each food tag is a toggle button — JS handles selection -->
+          <button class="food-tag" data-group="dietaryRestrictions" data-value="none">None</button>
+          <button class="food-tag" data-group="dietaryRestrictions" data-value="vegetarian">🥦 Vegetarian</button>
+          <button class="food-tag" data-group="dietaryRestrictions" data-value="vegan">🌱 Vegan</button>
+          <button class="food-tag" data-group="dietaryRestrictions" data-value="gluten_free">🌾 Gluten-Free</button>
+          <button class="food-tag" data-group="dietaryRestrictions" data-value="dairy_free">🥛 Dairy-Free</button>
+          <button class="food-tag" data-group="dietaryRestrictions" data-value="keto">🥑 Keto</button>
+          <button class="food-tag" data-group="dietaryRestrictions" data-value="paleo">🍖 Paleo</button>
+          <button class="food-tag" data-group="dietaryRestrictions" data-value="nut_free">🥜 Nut-Free</button>
+          <button class="food-tag" data-group="dietaryRestrictions" data-value="halal">☪️ Halal</button>
+          <button class="food-tag" data-group="dietaryRestrictions" data-value="kosher">✡️ Kosher</button>
+        </div>
+
+        <div style="height: var(--space-4);"></div>
+
+        <!-- Favorite Foods section -->
+        <div class="step-heading">
+          <span class="step-heading__eyebrow" style="margin-top:var(--space-2);">Also —</span>
+          <h2 class="step-heading__title" style="font-size:var(--text-xl);">Favorite proteins & foods?</h2>
+          <p class="step-heading__subtitle">
+            These tags drive recipe recommendations on your nutrition page.
+            Select everything you enjoy eating regularly.
+          </p>
+        </div>
+
+        <div class="food-tags-grid" role="group" aria-label="Favorite foods" id="foods-group">
+          <!-- Proteins -->
+          <button class="food-tag" data-group="favoriteFoods" data-value="chicken">🍗 Chicken</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="beef">🥩 Beef</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="turkey">🦃 Turkey</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="salmon">🐟 Salmon</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="tuna">🐠 Tuna</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="shrimp">🍤 Shrimp</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="eggs">🥚 Eggs</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="tofu">🫙 Tofu</button>
+          <!-- Carbs -->
+          <button class="food-tag" data-group="favoriteFoods" data-value="rice">🍚 Rice</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="oats">🥣 Oats</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="potato">🥔 Potato</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="pasta">🍝 Pasta</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="bread">🍞 Bread</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="quinoa">🌾 Quinoa</button>
+          <!-- Fats & Produce -->
+          <button class="food-tag" data-group="favoriteFoods" data-value="avocado">🥑 Avocado</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="veggies">🥦 Veggies</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="greek_yogurt">🫙 Greek Yogurt</button>
+          <button class="food-tag" data-group="favoriteFoods" data-value="cottage_cheese">🧀 Cottage Cheese</button>
+        </div>
+      </section>
+
+      <!-- ─── STEP 5: Injury / Equipment ────────────────────── -->
+      <section class="onboarding-step" id="step-5" aria-label="Step 5: Equipment and injuries">
+        <div class="step-heading">
+          <span class="step-heading__eyebrow">Step 5 — Training Setup</span>
+          <h1 class="step-heading__title">Where do you train?</h1>
+          <p class="step-heading__subtitle">
+            Workout plans adapt to your available equipment.
+          </p>
+        </div>
+
+        <div class="options-grid" role="radiogroup" aria-label="Training location">
+          <button class="option-chip" data-group="equipment" data-value="full_gym" role="radio" aria-checked="false">
+            <span class="option-chip__emoji">🏢</span>
+            <span class="option-chip__title">Full Gym</span>
+            <span class="option-chip__desc">Barbells, cables, machines, free weights — everything available.</span>
+          </button>
+
+          <button class="option-chip" data-group="equipment" data-value="home_gym" role="radio" aria-checked="false">
+            <span class="option-chip__emoji">🏠</span>
+            <span class="option-chip__title">Home Gym</span>
+            <span class="option-chip__desc">Dumbbells, resistance bands, pull-up bar, maybe a bench.</span>
+          </button>
+
+          <button class="option-chip" data-group="equipment" data-value="bodyweight" role="radio" aria-checked="false">
+            <span class="option-chip__emoji">🤸</span>
+            <span class="option-chip__title">Bodyweight Only</span>
+            <span class="option-chip__desc">No equipment. Park workouts, hotel rooms, anywhere.</span>
+          </button>
+        </div>
+
+        <!-- Injury flags — multi-select -->
+        <div class="step-heading" style="margin-top: var(--space-4);">
+          <span class="step-heading__eyebrow">Also —</span>
+          <h2 class="step-heading__title" style="font-size:var(--text-xl);">Any current injuries?</h2>
+          <p class="step-heading__subtitle">
+            Workouts.html will offer exercise swaps for flagged areas.
+          </p>
+        </div>
+
+        <div class="food-tags-grid" role="group" aria-label="Current injuries or limitations" id="injury-group">
+          <button class="food-tag" data-group="injuries" data-value="none">None — I'm good</button>
+          <button class="food-tag" data-group="injuries" data-value="lower_back">🔴 Lower Back</button>
+          <button class="food-tag" data-group="injuries" data-value="knee">🔴 Knee</button>
+          <button class="food-tag" data-group="injuries" data-value="shoulder">🔴 Shoulder</button>
+          <button class="food-tag" data-group="injuries" data-value="wrist">🔴 Wrist</button>
+          <button class="food-tag" data-group="injuries" data-value="hip">🔴 Hip</button>
+          <button class="food-tag" data-group="injuries" data-value="neck">🔴 Neck</button>
+        </div>
+      </section>
+
+      <!-- ─── STEP 6: Calculated Results + CTA ──────────────── -->
+      <section class="onboarding-step" id="step-6" aria-label="Step 6: Your personalized plan">
+        <div class="step-heading">
+          <span class="step-heading__eyebrow">Your Plan is Ready</span>
+          <h1 class="step-heading__title">Here's what we built for you.</h1>
+          <p class="step-heading__subtitle" id="results-subtitle">
+            Based on your inputs, here are your daily targets.
+          </p>
+        </div>
+
+        <!-- Calculated nutrition plan card — populated by JS -->
+        <div class="results-card" id="results-card">
+          <div id="results-content">
+            <!-- Populated by JS when this step becomes active -->
+            <div class="skeleton skeleton--card"></div>
+          </div>
+        </div>
+
+        <!-- Workout plan summary -->
+        <div class="card card--elevated" id="workout-plan-summary">
+          <div class="label" style="margin-bottom:var(--space-3);">Your Training Plan</div>
+          <div style="font-family:var(--font-display); font-size:var(--text-xl); color:var(--color-text-primary); margin-bottom:var(--space-2);" id="workout-plan-name">
+            Loading...
+          </div>
+          <div style="font-size:var(--text-sm); color:var(--color-text-secondary);" id="workout-plan-desc">
+            &nbsp;
+          </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <p style="font-size:var(--text-xs); color:var(--color-text-muted); line-height:var(--leading-relaxed); text-align:center;">
+          ⚠️ These are estimates based on the Mifflin-St Jeor formula.
+          Adjust based on real-world results. Consult a professional for medical advice.
+        </p>
+
+      </section>
+
+    </div><!-- end steps-viewport -->
+
+    <!-- ════════════════════════════════════════════════════
+         FOOTER: NEXT / FINISH BUTTON
+         Sticks to the bottom, always visible.
+         ═════════════════════════════════════════════════ -->
+    <footer class="onboarding-footer">
+      <button
+        class="btn btn--primary btn--lg btn--full"
+        id="btn-next"
+        aria-label="Continue to next step"
+        disabled
+      >
+        <span id="btn-next-text">Continue</span>
+        <span aria-hidden="true" id="btn-next-icon">→</span>
+      </button>
+    </footer>
+
+  </div><!-- end onboarding-shell -->
+
+  <script src="script.js"></script>
+
+  <script>
+    /**
+     * ============================================================
+     * ONBOARDING PAGE SCRIPT
+     * onboarding.html — inline script
+     *
+     * This is the most important script in the app.
+     * It drives a multi-step form that builds the UserProfile object.
+     *
+     * KEY CONCEPTS:
+     * - Step machine: currentStepIndex controls which step is visible
+     * - Form data accumulates in the `formData` object as user progresses
+     * - On the final step, FitnessCalculator computes nutrition targets
+     * - On completion, AppState.saveProfile() persists everything
+     * ============================================================
+     */
+
+    /* ─────────────────────────────────────────────────────────────
+       STEP CONFIGURATION
+
+       Each step has a validation function that returns true/false.
+       The Next button stays disabled until the current step validates.
+
+       Python analogy: this is a list of dicts — each dict describes
+       one step. The order here defines the order in the UI.
+    ─────────────────────────────────────────────────────────── */
+    const STEPS = [
+      {
+        id:           'step-1',
+        title:        'Step 1 of 6',
+        allowSkip:    false,
+        // Returns true if the user has selected a goal
+        validate:     () => formData.goal !== null,
+      },
+      {
+        id:           'step-2',
+        title:        'Step 2 of 6',
+        allowSkip:    false,
+        validate:     () => formData.activityLevel !== null,
+      },
+      {
+        id:           'step-3',
+        title:        'Step 3 of 6',
+        allowSkip:    false,
+        // Biometrics step: name required + sex must be selected
+        validate: () => {
+          const name = document.getElementById('name-input')?.value.trim();
+          return formData.sex !== null && name.length > 0;
+        },
+      },
+      {
+        id:           'step-4',
+        title:        'Step 4 of 6',
+        allowSkip:    true,  // Food preferences are optional
+        // At least one food tag selected (either restrictions or favorites)
+        validate: () =>
+          formData.dietaryRestrictions.length > 0 || formData.favoriteFoods.length > 0,
+      },
+      {
+        id:           'step-5',
+        title:        'Step 5 of 6',
+        allowSkip:    true,
+        validate:     () => formData.equipment !== null,
+      },
+      {
+        id:           'step-6',
+        title:        'Almost there!',
+        allowSkip:    false,
+        // Final step: always valid (user just needs to tap Launch)
+        validate:     () => true,
+      },
+    ];
+
+    /* ─────────────────────────────────────────────────────────────
+       FORM DATA ACCUMULATOR
+
+       This object collects answers as the user progresses through
+       each step. At the end, it becomes the UserProfile.
+
+       Note the null defaults — they're checked in validation.
+    ─────────────────────────────────────────────────────────── */
+    const formData = {
+      // Step 1
+      goal:               null,    // 'fat_loss' | 'muscle_gain' | 'recomp' | 'maintenance'
+
+      // Step 2
+      activityLevel:      null,    // 'sedentary' | 'light' | 'moderate' | 'very_active' | 'extra_active'
+
+      // Step 3
+      sex:                null,    // 'male' | 'female'
+      age:                25,      // number (years)
+      weightLbs:          165,     // number (pounds)
+      heightIn:           69,      // number (inches) — 69 inches = 5'9"
+      name:               '',      // string
+
+      // Step 4
+      dietaryRestrictions: [],     // string[] — e.g. ['gluten_free', 'dairy_free']
+      favoriteFoods:       [],     // string[] — e.g. ['chicken', 'eggs', 'rice']
+
+      // Step 5
+      equipment:          null,    // 'full_gym' | 'home_gym' | 'bodyweight'
+      injuries:           [],      // string[] — e.g. ['lower_back', 'knee']
+
+      // Computed in Step 6 (not selected by user)
+      calculatedMacros:   null,
+    };
+
+    /* ─────────────────────────────────────────────────────────────
+       STATE MACHINE
+
+       currentStepIndex tracks which step we're on (0-based).
+       It's the single variable that controls the entire UI.
+    ─────────────────────────────────────────────────────────── */
+    let currentStepIndex = 0;
+    const TOTAL_STEPS    = STEPS.length;
+
+
+    /* ─────────────────────────────────────────────────────────────
+       STEP TRANSITIONS
+
+       This is the core rendering function. When called, it:
+       1. Hides all steps
+       2. Shows the step at `index`
+       3. Updates the progress bar, counter, and button state
+    ─────────────────────────────────────────────────────────── */
+    function goToStep(index) {
+      // Validate index bounds
+      if (index < 0 || index >= TOTAL_STEPS) return;
+
+      // ── Deactivate all steps ──────────────────────────────────
+      document.querySelectorAll('.onboarding-step').forEach(el => {
+        el.classList.remove('is-active');
+        // Accessibility: hidden steps should not be reachable by keyboard
+        el.setAttribute('aria-hidden', 'true');
+      });
+
+      // ── Activate the target step ──────────────────────────────
+      const targetStep = document.getElementById(STEPS[index].id);
+      if (targetStep) {
+        targetStep.classList.add('is-active');
+        targetStep.removeAttribute('aria-hidden');
+      }
+
+      // ── Update progress bar ───────────────────────────────────
+      // Percentage: complete when index = TOTAL_STEPS - 1
+      const progressPercent = ((index) / (TOTAL_STEPS - 1)) * 100;
+      const progressFill    = document.getElementById('progress-bar-fill');
+      const progressBar     = document.getElementById('progress-bar-container');
+
+      if (progressFill) progressFill.style.width = `${progressPercent}%`;
+      if (progressBar)  progressBar.setAttribute('aria-valuenow', Math.round(progressPercent));
+
+      // ── Update step counter text ──────────────────────────────
+      UIHelpers.setText('#step-counter', STEPS[index].title);
+
+      // ── Update Back button ────────────────────────────────────
+      // First step: hide back button (nothing to go back to)
+      const backBtn = document.getElementById('btn-back');
+      if (backBtn) {
+        backBtn.classList.toggle('is-invisible', index === 0);
+      }
+
+      // ── Update Skip button ────────────────────────────────────
+      const skipBtn = document.getElementById('btn-skip');
+      if (skipBtn) {
+        UIHelpers.toggle(skipBtn, STEPS[index].allowSkip);
+      }
+
+      // ── Update Next button ────────────────────────────────────
+      const isLastStep  = index === TOTAL_STEPS - 1;
+      const nextBtnText = document.getElementById('btn-next-text');
+      const nextBtnIcon = document.getElementById('btn-next-icon');
+
+      if (nextBtnText) nextBtnText.textContent = isLastStep ? 'Launch My Plan' : 'Continue';
+      if (nextBtnIcon) nextBtnIcon.textContent  = isLastStep ? '🚀' : '→';
+
+      // ── Special setup for specific steps ─────────────────────
+      if (index === 5) {
+        // Step 6 (results): compute and display the nutrition plan
+        buildAndRenderResults();
+      }
+
+      // ── Update currentStepIndex ───────────────────────────────
+      currentStepIndex = index;
+
+      // ── Re-run validation to set button state ─────────────────
+      validateCurrentStep();
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────
+       VALIDATION
+
+       Checks the current step's validate() function and
+       enables/disables the Next button accordingly.
+       Called every time the user interacts with a step.
+    ─────────────────────────────────────────────────────────── */
+    function validateCurrentStep() {
+      const step   = STEPS[currentStepIndex];
+      const isValid = step.validate();
+      const nextBtn = document.getElementById('btn-next');
+      if (nextBtn) nextBtn.disabled = !isValid;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────
+       OPTION CHIP SELECTION HANDLER
+
+       Handles clicks on the large option cards (goal, activity level,
+       equipment). These are single-select within their group.
+
+       The `data-group` attribute identifies which formData key to update.
+       The `data-value` attribute is the value to store.
+    ─────────────────────────────────────────────────────────── */
+    function handleOptionChipClick(event) {
+      // .closest() walks up the DOM tree to find the chip element
+      // even if the click landed on a child span inside the button
+      const chip  = event.target.closest('[data-group]');
+      if (!chip) return;
+
+      const group = chip.dataset.group;
+      const value = chip.dataset.value;
+
+      // Determine if this is a single-select or multi-select group
+      const isSingleSelect = ['goal', 'activityLevel', 'sex', 'equipment'].includes(group);
+
+      if (isSingleSelect) {
+        // ── Single-select: deselect all siblings, select this one ──
+
+        // Find all chips in the same group and deselect them
+        document.querySelectorAll(`[data-group="${group}"]`).forEach(el => {
+          el.classList.remove('is-selected');
+          el.setAttribute('aria-checked', 'false');
+        });
+
+        // Select the clicked chip
+        chip.classList.add('is-selected');
+        chip.setAttribute('aria-checked', 'true');
+
+        // Store value in formData
+        formData[group] = value;
+
+      } else {
+        // ── Multi-select (food tags, injuries, restrictions) ──
+
+        const alreadySelected = chip.classList.contains('is-selected');
+
+        if (alreadySelected) {
+          // Deselect — remove from array
+          chip.classList.remove('is-selected');
+          chip.setAttribute('aria-pressed', 'false');
+          formData[group] = formData[group].filter(v => v !== value);
+
+        } else {
+          // Special case: selecting 'none' clears all other selections
+          if (value === 'none') {
+            document.querySelectorAll(`[data-group="${group}"]`).forEach(el => {
+              el.classList.remove('is-selected');
+              el.setAttribute('aria-pressed', 'false');
+            });
+            formData[group] = [];
+          } else {
+            // Deselect 'none' if it was selected
+            const noneChip = document.querySelector(`[data-group="${group}"][data-value="none"]`);
+            if (noneChip) {
+              noneChip.classList.remove('is-selected');
+              noneChip.setAttribute('aria-pressed', 'false');
+              formData[group] = formData[group].filter(v => v !== 'none');
+            }
+          }
+
+          // Select this chip — add to array
+          chip.classList.add('is-selected');
+          chip.setAttribute('aria-pressed', 'true');
+          formData[group].push(value);
+        }
+      }
+
+      // Re-validate after every interaction
+      validateCurrentStep();
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────
+       SLIDER HANDLERS (Step 3 — Biometrics)
+
+       Each range slider updates both formData and its display element.
+    ─────────────────────────────────────────────────────────── */
+
+    /** Convert total inches to a "X′ Y″" string */
+    function inchesToFeetStr(totalInches) {
+      const feet   = Math.floor(totalInches / 12);
+      const inches = totalInches % 12;
+      return `${feet}′ ${inches}″`;
+    }
+
+    function initSliders() {
+      // Age slider
+      const ageSlider = document.getElementById('age-slider');
+      ageSlider?.addEventListener('input', e => {
+        const val = parseInt(e.target.value, 10);
+        formData.age = val;
+        UIHelpers.setText('#age-display', val);
+        ageSlider.setAttribute('aria-valuenow', val);
+        validateCurrentStep();
+      });
+
+      // Weight slider
+      const weightSlider = document.getElementById('weight-slider');
+      weightSlider?.addEventListener('input', e => {
+        const val = parseInt(e.target.value, 10);
+        formData.weightLbs = val;
+        UIHelpers.setText('#weight-display', val);
+        validateCurrentStep();
+      });
+
+      // Height slider
+      const heightSlider = document.getElementById('height-slider');
+      heightSlider?.addEventListener('input', e => {
+        const val = parseInt(e.target.value, 10);
+        formData.heightIn = val;
+        UIHelpers.setText('#height-display', inchesToFeetStr(val));
+        validateCurrentStep();
+      });
+
+      // Name input
+      const nameInput = document.getElementById('name-input');
+      nameInput?.addEventListener('input', e => {
+        formData.name = e.target.value.trim();
+        validateCurrentStep();
+      });
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────
+       BUILD & RENDER RESULTS (Step 6)
+
+       This is where all the data flows together:
+       1. Read from formData
+       2. Run FitnessCalculator.computeNutritionPlan()
+       3. Store result in formData.calculatedMacros
+       4. Render the summary card
+    ─────────────────────────────────────────────────────────── */
+    function buildAndRenderResults() {
+      // 1. Compute the nutrition plan from raw formData inputs
+      const nutritionPlan = FitnessCalculator.computeNutritionPlan({
+        weightLbs:     formData.weightLbs,
+        heightIn:      formData.heightIn,
+        age:           formData.age,
+        sex:           formData.sex ?? 'male',
+        activityLevel: formData.activityLevel ?? 'moderate',
+        goal:          formData.goal ?? 'maintenance',
+      });
+
+      // 2. Store the computed result back into formData
+      //    This gets saved to localStorage with the whole profile
+      formData.calculatedMacros = nutritionPlan;
+
+      // 3. Render the results card
+      const resultsContent = document.getElementById('results-content');
+      if (!resultsContent) return;
+
+      // Goal labels for display
+      const goalLabels = {
+        fat_loss:    'Fat Loss',
+        muscle_gain: 'Muscle Gain',
+        recomp:      'Body Recomp',
+        maintenance: 'Maintenance',
+      };
+
+      const activityLabels = {
+        sedentary:    'Sedentary',
+        light:        'Lightly Active',
+        moderate:     'Moderately Active',
+        very_active:  'Very Active',
+        extra_active: 'Athlete',
+      };
+
+      resultsContent.innerHTML = `
+        <!-- Headline calorie number -->
+        <div style="margin-bottom:var(--space-5);">
+          <div class="label" style="margin-bottom:var(--space-2);">Daily Calorie Target</div>
+          <div style="font-family:var(--font-mono); font-size:var(--text-3xl); color:var(--color-accent); line-height:1; letter-spacing:-0.03em;">
+            ${nutritionPlan.targetCalories.toLocaleString()}
+            <span style="font-size:var(--text-sm); color:var(--color-text-secondary);">kcal</span>
+          </div>
+          <div style="font-size:var(--text-sm); color:var(--color-text-secondary); margin-top:var(--space-2);">
+            TDEE: ${nutritionPlan.tdee.toLocaleString()} kcal
+            · BMR: ${nutritionPlan.bmr.toLocaleString()} kcal
+          </div>
+        </div>
+
+        <div class="divider divider--accent"></div>
+
+        <!-- Macro breakdown rows -->
+        <div class="results-macro-row">
+          <div class="results-macro-row__label">
+            <div class="results-macro-row__dot" style="background:var(--color-protein);"></div>
+            Protein
+          </div>
+          <div class="results-macro-row__value">
+            ${nutritionPlan.proteinG}g
+            <span style="font-size:var(--text-xs); color:var(--color-text-muted);">/day</span>
+          </div>
+        </div>
+
+        <div class="results-macro-row">
+          <div class="results-macro-row__label">
+            <div class="results-macro-row__dot" style="background:var(--color-carbs);"></div>
+            Carbohydrates
+          </div>
+          <div class="results-macro-row__value">
+            ${nutritionPlan.carbsG}g
+            <span style="font-size:var(--text-xs); color:var(--color-text-muted);">/day</span>
+          </div>
+        </div>
+
+        <div class="results-macro-row">
+          <div class="results-macro-row__label">
+            <div class="results-macro-row__dot" style="background:var(--color-fat);"></div>
+            Fat
+          </div>
+          <div class="results-macro-row__value">
+            ${nutritionPlan.fatG}g
+            <span style="font-size:var(--text-xs); color:var(--color-text-muted);">/day</span>
+          </div>
+        </div>
+
+        <div class="divider" style="margin:var(--space-4) 0;"></div>
+
+        <!-- Profile summary pills -->
+        <div style="display:flex; flex-wrap:wrap; gap:var(--space-2);">
+          <span class="badge badge--accent">${UIHelpers.escapeHTML(goalLabels[formData.goal] ?? formData.goal)}</span>
+          <span class="badge badge--info">${UIHelpers.escapeHTML(activityLabels[formData.activityLevel] ?? formData.activityLevel)}</span>
+          <span class="badge badge--success">${formData.weightLbs} lbs</span>
+          ${formData.sex ? `<span class="badge badge--success">${UIHelpers.escapeHTML(formData.sex)}</span>` : ''}
+        </div>
+      `;
+
+      // 4. Render workout plan summary
+      const workoutPlanNames = {
+        fat_loss:    { name: '4-Day Circuit + HIIT',         desc: 'Designed to torch calories while preserving lean muscle.' },
+        muscle_gain: { name: '5-Day Push / Pull / Legs',     desc: 'Progressive overload split for maximum hypertrophy.' },
+        recomp:      { name: '4-Day Full Body Strength',      desc: 'Compound movements + moderate volume for recomposition.' },
+        maintenance: { name: '3-Day Full Body Maintenance',  desc: 'Balanced training to sustain strength and fitness.' },
+      };
+
+      const workoutPlan = workoutPlanNames[formData.goal] ?? workoutPlanNames.maintenance;
+      UIHelpers.setText('#workout-plan-name', workoutPlan.name);
+      UIHelpers.setText('#workout-plan-desc', workoutPlan.desc);
+
+      // 5. Update the subtitle with the user's name
+      UIHelpers.setText(
+        '#results-subtitle',
+        `${formData.name ? `${UIHelpers.escapeHTML(formData.name)}, your` : 'Your'} personalized plan is built. Here are your daily targets.`
+      );
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────
+       SAVE & COMPLETE
+
+       Called when the user taps "Launch My Plan" on the final step.
+       Assembles the complete UserProfile and saves it via AppState.
+    ─────────────────────────────────────────────────────────── */
+    async function completeOnboarding() {
+      const nextBtn = document.getElementById('btn-next');
+      if (nextBtn) {
+        nextBtn.disabled = true;
+        document.getElementById('btn-next-text').textContent = 'Saving...';
+        document.getElementById('btn-next-icon').textContent = '⏳';
+      }
+
+      // Assemble the complete UserProfile object
+      const userProfile = {
+        // In production, id comes from Supabase Auth
+        id:                  `local-${Date.now()}`,
+        name:                formData.name,
+        email:               '',  // Added after Google sign-in
+
+        // Biometrics
+        age:                 formData.age,
+        sex:                 formData.sex,
+        weightLbs:           formData.weightLbs,
+        heightIn:            formData.heightIn,
+
+        // Plan settings
+        goal:                formData.goal,
+        activityLevel:       formData.activityLevel,
+        equipment:           formData.equipment,
+        injuries:            formData.injuries,
+        favoriteFoods:       formData.favoriteFoods,
+        dietaryRestrictions: formData.dietaryRestrictions,
+
+        // Computed plan (this is what nutrition.html and workouts.html read)
+        calculatedMacros:    formData.calculatedMacros,
+
+        // App metadata
+        streakDays:          0,
+        weeklyWorkouts:      0,
+        onboardingComplete:  true,
+        createdAt:           new Date().toISOString(),
+      };
+
+      try {
+        // Save to AppState (in-memory + localStorage + Supabase placeholder)
+        await AppState.saveProfile(userProfile);
+
+        UIHelpers.showToast('Plan saved! Launching your dashboard...', 'success', 2000);
+
+        // Navigate to dashboard after a short delay (so toast is visible)
+        setTimeout(() => {
+          Router.navigate(CONFIG.PAGES.DASHBOARD, true);
+        }, 1500);
+
+      } catch (error) {
+        console.error('Failed to save profile:', error);
+        UIHelpers.showToast('Save failed. Please try again.', 'error');
+
+        // Re-enable button on failure
+        if (nextBtn) {
+          nextBtn.disabled = false;
+          document.getElementById('btn-next-text').textContent = 'Launch My Plan';
+          document.getElementById('btn-next-icon').textContent = '🚀';
+        }
+      }
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────
+       EVENT LISTENERS — Wire up all interactions
+    ─────────────────────────────────────────────────────────── */
+    document.addEventListener('DOMContentLoaded', () => {
+
+      // ── Delegate all option chip / food tag clicks ───────────
+      // "Event delegation" — one listener on the parent catches all
+      // chip clicks, even ones added dynamically later.
+      // Python analogy: like a single dispatcher that routes events.
+      document.getElementById('steps-viewport')?.addEventListener('click', handleOptionChipClick);
+
+      // ── Next button ──────────────────────────────────────────
+      document.getElementById('btn-next')?.addEventListener('click', () => {
+        if (currentStepIndex === TOTAL_STEPS - 1) {
+          // Final step: save and redirect
+          completeOnboarding();
+        } else {
+          // Go to the next step
+          goToStep(currentStepIndex + 1);
+        }
+      });
+
+      // ── Back button ──────────────────────────────────────────
+      document.getElementById('btn-back')?.addEventListener('click', () => {
+        goToStep(currentStepIndex - 1);
+      });
+
+      // ── Skip button ──────────────────────────────────────────
+      document.getElementById('btn-skip')?.addEventListener('click', () => {
+        goToStep(currentStepIndex + 1);
+      });
+
+      // ── Initialize sliders (Step 3) ──────────────────────────
+      initSliders();
+
+      // ── Initialize the first step ────────────────────────────
+      goToStep(0);
+    });
+  </script>
+</body>
+</html>
