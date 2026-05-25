@@ -1,6 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>nutrition.html</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f1923; color: #f0f4ff; min-height: 100vh; display: flex; flex-direction: column; }
+.toolbar { position: sticky; top: 0; z-index: 10; background: #1a2133; border-bottom: 1px solid rgba(200,255,0,0.2); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.info { display: flex; flex-direction: column; gap: 3px; }
+.filename { font-family: "SF Mono","Fira Code",monospace; font-size: 15px; font-weight: 700; color: #c8ff00; }
+.desc { font-size: 11px; color: #8a9ab8; }
+.lines { font-family: "SF Mono",monospace; font-size: 10px; color: #4a5568; margin-top: 1px; }
+.copy-btn { display: flex; align-items: center; gap: 8px; padding: 12px 22px; background: #c8ff00; color: #0f1923; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 150ms ease; white-space: nowrap; flex-shrink: 0; font-family: inherit; }
+.copy-btn:hover { background: #d4ff1a; }
+.copy-btn:active { transform: scale(0.97); }
+.copy-btn.copied { background: #22c55e; color: #fff; }
+.code-wrap { flex: 1; overflow: auto; padding: 20px; }
+pre { font-family: "SF Mono","Fira Code","Courier New",monospace; font-size: 11.5px; line-height: 1.65; color: #c9d1d9; white-space: pre-wrap; word-break: break-all; tab-size: 2; }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <div class="info">
+    <div class="filename">nutrition.html</div>
+    <div class="desc">Donut chart, recipe cards, meal timing</div>
+    <div class="lines" id="lc"></div>
+  </div>
+  <button class="copy-btn" id="btn" onclick="copyIt()">📋 Copy</button>
+</div>
+<div class="code-wrap"><pre id="code"></pre></div>
+<script>
+const CONTENT = `<!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#090b10">
@@ -454,10 +487,10 @@
 
     /* Goal-specific nutrition tips */
     const NUTRITION_TIPS = {
-      fat_loss: `<strong>Protein timing matters.</strong> Aim to eat 30–40g of protein within 2 hours of waking. Studies show this reduces total daily calorie intake by an average of 441 kcal through satiety.`,
-      muscle_gain: `<strong>Hit your protein ceiling first.</strong> On training days, distribute your protein across 4+ meals to maximize muscle protein synthesis. No single meal should exceed ~50g for absorption efficiency.`,
-      recomp: `<strong>Carb cycle around training.</strong> Eat your highest-carb meals on training days (pre/post workout). On rest days, shift calories toward protein and fat to stay in a mild deficit.`,
-      maintenance: `<strong>Micronutrients matter now.</strong> At maintenance, focus on food quality. Prioritize whole foods, adequate fiber (25–35g/day), and consistent meal timing for sustained energy.`,
+      fat_loss: \`<strong>Protein timing matters.</strong> Aim to eat 30–40g of protein within 2 hours of waking. Studies show this reduces total daily calorie intake by an average of 441 kcal through satiety.\`,
+      muscle_gain: \`<strong>Hit your protein ceiling first.</strong> On training days, distribute your protein across 4+ meals to maximize muscle protein synthesis. No single meal should exceed ~50g for absorption efficiency.\`,
+      recomp: \`<strong>Carb cycle around training.</strong> Eat your highest-carb meals on training days (pre/post workout). On rest days, shift calories toward protein and fat to stay in a mild deficit.\`,
+      maintenance: \`<strong>Micronutrients matter now.</strong> At maintenance, focus on food quality. Prioritize whole foods, adequate fiber (25–35g/day), and consistent meal timing for sustained energy.\`,
     };
 
     /* Thumbnail gradient category per recipe — maps recipe id to a visual theme */
@@ -609,9 +642,9 @@
       UIHelpers.setText('#donut-center-calories', targetCalories?.toLocaleString() ?? '—');
 
       // Update legend grams
-      UIHelpers.setText('#legend-protein', `${proteinG}g`);
-      UIHelpers.setText('#legend-carbs',   `${carbsG}g`);
-      UIHelpers.setText('#legend-fat',     `${fatG}g`);
+      UIHelpers.setText('#legend-protein', \`\${proteinG}g\`);
+      UIHelpers.setText('#legend-carbs',   \`\${carbsG}g\`);
+      UIHelpers.setText('#legend-fat',     \`\${fatG}g\`);
 
       // Update calorie breakdown cells
       UIHelpers.setText('#cal-target', targetCalories?.toLocaleString() ?? '—');
@@ -632,7 +665,7 @@
       // dasharray = "visible_length gap_length"
       // gap = circumference - dash ensures only ONE arc segment is drawn per circle
       const gap = DONUT_CIRCUMFERENCE - dashLength;
-      el.style.strokeDasharray  = `${dashLength.toFixed(2)} ${gap.toFixed(2)}`;
+      el.style.strokeDasharray  = \`\${dashLength.toFixed(2)} \${gap.toFixed(2)}\`;
       el.style.strokeDashoffset = offset.toFixed(2);
     }
 
@@ -696,34 +729,34 @@
         const macroCals = macro.target * macro.calsPerG;
         const calPct    = Math.round((macroCals / totalCals) * 100);
 
-        return `
+        return \`
           <div class="macro-detail-row">
             <div class="macro-detail-header">
               <div class="macro-detail-left">
-                <div class="macro-dot" style="background:${macro.dot};"></div>
-                <span class="macro-detail-name">${macro.name}</span>
-                <span class="macro-detail-pct">${calPct}% of cals</span>
+                <div class="macro-dot" style="background:\${macro.dot};"></div>
+                <span class="macro-detail-name">\${macro.name}</span>
+                <span class="macro-detail-pct">\${calPct}% of cals</span>
               </div>
               <span class="macro-detail-values">
-                <strong>${macro.consumed}g</strong> / ${macro.target}g
+                <strong>\${macro.consumed}g</strong> / \${macro.target}g
               </span>
             </div>
             <!-- Progress bar: animated to pct% via rAF -->
             <div class="progress-bar">
               <div
                 class="progress-bar__fill"
-                style="background:${macro.color}; width:0%;"
-                data-target-width="${pct}"
+                style="background:\${macro.color}; width:0%;"
+                data-target-width="\${pct}"
               ></div>
             </div>
           </div>
-        `;
+        \`;
       }).join('');
 
       // Animate bars after HTML is inserted (same rAF trick as the donut)
       requestAnimationFrame(() => {
         macroDetail.querySelectorAll('[data-target-width]').forEach(fill => {
-          fill.style.width = `${fill.dataset.targetWidth}%`;
+          fill.style.width = \`\${fill.dataset.targetWidth}%\`;
         });
       });
     }
@@ -738,12 +771,12 @@
       if (!strip) return;
 
       if (!recipes || recipes.length === 0) {
-        strip.innerHTML = `
+        strip.innerHTML = \`
           <div style="width:100%; text-align:center; padding:var(--space-8); color:var(--color-text-muted); font-size:var(--text-sm);">
             No recipes match your food preferences yet.
             <br>Update your profile to add more foods.
           </div>
-        `;
+        \`;
         return;
       }
 
@@ -759,42 +792,42 @@
         const userFoods = profile?.favoriteFoods ?? [];
         const matchTag  = recipe.tags?.find(t => userFoods.includes(t));
         const matchBadge = matchTag
-          ? `<span class="badge badge--accent" style="font-size:9px; padding:1px 6px;">${UIHelpers.escapeHTML(matchTag)} ✓</span>`
+          ? \`<span class="badge badge--accent" style="font-size:9px; padding:1px 6px;">\${UIHelpers.escapeHTML(matchTag)} ✓</span>\`
           : '';
 
-        return `
-          <article class="recipe-card" role="listitem" aria-label="${UIHelpers.escapeHTML(recipe.name)}">
+        return \`
+          <article class="recipe-card" role="listitem" aria-label="\${UIHelpers.escapeHTML(recipe.name)}">
 
             <!-- Gradient thumbnail with calorie badge and food icon -->
-            <div class="recipe-card__thumb ${thumbConfig.cls}">
-              <span class="recipe-card__cal-badge">${recipe.calories} kcal</span>
-              <span class="recipe-card__thumb-icon" aria-hidden="true">${thumbConfig.icon}</span>
+            <div class="recipe-card__thumb \${thumbConfig.cls}">
+              <span class="recipe-card__cal-badge">\${recipe.calories} kcal</span>
+              <span class="recipe-card__thumb-icon" aria-hidden="true">\${thumbConfig.icon}</span>
             </div>
 
             <div class="recipe-card__body">
               <!-- Recipe name -->
-              <div class="recipe-card__name">${UIHelpers.escapeHTML(recipe.name)}</div>
+              <div class="recipe-card__name">\${UIHelpers.escapeHTML(recipe.name)}</div>
 
               <!-- If this recipe matches a user food preference, show badge -->
-              ${matchBadge}
+              \${matchBadge}
 
               <!-- Three macro pills: P / C / F -->
               <div class="recipe-card__macros" aria-label="Macros">
                 <div class="recipe-macro-pill">
                   <span class="recipe-macro-pill__value" style="color:var(--color-protein);">
-                    ${recipe.proteinG}g
+                    \${recipe.proteinG}g
                   </span>
                   <span class="recipe-macro-pill__label">P</span>
                 </div>
                 <div class="recipe-macro-pill">
                   <span class="recipe-macro-pill__value" style="color:var(--color-carbs);">
-                    ${recipe.carbsG}g
+                    \${recipe.carbsG}g
                   </span>
                   <span class="recipe-macro-pill__label">C</span>
                 </div>
                 <div class="recipe-macro-pill">
                   <span class="recipe-macro-pill__value" style="color:var(--color-fat);">
-                    ${recipe.fatG}g
+                    \${recipe.fatG}g
                   </span>
                   <span class="recipe-macro-pill__label">F</span>
                 </div>
@@ -803,22 +836,22 @@
               <!-- Prep time -->
               <div class="recipe-card__prep">
                 <span>⏱</span>
-                <span>${thumbConfig.prep} prep</span>
+                <span>\${thumbConfig.prep} prep</span>
               </div>
             </div>
           </article>
-        `;
+        \`;
       }).join('');
     }
 
     function renderRecipeError() {
       const strip = document.getElementById('recipe-strip');
       if (strip) {
-        strip.innerHTML = `
+        strip.innerHTML = \`
           <p style="color:var(--color-text-muted); font-size:var(--text-sm); padding:var(--space-4);">
             Couldn't load recipes. Check your connection.
           </p>
-        `;
+        \`;
       }
     }
 
@@ -832,7 +865,7 @@
       const slots = ['breakfast', 'lunch', 'dinner', 'snack'];
       slots.forEach(slot => {
         const cals = Math.round(targetCalories * MEAL_SPLITS[slot]);
-        UIHelpers.setText(`#meal-cal-${slot}`, `~${cals} kcal`);
+        UIHelpers.setText(\`#meal-cal-\${slot}\`, \`~\${cals} kcal\`);
       });
     }
 
@@ -876,7 +909,7 @@
       const itemCount = (profile?.favoriteFoods?.length ?? 0) * 3;
       UIHelpers.setText(
         '#grocery-banner-sub',
-        `~${itemCount > 0 ? itemCount : 18} items · Organized by macro · Tap to view`
+        \`~\${itemCount > 0 ? itemCount : 18} items · Organized by macro · Tap to view\`
       );
     }
 
@@ -890,7 +923,7 @@
 
       const macroDetailCard = document.getElementById('macro-detail-card');
       if (macroDetailCard) {
-        macroDetailCard.innerHTML = `
+        macroDetailCard.innerHTML = \`
           <div style="text-align:center; padding:var(--space-6);">
             <p style="color:var(--color-text-muted); font-size:var(--text-sm);">
               No profile found.
@@ -899,9 +932,29 @@
               Complete Setup →
             </a>
           </div>
-        `;
+        \`;
       }
     }
   </script>
+</body>
+</html>
+`;
+const pre = document.getElementById('code');
+pre.textContent = CONTENT;
+document.getElementById('lc').textContent = CONTENT.split('\n').length.toLocaleString() + ' lines';
+function copyIt() {
+  const btn = document.getElementById('btn');
+  navigator.clipboard.writeText(CONTENT).then(ok).catch(() => {
+    const t = document.createElement('textarea');
+    t.value = CONTENT; t.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
+    ok();
+  });
+  function ok() {
+    btn.classList.add('copied'); btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 Copy'; }, 2500);
+  }
+}
+</script>
 </body>
 </html>
