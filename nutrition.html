@@ -11,461 +11,130 @@
   <title>FitForge — Nutrition</title>
 
   <style>
-    /* ── PANTRY PILLS ──────────────────────────────────────────── */
-    .pantry-row {
-      display: flex;
-      gap: var(--space-2);
-      flex-wrap: wrap;
-    }
+    /* ── PANTRY PILLS ──────────────────────────────────────── */
+    .pantry-row { display:flex; gap:var(--space-2); flex-wrap:wrap; }
+    .pantry-pill { display:flex; align-items:center; gap:var(--space-2); padding:var(--space-2) var(--space-4); border-radius:var(--radius-full); font-size:var(--text-sm); font-weight:var(--weight-medium); border:1.5px solid; transition:all var(--transition-fast); }
+    .pantry-pill--available { background:rgba(22,163,74,0.08); border-color:rgba(22,163,74,0.3); color:#15803d; }
+    .pantry-pill--missing   { background:var(--color-bg-elevated); border-color:var(--color-border); color:var(--color-text-muted); }
+    .pantry-pill__dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    .pantry-pill--available .pantry-pill__dot { background:var(--color-success); }
+    .pantry-pill--missing   .pantry-pill__dot { background:var(--color-text-muted); }
 
-    .pantry-pill {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-2) var(--space-4);
-      border-radius: var(--radius-full);
-      font-size: var(--text-sm);
-      font-weight: var(--weight-medium);
-      border: 1.5px solid;
-      transition: all var(--transition-fast);
-    }
+    /* ── MEAL SLOT CARDS ───────────────────────────────────── */
+    .meal-plan-grid { display:flex; flex-direction:column; gap:var(--space-3); }
+    .meal-slot-card { background:var(--color-bg-surface); border:1.5px solid var(--color-border); border-radius:var(--radius-lg); overflow:hidden; transition:border-color var(--transition-fast); box-shadow:var(--shadow-sm); }
+    .meal-slot-card.is-filled { border-color:var(--color-border-accent); }
+    .meal-slot-header { display:flex; justify-content:space-between; align-items:center; padding:var(--space-3) var(--space-4); border-bottom:1px solid var(--color-border); background:var(--color-bg-elevated); }
+    .meal-slot-header__left { display:flex; align-items:center; gap:var(--space-2); }
+    .meal-slot-header__time { font-size:var(--text-xs); font-weight:var(--weight-bold); letter-spacing:var(--tracking-widest); text-transform:uppercase; color:var(--color-text-secondary); }
+    .meal-slot-header__cal  { font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted); }
+    .meal-slot-empty { display:flex; align-items:center; justify-content:space-between; padding:var(--space-4) var(--space-5); cursor:pointer; transition:background var(--transition-fast); }
+    .meal-slot-empty:hover { background:rgba(140,200,0,0.04); }
+    .meal-slot-empty__text { font-size:var(--text-base); color:var(--color-text-muted); }
+    .meal-slot-empty__badge { font-size:var(--text-xs); font-weight:var(--weight-bold); background:var(--color-accent); color:#0f1923; border-radius:var(--radius-full); padding:2px 10px; }
+    .meal-slot-empty__badge--zero { background:var(--color-bg-elevated); color:var(--color-text-muted); }
+    .meal-slot-filled { padding:var(--space-4) var(--space-5); display:flex; justify-content:space-between; align-items:center; gap:var(--space-3); }
+    .meal-slot-filled__info { flex:1; min-width:0; }
+    .meal-slot-filled__name { font-size:var(--text-base); font-weight:var(--weight-bold); color:var(--color-text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .meal-slot-filled__macros { display:flex; gap:var(--space-3); margin-top:var(--space-2); }
+    .meal-macro-chip { display:flex; align-items:center; gap:3px; font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-secondary); }
+    .meal-macro-chip__dot { width:6px; height:6px; border-radius:50%; }
+    .meal-slot-filled__actions { display:flex; flex-direction:column; gap:var(--space-2); align-items:flex-end; }
+    .meal-slot-filled__cal { font-family:var(--font-mono); font-size:var(--text-md); font-weight:var(--weight-bold); color:var(--color-text-primary); }
+    .meal-slot-filled__swap { font-size:var(--text-xs); color:var(--color-accent-text); font-weight:var(--weight-medium); cursor:pointer; }
 
-    .pantry-pill--available {
-      background: rgba(22,163,74,0.08);
-      border-color: rgba(22,163,74,0.3);
-      color: #15803d;
-    }
+    /* ── MACRO SUMMARY ─────────────────────────────────────── */
+    .macro-summary-card { background:var(--color-bg-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-5); box-shadow:var(--shadow-sm); }
+    .macro-summary-header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:var(--space-5); }
+    .macro-summary__title { font-size:var(--text-xs); font-weight:var(--weight-bold); letter-spacing:var(--tracking-widest); text-transform:uppercase; color:var(--color-text-secondary); }
+    .macro-summary__cal { font-family:var(--font-mono); font-size:var(--text-sm); color:var(--color-text-secondary); }
+    .macro-summary-bars { display:flex; flex-direction:column; gap:var(--space-4); }
+    .macro-summary-row { display:grid; grid-template-columns:60px 1fr auto; align-items:center; gap:var(--space-3); }
+    .macro-summary-row__label { font-size:var(--text-sm); font-weight:var(--weight-medium); color:var(--color-text-secondary); }
+    .macro-summary-row__values { font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-muted); text-align:right; white-space:nowrap; }
 
-    .pantry-pill--missing {
-      background: var(--color-bg-elevated);
-      border-color: var(--color-border);
-      color: var(--color-text-muted);
-    }
+    /* ── ALMOST READY ──────────────────────────────────────── */
+    .almost-card { background:var(--color-bg-surface); border:1px solid rgba(194,112,10,0.2); border-radius:var(--radius-lg); padding:var(--space-4); display:flex; align-items:center; gap:var(--space-4); box-shadow:var(--shadow-sm); }
+    .almost-card__icon { font-size:28px; flex-shrink:0; }
+    .almost-card__info { flex:1; }
+    .almost-card__name    { font-size:var(--text-base); font-weight:var(--weight-bold); color:var(--color-text-primary); }
+    .almost-card__missing { font-size:var(--text-xs); color:var(--color-warning); margin-top:2px; font-weight:var(--weight-medium); }
+    .almost-card__macros  { font-size:var(--text-xs); color:var(--color-text-muted); margin-top:2px; font-family:var(--font-mono); }
+    .almost-card__add     { font-size:var(--text-xs); font-weight:var(--weight-bold); color:var(--color-accent-text); cursor:pointer; white-space:nowrap; flex-shrink:0; }
 
-    .pantry-pill__dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
+    /* ── SHARED OVERLAY + SHEET ────────────────────────────── */
+    .sheet-overlay { position:fixed; inset:0; background:rgba(15,25,35,0.5); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); z-index:500; display:flex; align-items:flex-end; justify-content:center; opacity:0; pointer-events:none; transition:opacity var(--transition-normal); }
+    .sheet-overlay.is-open { opacity:1; pointer-events:auto; }
+    .sheet { width:100%; max-width:var(--max-width-app); background:var(--color-bg-surface); border-top:1px solid var(--color-border); border-radius:var(--radius-xl) var(--radius-xl) 0 0; padding:var(--space-5); padding-bottom:calc(var(--space-8) + env(safe-area-inset-bottom,0px)); display:flex; flex-direction:column; gap:var(--space-4); transform:translateY(100%); transition:transform var(--transition-slow) cubic-bezier(0.4,0,0.2,1); box-shadow:0 -8px 40px rgba(0,0,0,0.12); }
+    .sheet-overlay.is-open .sheet { transform:translateY(0); }
+    .sheet--tall { max-height:90dvh; overflow-y:auto; }
+    .sheet-handle { width:40px; height:4px; background:var(--color-border); border-radius:var(--radius-full); margin:0 auto; flex-shrink:0; }
 
-    .pantry-pill--available .pantry-pill__dot { background: var(--color-success); }
-    .pantry-pill--missing   .pantry-pill__dot { background: var(--color-text-muted); }
+    /* ── PICKER SHEET ──────────────────────────────────────── */
+    .picker-tabs { display:flex; background:var(--color-bg-elevated); border-radius:var(--radius-full); padding:3px; gap:2px; }
+    .picker-tab { flex:1; padding:var(--space-2) var(--space-3); border-radius:var(--radius-full); font-size:var(--text-xs); font-weight:var(--weight-bold); text-align:center; cursor:pointer; color:var(--color-text-muted); background:transparent; border:none; transition:all var(--transition-fast); font-family:var(--font-body); white-space:nowrap; }
+    .picker-tab.is-active { background:var(--color-bg-surface); color:var(--color-text-primary); box-shadow:var(--shadow-sm); }
+    .picker-recipe-list { display:flex; flex-direction:column; gap:var(--space-3); }
 
-    /* ── MEAL SLOT CARDS ───────────────────────────────────────── */
-    .meal-plan-grid {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-3);
-    }
+    /* Recipe card in picker */
+    .picker-recipe-card { background:var(--color-bg-elevated); border:1.5px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-4); transition:all var(--transition-fast); display:flex; gap:var(--space-3); align-items:center; }
+    .picker-recipe-card.is-selected { border-color:var(--color-accent); background:rgba(140,200,0,0.07); }
+    .picker-recipe-card.is-almost { opacity:0.8; }
+    .picker-recipe-card__thumb { width:50px; height:50px; border-radius:var(--radius-md); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:22px; }
+    .picker-recipe-card__thumb--protein  { background:linear-gradient(135deg,#d4f0b0,#b8e090); }
+    .picker-recipe-card__thumb--carbs    { background:linear-gradient(135deg,#b0d4f0,#90b8e8); }
+    .picker-recipe-card__thumb--balanced { background:linear-gradient(135deg,#f0e0b0,#e8c880); }
+    .picker-recipe-card__body { flex:1; min-width:0; }
+    .picker-recipe-card__name { font-size:var(--text-base); font-weight:var(--weight-bold); color:var(--color-text-primary); }
+    .picker-recipe-card__macros { display:flex; gap:var(--space-3); margin-top:var(--space-2); flex-wrap:wrap; }
+    .picker-recipe-card__missing { font-size:var(--text-xs); color:var(--color-warning); font-weight:var(--weight-medium); margin-top:var(--space-1); }
+    .picker-recipe-card__right { display:flex; flex-direction:column; align-items:flex-end; gap:var(--space-2); flex-shrink:0; }
+    .picker-recipe-card__cal { font-family:var(--font-mono); font-size:var(--text-md); font-weight:var(--weight-bold); color:var(--color-text-primary); }
+    .picker-recipe-card__cal small { display:block; font-size:9px; color:var(--color-text-muted); font-weight:var(--weight-normal); text-align:right; }
 
-    .meal-slot-card {
-      background: var(--color-bg-surface);
-      border: 1.5px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-      box-shadow: var(--shadow-sm);
-    }
+    /* Info button on each card */
+    .info-btn { width:30px; height:30px; border-radius:50%; border:1.5px solid var(--color-border); background:var(--color-bg-surface); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px; color:var(--color-text-secondary); transition:all var(--transition-fast); flex-shrink:0; }
+    .info-btn:hover { border-color:var(--color-border-accent); color:var(--color-accent-text); background:var(--color-accent-subtle); }
 
-    .meal-slot-card.is-filled {
-      border-color: var(--color-border-accent);
-    }
+    /* Availability badges */
+    .avail-badge { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:var(--weight-bold); letter-spacing:0.06em; text-transform:uppercase; padding:2px 7px; border-radius:var(--radius-full); }
+    .avail-badge--ready  { background:rgba(22,163,74,0.1); color:#15803d; }
+    .avail-badge--almost { background:rgba(194,112,10,0.1); color:var(--color-warning); }
 
-    .meal-slot-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--space-3) var(--space-4);
-      border-bottom: 1px solid var(--color-border);
-      background: var(--color-bg-elevated);
-    }
+    .picker-empty { text-align:center; padding:var(--space-10) var(--space-4); color:var(--color-text-muted); }
+    .picker-empty__icon { font-size:36px; margin-bottom:var(--space-3); }
+    .picker-empty__text { font-size:var(--text-sm); line-height:var(--leading-relaxed); }
+    .picker-empty__link { color:var(--color-accent-text); font-weight:var(--weight-bold); cursor:pointer; }
 
-    .meal-slot-header__left {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-    }
+    /* ── RECIPE DETAIL SHEET ───────────────────────────────── */
+    .detail-hero { display:flex; align-items:center; gap:var(--space-4); }
+    .detail-hero__thumb { width:72px; height:72px; border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; font-size:36px; flex-shrink:0; }
+    .detail-hero__info { flex:1; }
+    .detail-hero__name { font-family:var(--font-display); font-size:var(--text-xl); color:var(--color-text-primary); line-height:var(--leading-tight); letter-spacing:var(--tracking-tight); }
+    .detail-hero__meta { font-size:var(--text-xs); color:var(--color-text-muted); margin-top:var(--space-1); display:flex; gap:var(--space-3); }
 
-    .meal-slot-header__time {
-      font-size: var(--text-xs);
-      font-weight: var(--weight-bold);
-      letter-spacing: var(--tracking-widest);
-      text-transform: uppercase;
-      color: var(--color-text-secondary);
-    }
+    /* Macro pills row in detail */
+    .detail-macro-row { display:flex; gap:var(--space-2); flex-wrap:wrap; }
+    .detail-macro-pill { flex:1; min-width:70px; background:var(--color-bg-elevated); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:var(--space-3) var(--space-4); display:flex; flex-direction:column; align-items:center; gap:2px; }
+    .detail-macro-pill__value { font-family:var(--font-mono); font-size:var(--text-lg); font-weight:var(--weight-bold); color:var(--color-text-primary); line-height:1; }
+    .detail-macro-pill__label { font-size:9px; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-text-muted); }
 
-    .meal-slot-header__cal {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      color: var(--color-text-muted);
-    }
+    /* Ingredients list */
+    .detail-section-label { font-size:var(--text-xs); font-weight:var(--weight-bold); letter-spacing:var(--tracking-widest); text-transform:uppercase; color:var(--color-text-secondary); margin-bottom:var(--space-3); }
+    .ingredient-list { display:flex; flex-direction:column; gap:var(--space-2); }
+    .ingredient-row { display:flex; align-items:center; justify-content:space-between; padding:var(--space-3) var(--space-4); background:var(--color-bg-elevated); border-radius:var(--radius-md); }
+    .ingredient-row__name { font-size:var(--text-sm); color:var(--color-text-primary); font-weight:var(--weight-medium); }
+    .ingredient-row__amount { font-family:var(--font-mono); font-size:var(--text-sm); color:var(--color-text-secondary); }
+    .ingredient-row__status { font-size:12px; flex-shrink:0; margin-left:var(--space-2); }
 
-    .meal-slot-header__pct {
-      font-size: var(--text-xs);
-      color: var(--color-text-muted);
-    }
+    /* Instructions list */
+    .instructions-list { display:flex; flex-direction:column; gap:var(--space-3); }
+    .instruction-step { display:flex; gap:var(--space-3); align-items:flex-start; }
+    .instruction-step__num { width:24px; height:24px; border-radius:50%; background:var(--color-accent); color:#0f1923; font-size:11px; font-weight:var(--weight-bold); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+    .instruction-step__text { font-size:var(--text-sm); color:var(--color-text-primary); line-height:var(--leading-relaxed); }
 
-    /* Empty state — tap to choose */
-    .meal-slot-empty {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: var(--space-4) var(--space-5);
-      cursor: pointer;
-      transition: background var(--transition-fast);
-    }
-
-    .meal-slot-empty:hover { background: rgba(140,200,0,0.04); }
-
-    .meal-slot-empty__text {
-      font-size: var(--text-base);
-      color: var(--color-text-muted);
-    }
-
-    .meal-slot-empty__badge {
-      font-size: var(--text-xs);
-      font-weight: var(--weight-bold);
-      background: var(--color-accent);
-      color: #0f1923;
-      border-radius: var(--radius-full);
-      padding: 2px 10px;
-    }
-
-    .meal-slot-empty__badge--zero {
-      background: var(--color-bg-elevated);
-      color: var(--color-text-muted);
-    }
-
-    /* Filled state — shows chosen recipe */
-    .meal-slot-filled {
-      padding: var(--space-4) var(--space-5);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: var(--space-3);
-      cursor: pointer;
-    }
-
-    .meal-slot-filled:hover { background: rgba(140,200,0,0.02); }
-
-    .meal-slot-filled__info { flex: 1; min-width: 0; }
-
-    .meal-slot-filled__name {
-      font-size: var(--text-base);
-      font-weight: var(--weight-bold);
-      color: var(--color-text-primary);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .meal-slot-filled__macros {
-      display: flex;
-      gap: var(--space-3);
-      margin-top: var(--space-2);
-    }
-
-    .meal-macro-chip {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      color: var(--color-text-secondary);
-    }
-
-    .meal-macro-chip__dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-    }
-
-    .meal-slot-filled__actions {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-      align-items: flex-end;
-    }
-
-    .meal-slot-filled__cal {
-      font-family: var(--font-mono);
-      font-size: var(--text-md);
-      font-weight: var(--weight-bold);
-      color: var(--color-text-primary);
-    }
-
-    .meal-slot-filled__swap {
-      font-size: var(--text-xs);
-      color: var(--color-accent-text);
-      font-weight: var(--weight-medium);
-      cursor: pointer;
-    }
-
-    /* ── MACRO SUMMARY ─────────────────────────────────────────── */
-    .macro-summary-card {
-      background: var(--color-bg-surface);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-5);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .macro-summary-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: var(--space-5);
-    }
-
-    .macro-summary__title {
-      font-size: var(--text-xs);
-      font-weight: var(--weight-bold);
-      letter-spacing: var(--tracking-widest);
-      text-transform: uppercase;
-      color: var(--color-text-secondary);
-    }
-
-    .macro-summary__cal {
-      font-family: var(--font-mono);
-      font-size: var(--text-sm);
-      color: var(--color-text-secondary);
-    }
-
-    .macro-summary__cal span {
-      color: var(--color-text-primary);
-      font-weight: var(--weight-bold);
-    }
-
-    .macro-summary-bars {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
-    }
-
-    .macro-summary-row {
-      display: grid;
-      grid-template-columns: 60px 1fr auto;
-      align-items: center;
-      gap: var(--space-3);
-    }
-
-    .macro-summary-row__label {
-      font-size: var(--text-sm);
-      font-weight: var(--weight-medium);
-      color: var(--color-text-secondary);
-    }
-
-    .macro-summary-row__values {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      color: var(--color-text-muted);
-      text-align: right;
-      white-space: nowrap;
-    }
-
-    /* ── RECIPE PICKER MODAL ───────────────────────────────────── */
-    .picker-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15,25,35,0.5);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      z-index: 500;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity var(--transition-normal);
-    }
-
-    .picker-overlay.is-open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .picker-sheet {
-      width: 100%;
-      max-width: var(--max-width-app);
-      background: var(--color-bg-surface);
-      border-top: 1px solid var(--color-border);
-      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-      padding: var(--space-5);
-      padding-bottom: calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
-      max-height: 82dvh;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
-      transform: translateY(100%);
-      transition: transform var(--transition-slow) cubic-bezier(0.4,0,0.2,1);
-      box-shadow: 0 -8px 40px rgba(0,0,0,0.12);
-    }
-
-    .picker-overlay.is-open .picker-sheet {
-      transform: translateY(0);
-    }
-
-    .picker-handle {
-      width: 40px; height: 4px;
-      background: var(--color-border);
-      border-radius: var(--radius-full);
-      margin: 0 auto;
-    }
-
-    .picker-header { display: flex; flex-direction: column; gap: var(--space-1); }
-    .picker-header__slot { font-size: var(--text-xs); font-weight: var(--weight-bold); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--color-accent-text); }
-    .picker-header__title { font-family: var(--font-display); font-size: var(--text-xl); color: var(--color-text-primary); }
-
-    /* Picker filter tabs */
-    .picker-tabs {
-      display: flex;
-      background: var(--color-bg-elevated);
-      border-radius: var(--radius-full);
-      padding: 3px;
-      gap: 2px;
-    }
-
-    .picker-tab {
-      flex: 1;
-      padding: var(--space-2) var(--space-3);
-      border-radius: var(--radius-full);
-      font-size: var(--text-xs);
-      font-weight: var(--weight-bold);
-      text-align: center;
-      cursor: pointer;
-      color: var(--color-text-muted);
-      background: transparent;
-      border: none;
-      transition: all var(--transition-fast);
-      font-family: var(--font-body);
-      white-space: nowrap;
-    }
-
-    .picker-tab.is-active {
-      background: var(--color-bg-surface);
-      color: var(--color-text-primary);
-      box-shadow: var(--shadow-sm);
-    }
-
-    /* Recipe cards inside the picker */
-    .picker-recipe-list {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-3);
-    }
-
-    .picker-recipe-card {
-      background: var(--color-bg-elevated);
-      border: 1.5px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4);
-      cursor: pointer;
-      transition: all var(--transition-fast);
-      display: flex;
-      gap: var(--space-4);
-      align-items: center;
-    }
-
-    .picker-recipe-card:hover { border-color: var(--color-border-accent); background: rgba(140,200,0,0.04); }
-    .picker-recipe-card.is-selected { border-color: var(--color-accent); background: rgba(140,200,0,0.07); }
-    .picker-recipe-card.is-almost { opacity: 0.75; }
-    .picker-recipe-card.is-locked { opacity: 0.4; pointer-events: none; }
-
-    .picker-recipe-card__thumb {
-      width: 52px; height: 52px;
-      border-radius: var(--radius-md);
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-    }
-
-    .picker-recipe-card__thumb--protein  { background: linear-gradient(135deg, #d4f0b0, #b8e090); }
-    .picker-recipe-card__thumb--carbs    { background: linear-gradient(135deg, #b0d4f0, #90b8e8); }
-    .picker-recipe-card__thumb--balanced { background: linear-gradient(135deg, #f0e0b0, #e8c880); }
-
-    .picker-recipe-card__info { flex: 1; min-width: 0; }
-
-    .picker-recipe-card__name {
-      font-size: var(--text-base);
-      font-weight: var(--weight-bold);
-      color: var(--color-text-primary);
-    }
-
-    .picker-recipe-card__macros {
-      display: flex;
-      gap: var(--space-3);
-      margin-top: var(--space-2);
-    }
-
-    .picker-recipe-card__missing {
-      font-size: var(--text-xs);
-      color: var(--color-warning);
-      font-weight: var(--weight-medium);
-      margin-top: var(--space-1);
-    }
-
-    .picker-recipe-card__cal {
-      font-family: var(--font-mono);
-      font-size: var(--text-md);
-      font-weight: var(--weight-bold);
-      color: var(--color-text-primary);
-      text-align: right;
-      flex-shrink: 0;
-    }
-
-    .picker-recipe-card__cal small {
-      display: block;
-      font-size: var(--text-xs);
-      color: var(--color-text-muted);
-      font-weight: var(--weight-normal);
-    }
-
-    /* Available badge on card */
-    .avail-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      font-size: 9px;
-      font-weight: var(--weight-bold);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 2px 7px;
-      border-radius: var(--radius-full);
-    }
-
-    .avail-badge--ready  { background: rgba(22,163,74,0.1); color: #15803d; }
-    .avail-badge--almost { background: rgba(194,112,10,0.1); color: var(--color-warning); }
-
-    /* Empty picker state */
-    .picker-empty {
-      text-align: center;
-      padding: var(--space-10) var(--space-4);
-      color: var(--color-text-muted);
-    }
-    .picker-empty__icon { font-size: 36px; margin-bottom: var(--space-3); }
-    .picker-empty__text { font-size: var(--text-sm); line-height: var(--leading-relaxed); }
-    .picker-empty__link { color: var(--color-accent-text); font-weight: var(--weight-bold); cursor: pointer; }
-
-    /* ── ALMOST READY SECTION ──────────────────────────────────── */
-    .almost-card {
-      background: var(--color-bg-surface);
-      border: 1px solid rgba(194,112,10,0.2);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4);
-      display: flex;
-      align-items: center;
-      gap: var(--space-4);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .almost-card__icon { font-size: 28px; flex-shrink: 0; }
-    .almost-card__info { flex: 1; }
-    .almost-card__name { font-size: var(--text-base); font-weight: var(--weight-bold); color: var(--color-text-primary); }
-    .almost-card__missing { font-size: var(--text-xs); color: var(--color-warning); margin-top: 2px; font-weight: var(--weight-medium); }
-    .almost-card__macros { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px; font-family: var(--font-mono); }
-    .almost-card__add { font-size: var(--text-xs); font-weight: var(--weight-bold); color: var(--color-accent-text); cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+    /* Select CTA in detail view */
+    .detail-cta { position:sticky; bottom:0; background:var(--color-bg-surface); padding-top:var(--space-4); border-top:1px solid var(--color-border); margin-top:var(--space-2); }
   </style>
 </head>
 
@@ -475,98 +144,97 @@
     <header class="app-header">
       <div class="app-header__logo">Fit<span>Forge</span></div>
       <div style="display:flex; gap:8px; align-items:center;">
-        <div id="recipes-ready-badge" style="background:var(--color-accent); color:#0f1923; font-weight:700; font-size:var(--text-xs); padding:4px 12px; border-radius:var(--radius-full); display:none;">
-          — ready
-        </div>
+        <div id="recipes-ready-badge" style="display:none; background:var(--color-accent); color:#0f1923; font-weight:700; font-size:var(--text-xs); padding:4px 12px; border-radius:var(--radius-full);">— ready</div>
         <a href="grocery-list.html" class="btn btn--secondary btn--sm" style="font-size:var(--text-xs);">🛒 Grocery</a>
       </div>
     </header>
 
     <main class="page-content" id="page-content">
 
-      <!-- SECTION 1: Page title -->
-      <section style="padding: var(--space-4) 0 var(--space-2);">
+      <section style="padding:var(--space-4) 0 var(--space-2);">
         <p class="label" style="color:var(--color-accent-text); margin-bottom:var(--space-2);">Today's Nutrition</p>
         <h1 class="heading-1" style="font-family:var(--font-display); letter-spacing:var(--tracking-tight);">Meal Plan</h1>
-        <p style="font-size:var(--text-sm); color:var(--color-text-secondary); margin-top:var(--space-2);" id="pantry-subtitle">
-          Loading your grocery list...
-        </p>
+        <p style="font-size:var(--text-sm); color:var(--color-text-secondary); margin-top:var(--space-2);" id="pantry-subtitle">Loading your grocery list...</p>
       </section>
 
-      <!-- SECTION 2: Your Pantry Today -->
+      <!-- PANTRY -->
       <section>
         <div class="section-header">
           <h2 class="section-header__title">Your Pantry</h2>
           <a href="grocery-list.html" class="section-header__link">Update list →</a>
         </div>
         <div class="pantry-row" id="pantry-pills">
-          <!-- Injected by JS -->
-          <div class="skeleton" style="height:32px; width:90px; border-radius:999px;"></div>
-          <div class="skeleton" style="height:32px; width:80px; border-radius:999px;"></div>
-          <div class="skeleton" style="height:32px; width:70px; border-radius:999px;"></div>
+          <div class="skeleton" style="height:32px;width:90px;border-radius:999px;"></div>
+          <div class="skeleton" style="height:32px;width:80px;border-radius:999px;"></div>
+          <div class="skeleton" style="height:32px;width:70px;border-radius:999px;"></div>
         </div>
       </section>
 
-      <!-- SECTION 3: Meal Slots -->
+      <!-- MEAL SLOTS -->
       <section>
         <div class="section-header">
           <h2 class="section-header__title">Today's Meals</h2>
           <span class="section-header__link" id="meals-cal-total" style="font-family:var(--font-mono);">0 kcal planned</span>
         </div>
-
-        <div class="meal-plan-grid" id="meal-plan-grid">
-          <!-- Injected by JS -->
-        </div>
+        <div class="meal-plan-grid" id="meal-plan-grid"></div>
       </section>
 
-      <!-- SECTION 4: Daily Macro Summary -->
+      <!-- MACRO SUMMARY -->
       <section>
         <div class="macro-summary-card animate-fade-in-up">
           <div class="macro-summary-header">
             <p class="macro-summary__title">Macro Summary</p>
-            <div class="macro-summary__cal">
-              <span id="summary-cal-planned">0</span> / <span id="summary-cal-target">—</span> kcal
-            </div>
+            <div class="macro-summary__cal"><span id="summary-cal-planned">0</span> / <span id="summary-cal-target">—</span> kcal</div>
           </div>
-          <div class="macro-summary-bars" id="macro-summary-bars">
-            <!-- Injected by JS -->
-          </div>
+          <div class="macro-summary-bars" id="macro-summary-bars"></div>
         </div>
       </section>
 
-      <!-- SECTION 5: Almost Ready -->
+      <!-- ALMOST READY -->
       <section id="almost-section">
         <div class="section-header">
           <h2 class="section-header__title">Almost Ready</h2>
           <span style="font-size:var(--text-xs); color:var(--color-text-muted);">Missing 1 item</span>
         </div>
-        <div class="stack stack-sm" id="almost-list">
-          <!-- Injected by JS -->
-        </div>
+        <div class="stack stack-sm" id="almost-list"></div>
       </section>
 
-      <div style="height: var(--space-8);"></div>
+      <div style="height:var(--space-8);"></div>
     </main>
 
-    <!-- MEAL PICKER MODAL -->
-    <div class="picker-overlay" id="picker-overlay" role="dialog" aria-modal="true" aria-label="Choose a meal">
-      <div class="picker-sheet" id="picker-sheet">
-        <div class="picker-handle" aria-hidden="true"></div>
-
-        <div class="picker-header">
-          <div class="picker-header__slot" id="picker-slot-label">Breakfast</div>
-          <div class="picker-header__title">Choose a meal</div>
+    <!-- ══ PICKER OVERLAY ═══════════════════════════════════ -->
+    <div class="sheet-overlay" id="picker-overlay" role="dialog" aria-modal="true" aria-label="Choose a meal">
+      <div class="sheet sheet--tall" id="picker-sheet">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <div>
+          <div style="font-size:var(--text-xs); font-weight:var(--weight-bold); letter-spacing:var(--tracking-widest); text-transform:uppercase; color:var(--color-accent-text);" id="picker-slot-label">Breakfast</div>
+          <div style="font-family:var(--font-display); font-size:var(--text-xl); color:var(--color-text-primary);">Choose a meal</div>
         </div>
-
-        <!-- Filter tabs: Available / Almost Ready / All -->
         <div class="picker-tabs" role="tablist" id="picker-tabs">
           <button class="picker-tab is-active" data-filter="available" onclick="setPickerFilter('available')">✅ Available</button>
-          <button class="picker-tab" data-filter="almost"    onclick="setPickerFilter('almost')">⚠ Almost</button>
-          <button class="picker-tab" data-filter="all"       onclick="setPickerFilter('all')">All Recipes</button>
+          <button class="picker-tab"           data-filter="almost"    onclick="setPickerFilter('almost')">⚠ Almost</button>
+          <button class="picker-tab"           data-filter="all"       onclick="setPickerFilter('all')">All</button>
+        </div>
+        <div class="picker-recipe-list" id="picker-recipe-list"></div>
+      </div>
+    </div>
+
+    <!-- ══ RECIPE DETAIL OVERLAY ════════════════════════════ -->
+    <div class="sheet-overlay" id="detail-overlay" role="dialog" aria-modal="true" aria-label="Recipe details">
+      <div class="sheet sheet--tall" id="detail-sheet">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+          <div class="sheet-handle" style="margin:0;" aria-hidden="true"></div>
+          <button onclick="closeDetail()" style="background:none; border:none; font-size:var(--text-lg); cursor:pointer; color:var(--color-text-secondary); padding:var(--space-2);" aria-label="Back to recipe list">← Back</button>
         </div>
 
-        <div class="picker-recipe-list" id="picker-recipe-list">
-          <!-- Injected by JS when modal opens -->
+        <!-- Detail content injected by JS -->
+        <div id="detail-content"></div>
+
+        <!-- Sticky CTA -->
+        <div class="detail-cta" id="detail-cta">
+          <button class="btn btn--primary btn--lg btn--full" id="detail-select-btn" onclick="confirmDetailSelection()">
+            Add to Meal
+          </button>
         </div>
       </div>
     </div>
@@ -577,616 +245,569 @@
   <script src="script-merged.js"></script>
 
   <script>
-    /**
-     * ============================================================
-     * NUTRITION PAGE SCRIPT
-     * nutrition.html
-     *
-     * DATA FLOW:
-     *   1. Read grocery list from localStorage (StorageHelpers or direct)
-     *   2. Extract all checked items → their foodKeys
-     *   3. For each recipe, check which required ingredients are checked
-     *      available  = all required foodKeys are in checkedFoodKeys
-     *      almost     = exactly 1 required foodKey is missing
-     *      locked     = 2+ required foodKeys are missing
-     *   4. Render 4 meal slots (Breakfast / Lunch / Dinner / Snack)
-     *   5. Load saved meal plan from localStorage
-     *   6. Picker modal opens on slot tap, filtered by availability
-     *   7. Recipe selection updates slot + macro totals
-     * ============================================================
-     */
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    /* ============================================================
        RECIPE CATALOG
-       Each recipe has:
-         slots[]             — which meal types it fits
-         requiredIngredients — foodKeys that must be checked in grocery list
-         thumbType           — visual style of the thumbnail
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+       Each recipe includes:
+         slots[]              — compatible meal types
+         requiredIngredients  — foodKeys that must be checked
+         ingredients[]        — display list with amounts
+         steps[]              — numbered instructions
+    ============================================================ */
     const RECIPE_CATALOG = [
-      // ── BREAKFAST ──────────────────────────────────────────────
       {
-        id: 'r-b1',
-        name: 'Overnight Protein Oats',
-        emoji: '🥣',
-        slots: ['breakfast'],
-        thumbType: 'carbs',
-        calories: 380, proteinG: 28, carbsG: 48, fatG: 8,
-        prepMin: 5,
+        id: 'r-b1', name: 'Overnight Protein Oats', emoji: '🥣',
+        slots: ['breakfast'], thumbType: 'carbs',
+        calories: 380, proteinG: 28, carbsG: 48, fatG: 8, prepMin: 5,
         requiredIngredients: ['oats', 'greek_yogurt'],
-        instructions: 'Combine oats, Greek yogurt, and protein powder. Refrigerate overnight. Top with blueberries.',
+        ingredients: [
+          { amount: '½ cup',    name: 'Rolled Oats' },
+          { amount: '½ cup',    name: 'Greek Yogurt (2%)' },
+          { amount: '1 scoop',  name: 'Protein Powder' },
+          { amount: '¼ cup',    name: 'Blueberries (frozen)' },
+          { amount: '1 tsp',    name: 'Honey' },
+          { amount: '½ cup',    name: 'Almond Milk' },
+        ],
+        steps: [
+          'Combine oats, protein powder, and almond milk in a jar or container.',
+          'Stir in Greek yogurt until well mixed.',
+          'Cover and refrigerate overnight (at least 6 hours).',
+          'In the morning, top with blueberries and drizzle honey over the top.',
+          'Stir and enjoy cold, or microwave for 90 seconds if preferred warm.',
+        ],
       },
       {
-        id: 'r-b2',
-        name: 'Egg White Scramble',
-        emoji: '🍳',
-        slots: ['breakfast'],
-        thumbType: 'protein',
-        calories: 280, proteinG: 32, carbsG: 12, fatG: 7,
-        prepMin: 10,
+        id: 'r-b2', name: 'Egg White Scramble', emoji: '🍳',
+        slots: ['breakfast'], thumbType: 'protein',
+        calories: 280, proteinG: 32, carbsG: 12, fatG: 7, prepMin: 10,
         requiredIngredients: ['eggs', 'veggies'],
-        instructions: 'Scramble egg whites with bell peppers and spinach. Season with salt and pepper.',
+        ingredients: [
+          { amount: '6 large',  name: 'Egg Whites' },
+          { amount: '1 cup',    name: 'Baby Spinach' },
+          { amount: '½ cup',    name: 'Bell Peppers, diced' },
+          { amount: '¼ cup',    name: 'Cherry Tomatoes, halved' },
+          { amount: '1 tsp',    name: 'Olive Oil' },
+          { amount: 'to taste', name: 'Salt, Pepper & Garlic Powder' },
+        ],
+        steps: [
+          'Heat olive oil in a non-stick pan over medium heat.',
+          'Add diced bell peppers and cook for 2 minutes until slightly softened.',
+          'Add spinach and cherry tomatoes; cook 1 minute until spinach wilts.',
+          'Pour in egg whites and season with salt, pepper, and garlic powder.',
+          'Stir gently with a spatula, cooking until just set — about 3 minutes.',
+          'Remove from heat immediately to avoid overcooking. Serve hot.',
+        ],
       },
       {
-        id: 'r-b3',
-        name: 'Greek Yogurt Power Bowl',
-        emoji: '🫙',
-        slots: ['breakfast', 'snack'],
-        thumbType: 'protein',
-        calories: 350, proteinG: 38, carbsG: 22, fatG: 10,
-        prepMin: 5,
+        id: 'r-b3', name: 'Greek Yogurt Power Bowl', emoji: '🫙',
+        slots: ['breakfast', 'snack'], thumbType: 'protein',
+        calories: 350, proteinG: 38, carbsG: 22, fatG: 10, prepMin: 5,
         requiredIngredients: ['greek_yogurt'],
-        instructions: 'Layer Greek yogurt with berries, walnuts, and a drizzle of honey.',
+        ingredients: [
+          { amount: '1 cup',   name: 'Greek Yogurt (2%)' },
+          { amount: '¼ cup',   name: 'Blueberries' },
+          { amount: '2 tbsp',  name: 'Walnuts, roughly chopped' },
+          { amount: '1 tbsp',  name: 'Chia Seeds' },
+          { amount: '1 tsp',   name: 'Honey' },
+          { amount: '1 scoop', name: 'Protein Powder (optional)' },
+        ],
+        steps: [
+          'If adding protein powder, mix it into the Greek yogurt first until smooth.',
+          'Spoon yogurt into a bowl.',
+          'Top with blueberries, walnuts, and chia seeds.',
+          'Drizzle honey over the top.',
+          'Serve immediately.',
+        ],
       },
       {
-        id: 'r-b4',
-        name: 'PB Banana Oats',
-        emoji: '🥜',
-        slots: ['breakfast'],
-        thumbType: 'carbs',
-        calories: 420, proteinG: 14, carbsG: 58, fatG: 14,
-        prepMin: 5,
+        id: 'r-b4', name: 'PB Banana Oats', emoji: '🥜',
+        slots: ['breakfast'], thumbType: 'carbs',
+        calories: 420, proteinG: 14, carbsG: 58, fatG: 14, prepMin: 5,
         requiredIngredients: ['oats'],
-        instructions: 'Cook oats, stir in peanut butter and sliced banana. Top with chia seeds.',
+        ingredients: [
+          { amount: '½ cup',  name: 'Rolled Oats' },
+          { amount: '1 cup',  name: 'Water or Almond Milk' },
+          { amount: '1 tbsp', name: 'Peanut Butter' },
+          { amount: '1 medium', name: 'Banana, sliced' },
+          { amount: '1 tsp',  name: 'Chia Seeds' },
+          { amount: '1 pinch', name: 'Cinnamon' },
+        ],
+        steps: [
+          'Combine oats and liquid in a pot or microwave-safe bowl.',
+          'Cook on stovetop over medium heat for 3–4 minutes, stirring frequently, until creamy. Or microwave for 2 minutes.',
+          'Stir in peanut butter and cinnamon while oats are hot.',
+          'Top with sliced banana and chia seeds.',
+          'Serve immediately.',
+        ],
       },
-
-      // ── LUNCH ──────────────────────────────────────────────────
       {
-        id: 'r-l1',
-        name: 'Grilled Chicken Bowl',
-        emoji: '🍗',
-        slots: ['lunch', 'dinner'],
-        thumbType: 'protein',
-        calories: 520, proteinG: 45, carbsG: 52, fatG: 9,
-        prepMin: 25,
+        id: 'r-l1', name: 'Grilled Chicken Bowl', emoji: '🍗',
+        slots: ['lunch', 'dinner'], thumbType: 'protein',
+        calories: 520, proteinG: 45, carbsG: 52, fatG: 9, prepMin: 25,
         requiredIngredients: ['chicken', 'rice', 'veggies'],
-        instructions: 'Grill chicken breast, serve over brown rice with roasted broccoli. Drizzle with olive oil.',
+        ingredients: [
+          { amount: '6 oz',    name: 'Chicken Breast' },
+          { amount: '½ cup',   name: 'Brown Rice (dry measure)' },
+          { amount: '1 cup',   name: 'Broccoli Florets' },
+          { amount: '1 tsp',   name: 'Olive Oil' },
+          { amount: '½ tsp',   name: 'Garlic Powder' },
+          { amount: '½ tsp',   name: 'Paprika' },
+          { amount: 'to taste', name: 'Salt & Pepper' },
+        ],
+        steps: [
+          'Cook brown rice according to package directions (about 20 min).',
+          'While rice cooks, pound chicken breast to even thickness. Season with garlic powder, paprika, salt, and pepper.',
+          'Heat a grill pan or skillet over medium-high heat. Brush with olive oil.',
+          'Cook chicken for 6–7 minutes per side until internal temperature reaches 165°F.',
+          'Steam broccoli in the microwave for 3 minutes or blanch in boiling water for 2 minutes.',
+          'Let chicken rest 3 minutes, then slice. Serve over rice with broccoli.',
+        ],
       },
       {
-        id: 'r-l2',
-        name: 'Turkey Taco Bowl',
-        emoji: '🦃',
-        slots: ['lunch', 'dinner'],
-        thumbType: 'balanced',
-        calories: 540, proteinG: 48, carbsG: 55, fatG: 12,
-        prepMin: 20,
+        id: 'r-l2', name: 'Turkey Taco Bowl', emoji: '🦃',
+        slots: ['lunch', 'dinner'], thumbType: 'balanced',
+        calories: 540, proteinG: 48, carbsG: 55, fatG: 12, prepMin: 20,
         requiredIngredients: ['turkey', 'rice'],
-        instructions: 'Cook ground turkey with taco seasoning. Serve over rice with salsa and avocado.',
+        ingredients: [
+          { amount: '6 oz',   name: 'Ground Turkey (93% lean)' },
+          { amount: '½ cup',  name: 'White or Brown Rice (dry)' },
+          { amount: '¼ cup',  name: 'Black Beans (canned, drained)' },
+          { amount: '¼ cup',  name: 'Salsa' },
+          { amount: '½',      name: 'Avocado, sliced' },
+          { amount: '1 tsp',  name: 'Cumin' },
+          { amount: '1 tsp',  name: 'Chili Powder' },
+          { amount: '½ tsp',  name: 'Garlic Powder' },
+        ],
+        steps: [
+          'Cook rice according to package directions.',
+          'Brown ground turkey in a skillet over medium-high heat, breaking it up as it cooks.',
+          'Season with cumin, chili powder, garlic powder, salt, and pepper. Cook until no pink remains.',
+          'Warm black beans in a small saucepan or microwave.',
+          'Assemble bowl: rice, seasoned turkey, black beans, salsa.',
+          'Top with sliced avocado and serve.',
+        ],
       },
       {
-        id: 'r-l3',
-        name: 'Tuna & Veggie Wrap',
-        emoji: '🐟',
-        slots: ['lunch'],
-        thumbType: 'protein',
-        calories: 380, proteinG: 36, carbsG: 28, fatG: 10,
-        prepMin: 10,
+        id: 'r-l3', name: 'Tuna & Veggie Wrap', emoji: '🐟',
+        slots: ['lunch'], thumbType: 'protein',
+        calories: 380, proteinG: 36, carbsG: 28, fatG: 10, prepMin: 10,
         requiredIngredients: ['tuna', 'veggies'],
-        instructions: 'Mix canned tuna with Greek yogurt and diced veggies. Wrap in whole grain tortilla.',
+        ingredients: [
+          { amount: '1 can (5oz)', name: 'Tuna in Water, drained' },
+          { amount: '2 tbsp',      name: 'Greek Yogurt (as mayo substitute)' },
+          { amount: '1 large',     name: 'Whole Grain Tortilla or Wrap' },
+          { amount: '½ cup',       name: 'Spinach or Mixed Greens' },
+          { amount: '¼ cup',       name: 'Cucumber, diced' },
+          { amount: '¼ cup',       name: 'Cherry Tomatoes, halved' },
+          { amount: '1 tsp',       name: 'Dijon Mustard' },
+          { amount: 'to taste',    name: 'Salt, Pepper & Lemon Juice' },
+        ],
+        steps: [
+          'Drain tuna thoroughly and add to a bowl.',
+          'Mix in Greek yogurt, Dijon mustard, and a squeeze of lemon juice. Season with salt and pepper.',
+          'Lay the tortilla flat. Layer spinach leaves down the center.',
+          'Add the tuna mixture, then top with cucumber and tomatoes.',
+          'Roll tightly, tucking in the sides as you go. Slice in half and serve.',
+        ],
       },
       {
-        id: 'r-l4',
-        name: 'Shrimp Stir Fry',
-        emoji: '🍤',
-        slots: ['lunch', 'dinner'],
-        thumbType: 'protein',
-        calories: 410, proteinG: 36, carbsG: 44, fatG: 8,
-        prepMin: 15,
+        id: 'r-l4', name: 'Shrimp Stir Fry', emoji: '🍤',
+        slots: ['lunch', 'dinner'], thumbType: 'protein',
+        calories: 410, proteinG: 36, carbsG: 44, fatG: 8, prepMin: 15,
         requiredIngredients: ['shrimp', 'rice', 'veggies'],
-        instructions: 'Stir-fry shrimp with broccoli and bell peppers in low-sodium soy sauce. Serve over rice.',
+        ingredients: [
+          { amount: '6 oz',   name: 'Shrimp (frozen, thawed & peeled)' },
+          { amount: '½ cup',  name: 'Brown Rice (dry)' },
+          { amount: '1 cup',  name: 'Broccoli Florets' },
+          { amount: '½ cup',  name: 'Bell Peppers, sliced' },
+          { amount: '2 tbsp', name: 'Low-Sodium Soy Sauce' },
+          { amount: '1 tsp',  name: 'Sesame Oil' },
+          { amount: '2 cloves', name: 'Garlic, minced' },
+          { amount: '½ tsp',  name: 'Ginger (ground or fresh)' },
+        ],
+        steps: [
+          'Cook brown rice according to package directions.',
+          'Pat shrimp dry and season lightly with salt and pepper.',
+          'Heat sesame oil in a wok or large skillet over high heat.',
+          'Add garlic and ginger; stir-fry for 30 seconds until fragrant.',
+          'Add broccoli and bell peppers; stir-fry for 3–4 minutes.',
+          'Push vegetables to the side. Add shrimp and cook 2 minutes per side until pink.',
+          'Add soy sauce and toss everything together. Serve over rice immediately.',
+        ],
       },
-
-      // ── DINNER ─────────────────────────────────────────────────
       {
-        id: 'r-d1',
-        name: 'Salmon & Asparagus',
-        emoji: '🐠',
-        slots: ['dinner'],
-        thumbType: 'protein',
-        calories: 460, proteinG: 42, carbsG: 8, fatG: 22,
-        prepMin: 20,
+        id: 'r-d1', name: 'Salmon & Asparagus', emoji: '🐠',
+        slots: ['dinner'], thumbType: 'protein',
+        calories: 460, proteinG: 42, carbsG: 8, fatG: 22, prepMin: 20,
         requiredIngredients: ['salmon', 'veggies'],
-        instructions: 'Pan-sear salmon fillet, roast asparagus with olive oil and lemon. Serve together.',
+        ingredients: [
+          { amount: '6 oz',   name: 'Salmon Fillet' },
+          { amount: '1 bunch', name: 'Asparagus, trimmed' },
+          { amount: '1 tbsp', name: 'Olive Oil' },
+          { amount: '1',      name: 'Lemon (zested and juiced)' },
+          { amount: '2 cloves', name: 'Garlic, minced' },
+          { amount: '1 tsp',  name: 'Dried Dill or Parsley' },
+          { amount: 'to taste', name: 'Salt & Pepper' },
+        ],
+        steps: [
+          'Preheat oven to 400°F (200°C). Line a baking sheet with parchment.',
+          'Arrange asparagus on one half of the sheet. Toss with half the olive oil, salt, and pepper.',
+          'Place salmon skin-side down on the other half.',
+          'Mix remaining olive oil with garlic, lemon zest, lemon juice, and dill. Brush over salmon.',
+          'Roast for 12–15 minutes until salmon flakes easily with a fork and asparagus is tender.',
+          'Serve together with lemon wedges.',
+        ],
       },
       {
-        id: 'r-d2',
-        name: 'Beef & Sweet Potato',
-        emoji: '🥩',
-        slots: ['dinner'],
-        thumbType: 'balanced',
-        calories: 580, proteinG: 44, carbsG: 42, fatG: 18,
-        prepMin: 30,
+        id: 'r-d2', name: 'Beef & Sweet Potato', emoji: '🥩',
+        slots: ['dinner'], thumbType: 'balanced',
+        calories: 580, proteinG: 44, carbsG: 42, fatG: 18, prepMin: 30,
         requiredIngredients: ['beef', 'potato', 'veggies'],
-        instructions: 'Brown ground beef, roast sweet potato cubes. Serve with steamed broccoli.',
+        ingredients: [
+          { amount: '6 oz',   name: 'Lean Ground Beef (93%)' },
+          { amount: '1 large', name: 'Sweet Potato, cubed' },
+          { amount: '1 cup',  name: 'Broccoli Florets' },
+          { amount: '1 tbsp', name: 'Olive Oil' },
+          { amount: '½ tsp',  name: 'Cumin' },
+          { amount: '½ tsp',  name: 'Smoked Paprika' },
+          { amount: 'to taste', name: 'Salt & Pepper' },
+        ],
+        steps: [
+          'Preheat oven to 425°F (220°C). Toss sweet potato cubes with olive oil, cumin, paprika, salt, and pepper.',
+          'Spread on a baking sheet and roast for 20–25 minutes, flipping halfway.',
+          'While potato roasts, brown ground beef in a skillet over medium-high heat.',
+          'Season beef with salt, pepper, and remaining spices. Drain any excess fat.',
+          'Steam or microwave broccoli for 3 minutes until tender-crisp.',
+          'Plate roasted sweet potato, beef, and broccoli together.',
+        ],
       },
       {
-        id: 'r-d3',
-        name: 'Tofu Veggie Bowl',
-        emoji: '🫙',
-        slots: ['lunch', 'dinner'],
-        thumbType: 'balanced',
-        calories: 380, proteinG: 22, carbsG: 38, fatG: 14,
-        prepMin: 20,
+        id: 'r-d3', name: 'Tofu Veggie Bowl', emoji: '🫙',
+        slots: ['lunch', 'dinner'], thumbType: 'balanced',
+        calories: 380, proteinG: 22, carbsG: 38, fatG: 14, prepMin: 20,
         requiredIngredients: ['tofu', 'veggies', 'rice'],
-        instructions: 'Pan-fry firm tofu until golden. Serve over rice with sautéed vegetables.',
+        ingredients: [
+          { amount: '6 oz',   name: 'Firm Tofu, pressed and cubed' },
+          { amount: '½ cup',  name: 'Brown Rice (dry)' },
+          { amount: '1 cup',  name: 'Broccoli & Bell Peppers, mixed' },
+          { amount: '2 tbsp', name: 'Low-Sodium Soy Sauce' },
+          { amount: '1 tbsp', name: 'Sesame Oil' },
+          { amount: '1 tsp',  name: 'Sriracha (optional)' },
+          { amount: '1 tsp',  name: 'Sesame Seeds' },
+        ],
+        steps: [
+          'Press tofu between paper towels for 10 minutes to remove excess moisture. Cube into 1-inch pieces.',
+          'Cook brown rice according to package directions.',
+          'Heat sesame oil in a pan over medium-high heat. Add tofu in a single layer.',
+          'Cook without stirring for 3–4 minutes until golden. Flip and cook another 3 minutes.',
+          'Add vegetables and stir-fry for 3 minutes.',
+          'Add soy sauce and sriracha. Toss to coat and cook 1 more minute.',
+          'Serve over rice, garnished with sesame seeds.',
+        ],
       },
-
-      // ── SNACK ──────────────────────────────────────────────────
       {
-        id: 'r-s1',
-        name: 'Cottage Cheese Bowl',
-        emoji: '🧀',
-        slots: ['snack'],
-        thumbType: 'protein',
-        calories: 220, proteinG: 26, carbsG: 12, fatG: 5,
-        prepMin: 2,
+        id: 'r-s1', name: 'Cottage Cheese Bowl', emoji: '🧀',
+        slots: ['snack'], thumbType: 'protein',
+        calories: 220, proteinG: 26, carbsG: 12, fatG: 5, prepMin: 2,
         requiredIngredients: ['cottage_cheese'],
-        instructions: 'Top cottage cheese with blueberries and a sprinkle of chia seeds.',
+        ingredients: [
+          { amount: '¾ cup',  name: 'Cottage Cheese (2%)' },
+          { amount: '¼ cup',  name: 'Blueberries or Fruit of Choice' },
+          { amount: '1 tsp',  name: 'Chia Seeds' },
+          { amount: '1 drizzle', name: 'Honey (optional)' },
+        ],
+        steps: [
+          'Spoon cottage cheese into a small bowl.',
+          'Top with blueberries and chia seeds.',
+          'Drizzle honey if desired.',
+          'Eat immediately or refrigerate up to 4 hours.',
+        ],
       },
       {
-        id: 'r-s2',
-        name: 'Hard Boiled Eggs',
-        emoji: '🥚',
-        slots: ['snack', 'breakfast'],
-        thumbType: 'protein',
-        calories: 140, proteinG: 12, carbsG: 1, fatG: 10,
-        prepMin: 12,
+        id: 'r-s2', name: 'Hard Boiled Eggs', emoji: '🥚',
+        slots: ['snack', 'breakfast'], thumbType: 'protein',
+        calories: 140, proteinG: 12, carbsG: 1, fatG: 10, prepMin: 12,
         requiredIngredients: ['eggs'],
-        instructions: 'Boil eggs for 10–12 minutes, cool in ice water, peel and season.',
+        ingredients: [
+          { amount: '2 large', name: 'Eggs' },
+          { amount: 'to taste', name: 'Salt & Pepper' },
+          { amount: 'optional', name: 'Hot Sauce or Everything Bagel Seasoning' },
+        ],
+        steps: [
+          'Place eggs in a small pot and cover with cold water by 1 inch.',
+          'Bring to a boil over medium-high heat.',
+          'Once boiling, cover and remove from heat. Let sit for 10–11 minutes.',
+          'Transfer eggs to a bowl of ice water for 5 minutes to stop cooking.',
+          'Peel under running water. Season with salt and pepper.',
+        ],
       },
       {
-        id: 'r-s3',
-        name: 'Avocado Rice Cake',
-        emoji: '🥑',
-        slots: ['snack'],
-        thumbType: 'balanced',
-        calories: 180, proteinG: 4, carbsG: 22, fatG: 9,
-        prepMin: 3,
+        id: 'r-s3', name: 'Avocado Rice Cake', emoji: '🥑',
+        slots: ['snack'], thumbType: 'balanced',
+        calories: 180, proteinG: 4, carbsG: 22, fatG: 9, prepMin: 3,
         requiredIngredients: ['avocado'],
-        instructions: 'Slice avocado over rice cakes. Season with salt, pepper, and red pepper flakes.',
+        ingredients: [
+          { amount: '2 plain', name: 'Rice Cakes' },
+          { amount: '½',       name: 'Avocado, mashed' },
+          { amount: '1 pinch', name: 'Red Pepper Flakes' },
+          { amount: '1 squeeze', name: 'Lemon Juice' },
+          { amount: 'to taste', name: 'Salt & Everything Bagel Seasoning' },
+        ],
+        steps: [
+          'Mash avocado with a fork in a small bowl.',
+          'Add lemon juice, salt, and a pinch of red pepper flakes. Mix well.',
+          'Spread mashed avocado evenly over both rice cakes.',
+          'Sprinkle with everything bagel seasoning and serve immediately.',
+        ],
       },
     ];
 
-    /* ── MEAL SLOT DEFINITIONS ───────────────────────────────────
-       Each slot: id, display name, time label, calorie % of target,
-       which recipe slots are compatible
-    ─────────────────────────────────────────────────────────── */
+    /* ── MEAL SLOT DEFINITIONS ───────────────────────────── */
     const MEAL_SLOTS = [
-      { id: 'breakfast', label: 'Breakfast', time: '7–9 AM',   pct: 0.25, compatibleSlots: ['breakfast'] },
-      { id: 'lunch',     label: 'Lunch',     time: '12–1 PM',  pct: 0.35, compatibleSlots: ['lunch'] },
-      { id: 'dinner',    label: 'Dinner',    time: '6–7 PM',   pct: 0.30, compatibleSlots: ['dinner', 'lunch'] },
-      { id: 'snack',     label: 'Snack',     time: 'Anytime',  pct: 0.10, compatibleSlots: ['snack'] },
+      { id: 'breakfast', label: 'Breakfast', time: '7–9 AM',  pct: 0.25, compatibleSlots: ['breakfast'] },
+      { id: 'lunch',     label: 'Lunch',     time: '12–1 PM', pct: 0.35, compatibleSlots: ['lunch'] },
+      { id: 'dinner',    label: 'Dinner',    time: '6–7 PM',  pct: 0.30, compatibleSlots: ['dinner', 'lunch'] },
+      { id: 'snack',     label: 'Snack',     time: 'Anytime', pct: 0.10, compatibleSlots: ['snack'] },
     ];
 
     const STORAGE_MEAL_PLAN_KEY = 'fitforge_meal_plan';
 
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       PAGE STATE
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* ── PAGE STATE ──────────────────────────────────────── */
     const nutritionState = {
-      profile:          null,
-      checkedFoodKeys:  [],   // foodKeys of checked grocery items
-      checkedCategories:[],   // which categories have any checked items
-      mealPlan: {             // chosen recipe per slot (null = empty)
-        breakfast: null,
-        lunch:     null,
-        dinner:    null,
-        snack:     null,
-      },
-      // Active picker state
-      activeSlotId:  null,
-      pickerFilter:  'available',
+      profile:           null,
+      checkedFoodKeys:   [],
+      checkedCategories: [],
+      mealPlan:          { breakfast: null, lunch: null, dinner: null, snack: null },
+      activeSlotId:      null,
+      pickerFilter:      'available',
+      detailRecipeId:    null, // recipe currently shown in detail sheet
     };
 
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       INITIALIZATION
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* ── INIT ────────────────────────────────────────────── */
     document.addEventListener('DOMContentLoaded', () => {
       nutritionState.profile = AppState.getProfile();
-
-      // 1. Load grocery list and extract checked foodKeys
       loadGroceryData();
-
-      // 2. Load saved meal plan for today
       loadSavedMealPlan();
-
-      // 3. Render all sections
       renderPantry();
       renderMealSlots();
       renderMacroSummary();
       renderAlmostReady();
       renderHeaderBadge();
 
-      // 4. Wire up modal close on overlay tap
-      document.getElementById('picker-overlay')?.addEventListener('click', (e) => {
+      // Close picker when tapping overlay background
+      document.getElementById('picker-overlay')?.addEventListener('click', e => {
         if (e.target === e.currentTarget) closePicker();
+      });
+      // Close detail when tapping overlay background
+      document.getElementById('detail-overlay')?.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeDetail();
       });
     });
 
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       DATA: GROCERY LIST → CHECKED FOOD KEYS
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* ── GROCERY DATA ────────────────────────────────────── */
     function loadGroceryData() {
       try {
         const stored = localStorage.getItem('fitforge_grocery_list');
-        if (!stored) {
-          UIHelpers.setText('#pantry-subtitle', 'No grocery list found — add items to unlock recipes.');
-          return;
-        }
-
-        const data  = JSON.parse(stored);
-        const items = data?.items ?? [];
-
-        // Extract foodKeys from CHECKED items only
+        if (!stored) { UIHelpers.setText('#pantry-subtitle', 'No grocery list found — add items to unlock recipes.'); return; }
+        const items = JSON.parse(stored)?.items ?? [];
         const checkedItems = items.filter(i => i.checked && i.foodKey);
-        nutritionState.checkedFoodKeys = [...new Set(checkedItems.map(i => i.foodKey))];
-
-        // Which categories have any checked items
-        const checkedCats = [...new Set(items.filter(i => i.checked).map(i => i.category))];
-        nutritionState.checkedCategories = checkedCats;
-
-        // Subtitle
-        const totalChecked = items.filter(i => i.checked).length;
-        const totalItems   = items.length;
-        UIHelpers.setText('#pantry-subtitle',
-          totalChecked > 0
-            ? `${totalChecked} of ${totalItems} grocery items checked`
-            : 'Check items on your grocery list to unlock recipes.'
-        );
-
-      } catch (e) {
-        console.error('Failed to load grocery data:', e);
-        UIHelpers.setText('#pantry-subtitle', 'Could not load grocery list.');
-      }
+        nutritionState.checkedFoodKeys   = [...new Set(checkedItems.map(i => i.foodKey))];
+        nutritionState.checkedCategories = [...new Set(items.filter(i => i.checked).map(i => i.category))];
+        const total   = items.length;
+        const checked = items.filter(i => i.checked).length;
+        UIHelpers.setText('#pantry-subtitle', checked > 0 ? `${checked} of ${total} grocery items checked` : 'Check items on your grocery list to unlock recipes.');
+      } catch (e) { UIHelpers.setText('#pantry-subtitle', 'Could not load grocery list.'); }
     }
 
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       RECIPE AVAILABILITY LOGIC
-       Core function: checks a recipe against checkedFoodKeys.
-       Returns: 'available' | 'almost' | 'locked'
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* ── AVAILABILITY ────────────────────────────────────── */
     function getRecipeAvailability(recipe) {
       const required = recipe.requiredIngredients ?? [];
-
-      // Recipes with no required ingredients are always available
-      if (required.length === 0) return { status: 'available', missing: [] };
-
-      const missing = required.filter(key => !nutritionState.checkedFoodKeys.includes(key));
-
-      if (missing.length === 0) return { status: 'available', missing: [] };
+      if (!required.length) return { status: 'available', missing: [] };
+      const missing = required.filter(k => !nutritionState.checkedFoodKeys.includes(k));
+      if (!missing.length)  return { status: 'available', missing: [] };
       if (missing.length === 1) return { status: 'almost',    missing };
       return                            { status: 'locked',    missing };
     }
 
-    /** Get ingredient display name from foodKey */
     function foodKeyToName(key) {
-      const map = {
-        chicken: 'Chicken', rice: 'Rice', veggies: 'Vegetables',
-        turkey: 'Turkey', salmon: 'Salmon', tuna: 'Tuna',
-        shrimp: 'Shrimp', beef: 'Beef', tofu: 'Tofu',
-        eggs: 'Eggs', greek_yogurt: 'Greek Yogurt',
-        cottage_cheese: 'Cottage Cheese', oats: 'Oats',
-        potato: 'Sweet Potato', avocado: 'Avocado',
-        pasta: 'Pasta', bread: 'Bread', quinoa: 'Quinoa',
-      };
+      const map = { chicken:'Chicken', rice:'Rice', veggies:'Vegetables', turkey:'Turkey', salmon:'Salmon', tuna:'Tuna', shrimp:'Shrimp', beef:'Beef', tofu:'Tofu', eggs:'Eggs', greek_yogurt:'Greek Yogurt', cottage_cheese:'Cottage Cheese', oats:'Oats', potato:'Sweet Potato', avocado:'Avocado' };
       return map[key] ?? key;
     }
 
-    /** Count available recipes for a given slot */
     function countAvailableForSlot(slotId) {
       const slot = MEAL_SLOTS.find(s => s.id === slotId);
       if (!slot) return 0;
-      return RECIPE_CATALOG.filter(r =>
-        slot.compatibleSlots.some(cs => r.slots.includes(cs)) &&
-        getRecipeAvailability(r).status === 'available'
-      ).length;
+      return RECIPE_CATALOG.filter(r => slot.compatibleSlots.some(cs => r.slots.includes(cs)) && getRecipeAvailability(r).status === 'available').length;
     }
 
-    /** Total count of available recipes across all slots */
     function countTotalAvailable() {
       return RECIPE_CATALOG.filter(r => getRecipeAvailability(r).status === 'available').length;
     }
 
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       MEAL PLAN PERSISTENCE
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* ── PERSISTENCE ─────────────────────────────────────── */
     function loadSavedMealPlan() {
       try {
         const raw = localStorage.getItem(STORAGE_MEAL_PLAN_KEY);
         if (!raw) return;
         const saved = JSON.parse(raw);
-
-        // Only load if saved for today (meal plan resets each day)
-        const today = UIHelpers.getTodayString();
-        if (saved.date !== today) return;
-
+        if (saved.date !== UIHelpers.getTodayString()) return;
         MEAL_SLOTS.forEach(slot => {
           if (saved[slot.id]) {
-            // Find recipe by id to ensure it's still valid
             const recipe = RECIPE_CATALOG.find(r => r.id === saved[slot.id]);
             if (recipe) nutritionState.mealPlan[slot.id] = recipe;
           }
         });
-      } catch (e) {
-        console.error('Failed to load meal plan:', e);
-      }
+      } catch {}
     }
 
     function saveMealPlan() {
-      const toSave = { date: UIHelpers.getTodayString() };
-      MEAL_SLOTS.forEach(slot => {
-        toSave[slot.id] = nutritionState.mealPlan[slot.id]?.id ?? null;
-      });
-      localStorage.setItem(STORAGE_MEAL_PLAN_KEY, JSON.stringify(toSave));
+      const data = { date: UIHelpers.getTodayString() };
+      MEAL_SLOTS.forEach(s => { data[s.id] = nutritionState.mealPlan[s.id]?.id ?? null; });
+      localStorage.setItem(STORAGE_MEAL_PLAN_KEY, JSON.stringify(data));
     }
 
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       RENDER: HEADER BADGE — "X recipes ready"
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* ── RENDER: HEADER BADGE ────────────────────────────── */
     function renderHeaderBadge() {
       const badge = document.getElementById('recipes-ready-badge');
       if (!badge) return;
       const count = countTotalAvailable();
-      if (count > 0) {
-        badge.textContent = `${count} ready`;
-        badge.style.display = 'block';
-      } else {
-        badge.style.display = 'none';
-      }
+      badge.textContent  = `${count} ready`;
+      badge.style.display = count > 0 ? 'block' : 'none';
     }
 
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       RENDER: PANTRY PILLS
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* ── RENDER: PANTRY ──────────────────────────────────── */
     function renderPantry() {
       const container = document.getElementById('pantry-pills');
       if (!container) return;
-
-      const categories = [
-        { key: 'protein', label: 'Proteins', icon: '🍗' },
-        { key: 'carbs',   label: 'Carbs',    icon: '🌾' },
-        { key: 'fat',     label: 'Fats',      icon: '🥑' },
-        { key: 'produce', label: 'Produce',   icon: '🥦' },
+      const cats = [
+        { key:'protein', label:'Proteins', icon:'🍗' }, { key:'carbs', label:'Carbs', icon:'🌾' },
+        { key:'fat',     label:'Fats',     icon:'🥑' }, { key:'produce', label:'Produce', icon:'🥦' },
       ];
-
-      container.innerHTML = categories.map(cat => {
-        const available = nutritionState.checkedCategories.includes(cat.key);
-        return `
-          <div class="pantry-pill pantry-pill--${available ? 'available' : 'missing'}">
-            <div class="pantry-pill__dot"></div>
-            <span>${cat.icon} ${cat.label}</span>
-          </div>
-        `;
+      container.innerHTML = cats.map(c => {
+        const ok = nutritionState.checkedCategories.includes(c.key);
+        return `<div class="pantry-pill pantry-pill--${ok?'available':'missing'}"><div class="pantry-pill__dot"></div><span>${c.icon} ${c.label}</span></div>`;
       }).join('');
     }
 
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       RENDER: MEAL SLOTS
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* ── RENDER: MEAL SLOTS ──────────────────────────────── */
     function renderMealSlots() {
       const grid = document.getElementById('meal-plan-grid');
       if (!grid) return;
-
-      const profile       = nutritionState.profile;
-      const targetCal     = profile?.calculatedMacros?.targetCalories ?? 2000;
-
+      const targetCal = nutritionState.profile?.calculatedMacros?.targetCalories ?? 2000;
       grid.innerHTML = MEAL_SLOTS.map(slot => {
-        const recipe     = nutritionState.mealPlan[slot.id];
+        const recipe    = nutritionState.mealPlan[slot.id];
         const slotTarget = Math.round(targetCal * slot.pct);
         const available  = countAvailableForSlot(slot.id);
-
         return `
-          <div class="meal-slot-card ${recipe ? 'is-filled' : ''}" id="slot-card-${slot.id}">
-
-            <!-- Slot header row -->
+          <div class="meal-slot-card ${recipe?'is-filled':''}" id="slot-card-${slot.id}">
             <div class="meal-slot-header">
               <div class="meal-slot-header__left">
                 <span class="meal-slot-header__time">${slot.label}</span>
-                <span class="meal-slot-header__pct" style="color:var(--color-text-muted);">· ${slot.time}</span>
+                <span style="color:var(--color-text-muted); font-size:var(--text-xs);">· ${slot.time}</span>
               </div>
               <span class="meal-slot-header__cal">~${slotTarget} kcal target</span>
             </div>
-
-            <!-- Slot body: empty or filled -->
-            ${recipe
-              ? buildFilledSlot(slot, recipe)
-              : buildEmptySlot(slot, available)
-            }
-          </div>
-        `;
+            ${recipe ? buildFilledSlot(slot, recipe) : buildEmptySlot(slot, available)}
+          </div>`;
       }).join('');
-
       updateCalTotals();
     }
 
-    function buildEmptySlot(slot, availableCount) {
+    function buildEmptySlot(slot, available) {
       return `
-        <div class="meal-slot-empty" onclick="openPicker('${slot.id}')"
-             role="button" tabindex="0" aria-label="Choose ${slot.label}">
+        <div class="meal-slot-empty" onclick="openPicker('${slot.id}')" role="button" tabindex="0">
           <span class="meal-slot-empty__text">Tap to choose a ${slot.label.toLowerCase()}</span>
-          <span class="meal-slot-empty__badge ${availableCount === 0 ? 'meal-slot-empty__badge--zero' : ''}">
-            ${availableCount > 0 ? `${availableCount} available` : 'Check grocery list'}
+          <span class="meal-slot-empty__badge ${available===0?'meal-slot-empty__badge--zero':''}">
+            ${available > 0 ? `${available} available` : 'Check grocery list'}
           </span>
-        </div>
-      `;
+        </div>`;
     }
 
     function buildFilledSlot(slot, recipe) {
       return `
-        <div class="meal-slot-filled" onclick="openPicker('${slot.id}')"
-             role="button" tabindex="0" aria-label="Change ${slot.label}: currently ${recipe.name}">
+        <div class="meal-slot-filled" onclick="openPicker('${slot.id}')" role="button" tabindex="0">
           <div class="meal-slot-filled__info">
-            <div class="meal-slot-filled__name">${UIHelpers.escapeHTML(recipe.emoji)} ${UIHelpers.escapeHTML(recipe.name)}</div>
+            <div class="meal-slot-filled__name">${recipe.emoji} ${UIHelpers.escapeHTML(recipe.name)}</div>
             <div class="meal-slot-filled__macros">
-              <span class="meal-macro-chip">
-                <span class="meal-macro-chip__dot" style="background:var(--color-protein);"></span>
-                ${recipe.proteinG}g P
-              </span>
-              <span class="meal-macro-chip">
-                <span class="meal-macro-chip__dot" style="background:var(--color-carbs);"></span>
-                ${recipe.carbsG}g C
-              </span>
-              <span class="meal-macro-chip">
-                <span class="meal-macro-chip__dot" style="background:var(--color-fat);"></span>
-                ${recipe.fatG}g F
-              </span>
+              <span class="meal-macro-chip"><span class="meal-macro-chip__dot" style="background:var(--color-protein);"></span>${recipe.proteinG}g P</span>
+              <span class="meal-macro-chip"><span class="meal-macro-chip__dot" style="background:var(--color-carbs);"></span>${recipe.carbsG}g C</span>
+              <span class="meal-macro-chip"><span class="meal-macro-chip__dot" style="background:var(--color-fat);"></span>${recipe.fatG}g F</span>
             </div>
           </div>
           <div class="meal-slot-filled__actions">
             <div class="meal-slot-filled__cal">${recipe.calories}</div>
             <div class="meal-slot-filled__swap">Swap ⇄</div>
           </div>
-        </div>
-      `;
+        </div>`;
     }
 
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       RENDER: MACRO SUMMARY
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* ── RENDER: MACRO SUMMARY ───────────────────────────── */
     function renderMacroSummary() {
-      const profile   = nutritionState.profile;
-      const macros    = profile?.calculatedMacros;
-      const container = document.getElementById('macro-summary-bars');
-      if (!container) return;
-
-      const targets = {
-        proteinG: macros?.proteinG ?? 180,
-        carbsG:   macros?.carbsG   ?? 200,
-        fatG:     macros?.fatG     ?? 55,
-        calories: macros?.targetCalories ?? 2000,
-      };
-
-      // Sum macros from chosen meals
+      const macros  = nutritionState.profile?.calculatedMacros;
+      const targets = { proteinG: macros?.proteinG??180, carbsG: macros?.carbsG??200, fatG: macros?.fatG??55, calories: macros?.targetCalories??2000 };
       const planned = getTotalPlannedMacros();
-
       UIHelpers.setText('#summary-cal-planned', planned.calories);
       UIHelpers.setText('#summary-cal-target',  targets.calories);
-
+      const container = document.getElementById('macro-summary-bars');
+      if (!container) return;
       const rows = [
-        { label: 'Protein', planned: planned.proteinG, target: targets.proteinG, color: 'var(--color-protein)' },
-        { label: 'Carbs',   planned: planned.carbsG,   target: targets.carbsG,   color: 'var(--color-carbs)' },
-        { label: 'Fat',     planned: planned.fatG,      target: targets.fatG,     color: 'var(--color-fat)' },
+        { label:'Protein', planned:planned.proteinG, target:targets.proteinG, color:'var(--color-protein)' },
+        { label:'Carbs',   planned:planned.carbsG,   target:targets.carbsG,   color:'var(--color-carbs)' },
+        { label:'Fat',     planned:planned.fatG,      target:targets.fatG,     color:'var(--color-fat)' },
       ];
-
-      container.innerHTML = rows.map(row => {
-        const pct = Math.min(100, Math.round((row.planned / row.target) * 100));
+      container.innerHTML = rows.map(r => {
+        const pct = Math.min(100, Math.round(r.planned/r.target*100));
         return `
           <div class="macro-summary-row">
-            <span class="macro-summary-row__label">${row.label}</span>
-            <div style="flex:1;">
-              <div class="progress-bar">
-                <div class="progress-bar__fill" style="background:${row.color}; width:${pct}%;"></div>
-              </div>
-            </div>
-            <span class="macro-summary-row__values">${row.planned}g / ${row.target}g</span>
-          </div>
-        `;
+            <span class="macro-summary-row__label">${r.label}</span>
+            <div style="flex:1;"><div class="progress-bar"><div class="progress-bar__fill" style="background:${r.color};width:${pct}%;"></div></div></div>
+            <span class="macro-summary-row__values">${r.planned}g / ${r.target}g</span>
+          </div>`;
       }).join('');
     }
 
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       RENDER: ALMOST READY SECTION
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* ── RENDER: ALMOST READY ────────────────────────────── */
     function renderAlmostReady() {
       const section = document.getElementById('almost-section');
       const list    = document.getElementById('almost-list');
       if (!list) return;
-
-      const almostRecipes = RECIPE_CATALOG.filter(r => {
-        const { status } = getRecipeAvailability(r);
-        return status === 'almost';
-      });
-
-      if (almostRecipes.length === 0) {
-        section?.style && (section.style.display = 'none');
-        return;
-      }
-
-      list.innerHTML = almostRecipes.slice(0, 4).map(recipe => {
+      const almost = RECIPE_CATALOG.filter(r => getRecipeAvailability(r).status === 'almost');
+      if (!almost.length) { section && (section.style.display='none'); return; }
+      section && (section.style.display='');
+      list.innerHTML = almost.slice(0, 4).map(recipe => {
         const { missing } = getRecipeAvailability(recipe);
-        const missingName = missing.map(foodKeyToName).join(', ');
         return `
           <div class="almost-card">
-            <div class="almost-card__icon">${UIHelpers.escapeHTML(recipe.emoji)}</div>
+            <div class="almost-card__icon">${recipe.emoji}</div>
             <div class="almost-card__info">
               <div class="almost-card__name">${UIHelpers.escapeHTML(recipe.name)}</div>
-              <div class="almost-card__missing">Missing: ${UIHelpers.escapeHTML(missingName)}</div>
+              <div class="almost-card__missing">Missing: ${missing.map(foodKeyToName).join(', ')}</div>
               <div class="almost-card__macros">${recipe.calories} kcal · ${recipe.proteinG}P · ${recipe.carbsG}C · ${recipe.fatG}F</div>
             </div>
             <a href="grocery-list.html" class="almost-card__add">+ Add →</a>
-          </div>
-        `;
+          </div>`;
       }).join('');
     }
 
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       TOTALS HELPERS
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* ── TOTALS ──────────────────────────────────────────── */
     function getTotalPlannedMacros() {
-      const totals = { calories: 0, proteinG: 0, carbsG: 0, fatG: 0 };
-      MEAL_SLOTS.forEach(slot => {
-        const r = nutritionState.mealPlan[slot.id];
-        if (r) {
-          totals.calories += r.calories;
-          totals.proteinG += r.proteinG;
-          totals.carbsG   += r.carbsG;
-          totals.fatG     += r.fatG;
-        }
-      });
-      return totals;
+      const t = { calories:0, proteinG:0, carbsG:0, fatG:0 };
+      MEAL_SLOTS.forEach(s => { const r=nutritionState.mealPlan[s.id]; if(r){t.calories+=r.calories;t.proteinG+=r.proteinG;t.carbsG+=r.carbsG;t.fatG+=r.fatG;} });
+      return t;
     }
 
     function updateCalTotals() {
-      const totals = getTotalPlannedMacros();
-      UIHelpers.setText('#meals-cal-total', `${totals.calories.toLocaleString()} kcal planned`);
+      UIHelpers.setText('#meals-cal-total', `${getTotalPlannedMacros().calories.toLocaleString()} kcal planned`);
     }
 
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       MEAL PICKER MODAL
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    /* ════════════════════════════════════════════════════════
+       PICKER MODAL
+    ════════════════════════════════════════════════════════ */
     function openPicker(slotId) {
-      nutritionState.activeSlotId = slotId;
-      nutritionState.pickerFilter = 'available';
-
+      nutritionState.activeSlotId  = slotId;
+      nutritionState.pickerFilter  = 'available';
       const slot = MEAL_SLOTS.find(s => s.id === slotId);
-
       UIHelpers.setText('#picker-slot-label', slot?.label ?? slotId);
-
-      // Reset tab active state
       setPickerFilter('available');
-
-      // Show the modal
       document.getElementById('picker-overlay').classList.add('is-open');
     }
 
@@ -1197,136 +818,216 @@
 
     function setPickerFilter(filter) {
       nutritionState.pickerFilter = filter;
-
-      // Update tab styles
       document.querySelectorAll('.picker-tab').forEach(btn => {
         btn.classList.toggle('is-active', btn.dataset.filter === filter);
       });
-
       renderPickerRecipes();
     }
 
     function renderPickerRecipes() {
-      const list    = document.getElementById('picker-recipe-list');
-      const slotId  = nutritionState.activeSlotId;
-      const filter  = nutritionState.pickerFilter;
+      const list   = document.getElementById('picker-recipe-list');
+      const slotId = nutritionState.activeSlotId;
       if (!list || !slotId) return;
-
-      const slot = MEAL_SLOTS.find(s => s.id === slotId);
+      const slot   = MEAL_SLOTS.find(s => s.id === slotId);
       if (!slot) return;
 
-      // Get recipes compatible with this slot
-      let recipes = RECIPE_CATALOG.filter(r =>
-        slot.compatibleSlots.some(cs => r.slots.includes(cs))
-      );
+      let recipes = RECIPE_CATALOG.filter(r => slot.compatibleSlots.some(cs => r.slots.includes(cs)));
 
-      // Apply availability filter
+      const filter = nutritionState.pickerFilter;
       recipes = recipes.filter(r => {
         const { status } = getRecipeAvailability(r);
         if (filter === 'available') return status === 'available';
         if (filter === 'almost')    return status === 'almost';
-        return true; // 'all'
+        return true;
       });
 
-      if (recipes.length === 0) {
+      if (!recipes.length) {
         list.innerHTML = `
           <div class="picker-empty">
-            <div class="picker-empty__icon">${filter === 'available' ? '🛒' : '📋'}</div>
+            <div class="picker-empty__icon">${filter==='available'?'🛒':'📋'}</div>
             <div class="picker-empty__text">
-              ${filter === 'available'
-                ? `No recipes available yet for ${slot.label}.<br>
-                   <span class="picker-empty__link" onclick="window.location.href='grocery-list.html'">
-                     Check items on your grocery list →
-                   </span>`
-                : `No ${filter === 'almost' ? '"almost ready"' : ''} recipes for ${slot.label}.`}
+              ${filter==='available'
+                ? `No recipes ready for ${slot.label} yet.<br><span class="picker-empty__link" onclick="window.location.href='grocery-list.html'">Check items on your grocery list →</span>`
+                : `No ${filter==='almost'?'"almost ready"':''} recipes for ${slot.label}.`}
             </div>
-          </div>
-        `;
+          </div>`;
         return;
       }
 
       const currentRecipe = nutritionState.mealPlan[slotId];
-
       list.innerHTML = recipes.map(recipe => {
         const { status, missing } = getRecipeAvailability(recipe);
         const isSelected = currentRecipe?.id === recipe.id;
-
         return `
-          <div class="picker-recipe-card ${isSelected ? 'is-selected' : ''} ${status === 'almost' ? 'is-almost' : ''}"
-               onclick="selectRecipe('${recipe.id}')"
-               role="button"
-               tabindex="0"
-               aria-label="Select ${recipe.name}, ${recipe.calories} calories"
-               aria-pressed="${isSelected}">
+          <div class="picker-recipe-card ${isSelected?'is-selected':''} ${status==='almost'?'is-almost':''}"
+               role="button" tabindex="0">
 
-            <!-- Thumb -->
-            <div class="picker-recipe-card__thumb picker-recipe-card__thumb--${recipe.thumbType}">
-              ${UIHelpers.escapeHTML(recipe.emoji)}
+            <!-- Tap thumb → open detail -->
+            <div class="picker-recipe-card__thumb picker-recipe-card__thumb--${recipe.thumbType}"
+                 onclick="openDetail('${recipe.id}')"
+                 title="View ingredients & instructions"
+                 style="cursor:pointer;">
+              ${recipe.emoji}
             </div>
 
-            <!-- Info -->
-            <div class="picker-recipe-card__info">
+            <!-- Tap body → select recipe -->
+            <div class="picker-recipe-card__body" onclick="selectRecipe('${recipe.id}')">
               <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
                 <span class="picker-recipe-card__name">${UIHelpers.escapeHTML(recipe.name)}</span>
-                ${status === 'available'
-                  ? `<span class="avail-badge avail-badge--ready">✓ Ready</span>`
-                  : status === 'almost'
-                  ? `<span class="avail-badge avail-badge--almost">⚠ Almost</span>`
-                  : ''}
+                ${status==='available' ? `<span class="avail-badge avail-badge--ready">✓ Ready</span>` : status==='almost' ? `<span class="avail-badge avail-badge--almost">⚠ Almost</span>` : ''}
               </div>
               <div class="picker-recipe-card__macros">
-                <span class="meal-macro-chip">
-                  <span class="meal-macro-chip__dot" style="background:var(--color-protein);"></span>${recipe.proteinG}g P
-                </span>
-                <span class="meal-macro-chip">
-                  <span class="meal-macro-chip__dot" style="background:var(--color-carbs);"></span>${recipe.carbsG}g C
-                </span>
-                <span class="meal-macro-chip">
-                  <span class="meal-macro-chip__dot" style="background:var(--color-fat);"></span>${recipe.fatG}g F
-                </span>
+                <span class="meal-macro-chip"><span class="meal-macro-chip__dot" style="background:var(--color-protein);"></span>${recipe.proteinG}g P</span>
+                <span class="meal-macro-chip"><span class="meal-macro-chip__dot" style="background:var(--color-carbs);"></span>${recipe.carbsG}g C</span>
+                <span class="meal-macro-chip"><span class="meal-macro-chip__dot" style="background:var(--color-fat);"></span>${recipe.fatG}g F</span>
               </div>
-              ${missing.length > 0
-                ? `<div class="picker-recipe-card__missing">
-                     Missing: ${missing.map(foodKeyToName).map(n => UIHelpers.escapeHTML(n)).join(', ')}
-                   </div>`
-                : ''}
-              <div style="font-size:var(--text-xs); color:var(--color-text-muted); margin-top:3px;">
-                ⏱ ${recipe.prepMin} min
-              </div>
+              ${missing.length ? `<div class="picker-recipe-card__missing">Missing: ${missing.map(foodKeyToName).join(', ')}</div>` : ''}
             </div>
 
-            <!-- Cal -->
-            <div class="picker-recipe-card__cal">
-              ${recipe.calories}
-              <small>kcal</small>
+            <!-- Right: cal + info button -->
+            <div class="picker-recipe-card__right">
+              <div class="picker-recipe-card__cal" onclick="selectRecipe('${recipe.id}')">${recipe.calories}<small>kcal</small></div>
+              <button class="info-btn" onclick="openDetail('${recipe.id}')" aria-label="View ingredients and instructions for ${UIHelpers.escapeHTML(recipe.name)}">ℹ</button>
             </div>
-          </div>
-        `;
+          </div>`;
       }).join('');
     }
 
+    /* Tap card body → select immediately */
     function selectRecipe(recipeId) {
       const slotId = nutritionState.activeSlotId;
       if (!slotId) return;
-
       const recipe = RECIPE_CATALOG.find(r => r.id === recipeId);
       if (!recipe) return;
-
-      // Set in state
       nutritionState.mealPlan[slotId] = recipe;
-
-      // Save to localStorage
       saveMealPlan();
-
-      // Close picker
       closePicker();
-
-      // Re-render updated sections
       renderMealSlots();
       renderMacroSummary();
       renderAlmostReady();
+      UIHelpers.showToast(`${recipe.name} added to ${MEAL_SLOTS.find(s=>s.id===slotId)?.label}`, 'success');
+    }
 
-      UIHelpers.showToast(`${recipe.name} added to ${MEAL_SLOTS.find(s => s.id === slotId)?.label}`, 'success');
+    /* ════════════════════════════════════════════════════════
+       RECIPE DETAIL SHEET
+       Opens over the picker. User can read ingredients +
+       instructions, then tap "Add to Meal" to select.
+    ════════════════════════════════════════════════════════ */
+    function openDetail(recipeId) {
+      const recipe = RECIPE_CATALOG.find(r => r.id === recipeId);
+      if (!recipe) return;
+
+      nutritionState.detailRecipeId = recipeId;
+
+      const { status, missing } = getRecipeAvailability(recipe);
+      const slotId              = nutritionState.activeSlotId;
+      const slotLabel           = MEAL_SLOTS.find(s => s.id === slotId)?.label ?? 'Meal';
+
+      // Update the CTA button label
+      const ctaBtn = document.getElementById('detail-select-btn');
+      if (ctaBtn) {
+        ctaBtn.textContent = `Add to ${slotLabel}`;
+        ctaBtn.disabled    = false;
+      }
+
+      // Build the ingredient rows with a ✓/✗ availability indicator
+      const ingredientRows = recipe.ingredients.map(ing => {
+        // Best-effort check: see if the ingredient name matches any checked foodKey
+        const lowerName = ing.name.toLowerCase();
+        const isAvail   = nutritionState.checkedFoodKeys.some(key =>
+          lowerName.includes(key.replace('_', ' ')) ||
+          lowerName.includes(key)
+        );
+        return `
+          <div class="ingredient-row">
+            <div>
+              <div class="ingredient-row__name">${UIHelpers.escapeHTML(ing.name)}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:var(--space-3);">
+              <span class="ingredient-row__amount">${UIHelpers.escapeHTML(ing.amount)}</span>
+              <span class="ingredient-row__status" title="${isAvail ? 'In your grocery list' : 'Not in your grocery list'}">${isAvail ? '✅' : '◻️'}</span>
+            </div>
+          </div>`;
+      }).join('');
+
+      // Build the step list
+      const stepsList = recipe.steps.map((step, i) => `
+        <div class="instruction-step">
+          <div class="instruction-step__num">${i + 1}</div>
+          <div class="instruction-step__text">${UIHelpers.escapeHTML(step)}</div>
+        </div>`).join('');
+
+      // Build the missing ingredients warning (if any)
+      const missingHTML = missing.length
+        ? `<div style="background:rgba(194,112,10,0.08); border:1px solid rgba(194,112,10,0.25); border-radius:var(--radius-md); padding:var(--space-3) var(--space-4); font-size:var(--text-xs); color:var(--color-warning);">
+             ⚠ Missing from grocery list: ${missing.map(foodKeyToName).join(', ')}
+             — <a href="grocery-list.html" style="color:var(--color-warning); font-weight:700;">Add to list →</a>
+           </div>`
+        : '';
+
+      document.getElementById('detail-content').innerHTML = `
+        <!-- Hero -->
+        <div class="detail-hero">
+          <div class="detail-hero__thumb picker-recipe-card__thumb--${recipe.thumbType}">${recipe.emoji}</div>
+          <div class="detail-hero__info">
+            <div class="detail-hero__name">${UIHelpers.escapeHTML(recipe.name)}</div>
+            <div class="detail-hero__meta">
+              <span>⏱ ${recipe.prepMin} min</span>
+              <span>🍽 1 serving</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Macro pills -->
+        <div class="detail-macro-row">
+          <div class="detail-macro-pill">
+            <div class="detail-macro-pill__value" style="color:var(--color-accent-text);">${recipe.calories}</div>
+            <div class="detail-macro-pill__label">kcal</div>
+          </div>
+          <div class="detail-macro-pill">
+            <div class="detail-macro-pill__value">${recipe.proteinG}g</div>
+            <div class="detail-macro-pill__label">Protein</div>
+          </div>
+          <div class="detail-macro-pill">
+            <div class="detail-macro-pill__value">${recipe.carbsG}g</div>
+            <div class="detail-macro-pill__label">Carbs</div>
+          </div>
+          <div class="detail-macro-pill">
+            <div class="detail-macro-pill__value">${recipe.fatG}g</div>
+            <div class="detail-macro-pill__label">Fat</div>
+          </div>
+        </div>
+
+        ${missingHTML}
+
+        <!-- Ingredients -->
+        <div>
+          <div class="detail-section-label">Ingredients</div>
+          <div class="ingredient-list">${ingredientRows}</div>
+        </div>
+
+        <!-- Instructions -->
+        <div>
+          <div class="detail-section-label">Instructions</div>
+          <div class="instructions-list">${stepsList}</div>
+        </div>
+      `;
+
+      // Show the detail overlay ON TOP of the picker overlay
+      document.getElementById('detail-overlay').classList.add('is-open');
+    }
+
+    function closeDetail() {
+      document.getElementById('detail-overlay').classList.remove('is-open');
+      nutritionState.detailRecipeId = null;
+    }
+
+    /** Called when user taps "Add to Meal" from the detail sheet */
+    function confirmDetailSelection() {
+      const recipeId = nutritionState.detailRecipeId;
+      if (!recipeId) return;
+      closeDetail();
+      selectRecipe(recipeId); // this also closes the picker
     }
   </script>
 </body>
