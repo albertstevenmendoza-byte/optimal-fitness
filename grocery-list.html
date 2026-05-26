@@ -353,6 +353,7 @@
 
       // ── Render the list ───────────────────────────────────────
       renderList();
+      updateRecipeBadge();
 
       // ── Wire up search input ──────────────────────────────────
       document.getElementById('grocery-search')?.addEventListener('input', (e) => {
@@ -568,6 +569,7 @@
       persistAndSync();
       updateProgressIndicators();
       renderFilterTabs(); // Update counts
+      updateRecipeBadge();
     }
 
     /** Add a new custom item to the list */
@@ -721,6 +723,43 @@
 
       el.className = `sync-status is-${state}`;
       textEl.textContent = text;
+    }
+
+    /**
+     * Count how many recipes in the nutrition catalog are "available"
+     * (all required ingredients are in the checked grocery items).
+     * We inline a minimal version of the recipe catalog here so the
+     * grocery page doesn't need to import nutrition.html's script.
+     */
+    function updateRecipeBadge() {
+      const badge = document.getElementById('recipe-count-badge');
+      if (!badge) return;
+
+      // Minimal required ingredients map matching nutrition.html RECIPE_CATALOG
+      const RECIPE_REQUIREMENTS = [
+        ['oats', 'greek_yogurt'], ['eggs', 'veggies'], ['greek_yogurt'],
+        ['oats'], ['chicken', 'rice', 'veggies'], ['turkey', 'rice'],
+        ['tuna', 'veggies'], ['shrimp', 'rice', 'veggies'],
+        ['salmon', 'veggies'], ['beef', 'potato', 'veggies'],
+        ['tofu', 'veggies', 'rice'], ['cottage_cheese'], ['eggs'],
+        ['avocado'],
+      ];
+
+      // Get checked foodKeys from current groceryList
+      const checkedKeys = new Set(
+        groceryList.filter(i => i.checked && i.foodKey).map(i => i.foodKey)
+      );
+
+      const readyCount = RECIPE_REQUIREMENTS.filter(required =>
+        required.every(key => checkedKeys.has(key))
+      ).length;
+
+      if (readyCount > 0) {
+        badge.textContent = `${readyCount} recipes ready`;
+        badge.style.display = 'inline-flex';
+      } else {
+        badge.style.display = 'none';
+      }
     }
   </script>
 </body>
