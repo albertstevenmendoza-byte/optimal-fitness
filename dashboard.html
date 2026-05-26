@@ -4,1211 +4,330 @@
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
  <meta name="theme-color" content="#090b10">
- <meta name="description" content="FitForge Dashboard — Your daily fitness and nutrition overview">
+ <meta name="description" content="FitForge — AI-powered fitness and nutrition tracking">
+ <meta name="apple-mobile-web-app-capable" content="yes">
+ <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
- <!-- PWA manifest (create manifest.json separately) -->
- <link rel="manifest" href="manifest.json">
-
- <!-- Google Fonts: DM Serif Display + Space Mono + DM Sans -->
  <link rel="preconnect" href="https://fonts.googleapis.com">
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
  <link rel="stylesheet" href="styles-light-full.css">
+ 
 
- <title>FitForge — Dashboard</title>
+ <title>FitForge — Sign In</title>
 
- <!-- Page-specific styles, scoped to this page's components -->
  <style>
- /* ── HERO GREETING SECTION ─────────────────────────────────── */
+ /* ── ADDITIONAL LOGIN-SPECIFIC STYLES ──────────────────────── */
 
- .hero {
- padding: var(--space-6) 0 var(--space-4);
- }
-
- .hero__date {
- font-size: var(--text-xs);
- font-weight: var(--weight-bold);
- letter-spacing: var(--tracking-widest);
- text-transform: uppercase;
- color: var(--color-text-muted);
- margin-bottom: var(--space-2);
- }
-
- .hero__greeting {
- font-family: var(--font-display);
- font-size: var(--text-2xl);
- color: var(--color-text-primary);
- line-height: var(--leading-tight);
- letter-spacing: var(--tracking-tight);
- }
-
- .hero__greeting em {
- color: var(--color-accent);
- font-style: normal;
- }
-
- .hero__sub {
- margin-top: var(--space-2);
- font-size: var(--text-sm);
- color: var(--color-text-secondary);
- }
-
- /* ── CALORIE RING CARD ────────────────────────────────────── */
-
- .calorie-card {
- background: linear-gradient(135deg, var(--color-bg-surface) 0%, var(--color-bg-elevated) 100%);
- border: 1px solid var(--color-border-accent);
- border-radius: var(--radius-xl);
- padding: var(--space-6);
- display: flex;
- align-items: center;
- gap: var(--space-6);
- position: relative;
- overflow: hidden;
- }
-
- /* Decorative lime radial gradient background on the card */
- .calorie-card::before {
- content: '';
- position: absolute;
- top: -60px;
- right: -60px;
- width: 200px;
- height: 200px;
- border-radius: 50%;
- background: radial-gradient(circle, rgba(200, 255, 0, 0.06) 0%, transparent 70%);
- pointer-events: none;
- }
-
- .calorie-card__ring-wrap {
- position: relative;
- width: 120px;
- height: 120px;
+ /* Google logo SVG inline */
+ .google-logo {
+ width: 20px;
+ height: 20px;
  flex-shrink: 0;
  }
 
- /* SVG donut ring — drawn via stroke-dasharray technique */
- .calorie-ring {
- width: 120px;
- height: 120px;
- transform: rotate(-90deg); /* Start from top, not right */
+ /* Animated shimmer on the logo */
+ @keyframes logoPulse {
+ 0%, 100% { text-shadow: 0 0 0 transparent; }
+ 50% { text-shadow: 0 0 30px rgba(0,34,68,0.2); }
  }
 
- .calorie-ring__track {
- fill: none;
- stroke: var(--color-bg-input);
- stroke-width: 8;
+ .login-hero__logo {
+ animation: logoPulse 4s ease-in-out infinite;
  }
 
- .calorie-ring__fill {
- fill: none;
- stroke: var(--color-accent);
- stroke-width: 8;
- stroke-linecap: round;
- /* Animated via JS: stroke-dasharray controls the "progress" */
- stroke-dasharray: 0 339; /* circumference = 2π × r = 2π × 54 ≈ 339 */
- transition: stroke-dasharray 1.2s cubic-bezier(0.4, 0, 0.2, 1);
- }
-
- .calorie-card__ring-center {
- position: absolute;
- inset: 0;
+ /* Stat counters in the hero */
+ .login-stats {
  display: flex;
- flex-direction: column;
- align-items: center;
- justify-content: center;
+ gap: var(--space-6);
+ margin-top: var(--space-6);
  }
 
- .calorie-card__cal-consumed {
+ .login-stat__value {
  font-family: var(--font-mono);
  font-size: var(--text-xl);
- font-weight: var(--weight-bold);
- color: var(--color-text-primary);
- line-height: 1;
- }
-
- .calorie-card__cal-label {
- font-size: 9px;
- letter-spacing: 0.08em;
- text-transform: uppercase;
- color: var(--color-text-secondary);
- margin-top: 2px;
- }
-
- .calorie-card__info {
- flex: 1;
- display: flex;
- flex-direction: column;
- gap: var(--space-3);
- }
-
- .calorie-card__target-line {
- font-size: var(--text-sm);
- color: var(--color-text-secondary);
- }
-
- .calorie-card__target-line strong {
- font-family: var(--font-mono);
- color: var(--color-accent);
- }
-
- .calorie-card__remaining {
- font-family: var(--font-mono);
- font-size: var(--text-2xl);
  color: var(--color-text-primary);
  line-height: 1;
  letter-spacing: -0.03em;
  }
 
- .calorie-card__remaining-label {
- font-size: var(--text-xs);
- color: var(--color-text-secondary);
- letter-spacing: 0.05em;
- text-transform: uppercase;
- }
-
- /* ── MACRO SUMMARY CARD ───────────────────────────────────── */
-
- .macro-card {
- background-color: var(--color-bg-surface);
- border: 1px solid var(--color-border);
- border-radius: var(--radius-lg);
- padding: var(--space-5);
- }
-
- .macro-card__title {
- font-size: var(--text-xs);
- font-weight: var(--weight-bold);
- letter-spacing: var(--tracking-widest);
- text-transform: uppercase;
- color: var(--color-text-secondary);
- margin-bottom: var(--space-4);
- }
-
- .macro-bars {
- display: flex;
- flex-direction: column;
- gap: var(--space-4);
- }
-
- .macro-item {
- display: grid;
- /* Icon | Name | Bar | Values */
- grid-template-columns: 10px 56px 1fr auto;
- align-items: center;
- gap: var(--space-3);
- }
-
- .macro-item__dot {
- width: 8px;
- height: 8px;
- border-radius: 50%;
- flex-shrink: 0;
- }
-
- .macro-item__name {
- font-size: var(--text-sm);
- font-weight: var(--weight-medium);
- color: var(--color-text-secondary);
- }
-
- .macro-item__bar-wrap {
- height: 4px;
- background: var(--color-bg-input);
- border-radius: var(--radius-full);
- overflow: hidden;
- }
-
- .macro-item__bar-fill {
- height: 100%;
- border-radius: var(--radius-full);
- width: 0; /* Animated by JS */
- transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
- }
-
- .macro-item__values {
- font-family: var(--font-mono);
- font-size: var(--text-xs);
- color: var(--color-text-secondary);
- white-space: nowrap;
- }
-
- /* ── QUICK STAT CARDS (2-column grid) ────────────────────── */
-
- .quick-stats {
- display: grid;
- grid-template-columns: 1fr 1fr;
- gap: var(--space-3);
- }
-
- /* ── TODAY'S WORKOUT CARD ─────────────────────────────────── */
-
- .workout-today-card {
- background: linear-gradient(135deg, #0f1a2e 0%, #111621 100%);
- border: 1px solid rgba(0, 200, 255, 0.15);
- border-radius: var(--radius-lg);
- padding: var(--space-5);
- display: flex;
- justify-content: space-between;
- align-items: center;
- gap: var(--space-4);
- cursor: pointer;
- transition: border-color var(--transition-normal);
- }
-
- .workout-today-card:hover {
- border-color: rgba(0, 200, 255, 0.3);
- }
-
- .workout-today-card__badge {
- display: inline-flex;
- align-items: center;
- gap: var(--space-2);
- background: var(--color-blue-glow);
- border: 1px solid rgba(0, 200, 255, 0.2);
- border-radius: var(--radius-full);
- padding: 3px 10px;
- font-size: var(--text-xs);
- font-weight: var(--weight-bold);
- color: var(--color-blue);
- margin-bottom: var(--space-3);
- width: fit-content;
- letter-spacing: 0.05em;
- text-transform: uppercase;
- }
-
- .workout-today-card__name {
- font-family: var(--font-display);
- font-size: var(--text-xl);
- color: var(--color-text-primary);
- line-height: var(--leading-tight);
- }
-
- .workout-today-card__meta {
- font-size: var(--text-sm);
- color: var(--color-text-secondary);
- margin-top: var(--space-2);
- }
-
- .workout-today-card__arrow {
- width: 42px;
- height: 42px;
- border-radius: var(--radius-full);
- background: var(--color-blue-glow);
- border: 1px solid rgba(0, 200, 255, 0.2);
- display: flex;
- align-items: center;
- justify-content: center;
- font-size: 18px;
- flex-shrink: 0;
- transition: transform var(--transition-spring);
- }
-
- .workout-today-card:hover .workout-today-card__arrow {
- transform: translateX(3px);
- }
-
- /* ── RECENT ACTIVITY LIST ─────────────────────────────────── */
-
- .activity-list {
- display: flex;
- flex-direction: column;
- gap: var(--space-1);
- }
-
- .activity-item {
- display: flex;
- align-items: center;
- gap: var(--space-3);
- padding: var(--space-3) var(--space-4);
- background: var(--color-bg-surface);
- border-radius: var(--radius-md);
- border: 1px solid transparent;
- transition: border-color var(--transition-fast);
- }
-
- .activity-item:hover {
- border-color: var(--color-border);
- }
-
- .activity-item__icon {
- width: 34px;
- height: 34px;
- border-radius: var(--radius-sm);
- background: var(--color-bg-elevated);
- display: flex;
- align-items: center;
- justify-content: center;
- font-size: 16px;
- flex-shrink: 0;
- }
-
- .activity-item__info {
- flex: 1;
- min-width: 0;
- }
-
- .activity-item__title {
- font-size: var(--text-sm);
- font-weight: var(--weight-medium);
- color: var(--color-text-primary);
- white-space: nowrap;
- overflow: hidden;
- text-overflow: ellipsis;
- }
-
- .activity-item__time {
+ .login-stat__label {
  font-size: var(--text-xs);
  color: var(--color-text-muted);
- margin-top: 1px;
+ text-transform: uppercase;
+ letter-spacing: 0.06em;
+ margin-top: 2px;
  }
 
- .activity-item__value {
- font-family: var(--font-mono);
- font-size: var(--text-sm);
- color: var(--color-text-secondary);
- white-space: nowrap;
- }
-
- /* ── WATER TRACKER ────────────────────────────────────────── */
-
- .water-tracker {
- background: var(--color-bg-surface);
- border: 1px solid var(--color-border);
- border-radius: var(--radius-lg);
- padding: var(--space-5);
- }
-
- .water-tracker__header {
- display: flex;
- justify-content: space-between;
- align-items: center;
- margin-bottom: var(--space-4);
- }
-
- .water-tracker__cups {
- display: flex;
- gap: var(--space-2);
- flex-wrap: wrap;
- }
-
- /* Each cup button — tap to log water */
- .water-cup {
- width: 36px;
- height: 36px;
- border-radius: var(--radius-sm);
- border: 1.5px solid var(--color-border);
- background: var(--color-bg-input);
- cursor: pointer;
- display: flex;
- align-items: center;
- justify-content: center;
- font-size: 16px;
- transition: all var(--transition-fast);
- user-select: none;
- }
-
- .water-cup.is-filled {
- background: var(--color-blue-glow);
- border-color: var(--color-blue);
- animation: scaleIn var(--transition-spring) both;
- }
-
- .water-cup:hover:not(.is-filled) {
- border-color: rgba(0, 200, 255, 0.4);
- }
-
- /* ── PHASE TRACKER BANNER ─────────────────────────────────── */
- .phase-banner {
- border-radius: var(--radius-lg);
- padding: var(--space-4) var(--space-5);
- display: flex;
- align-items: center;
- gap: var(--space-4);
- border: 1px solid;
- }
- .phase-banner--active { background: rgba(0,34,68,0.07); border-color: rgba(80,160,0,0.25); }
- .phase-banner--deload { background: rgba(0,136,187,0.07); border-color: rgba(0,136,187,0.25); }
- .phase-banner--reassess { background: rgba(245,158,11,0.08); border-color: rgba(194,112,10,0.3); }
- .phase-banner--complete { background: rgba(220,38,38,0.06); border-color: rgba(220,38,38,0.25); }
-
- .phase-banner__icon { font-size: 24px; flex-shrink: 0; }
- .phase-banner__body { flex: 1; }
- .phase-banner__label {
- font-size: var(--text-xs); font-weight: var(--weight-bold);
- letter-spacing: var(--tracking-widest); text-transform: uppercase;
- margin-bottom: 2px;
- }
- .phase-banner--active .phase-banner__label { color: var(--color-accent-text); }
- .phase-banner--deload .phase-banner__label { color: var(--color-blue); }
- .phase-banner--reassess .phase-banner__label { color: var(--color-warning); }
- .phase-banner--complete .phase-banner__label { color: var(--color-danger); }
-
- .phase-banner__title { font-size: var(--text-base); font-weight: var(--weight-bold); color: var(--color-text-primary); }
- .phase-banner__sub { font-size: var(--text-xs); color: var(--color-text-secondary); margin-top: 2px; }
-
- .phase-progress-bar {
- height: 3px; background: rgba(0,0,0,0.08); border-radius: var(--radius-full);
- overflow: hidden; margin-top: var(--space-3);
- }
- .phase-progress-bar__fill {
- height: 100%; border-radius: var(--radius-full);
- background: var(--color-accent); transition: width 1s ease;
- }
-
- .eval-tip-card {
- background: var(--color-bg-surface);
- border: 1px solid var(--color-border);
- border-left: 3px solid var(--color-accent);
+ /* Error message */
+ .login-error {
+ background: var(--color-danger-glow);
+ border: 1px solid rgba(239,68,68,0.2);
  border-radius: var(--radius-md);
- padding: var(--space-4);
+ padding: var(--space-3) var(--space-4);
+ font-size: var(--text-sm);
+ color: var(--color-danger);
+ text-align: center;
+ display: none;
  }
- .eval-tip-card__label {
- font-size: var(--text-xs); font-weight: var(--weight-bold);
- letter-spacing: var(--tracking-widest); text-transform: uppercase;
- color: var(--color-accent-text); margin-bottom: var(--space-2);
- }
- .eval-tip-card__text { font-size: var(--text-sm); color: var(--color-text-secondary); line-height: var(--leading-relaxed); }
- .eval-tip-card__metric { font-size: var(--text-sm); color: var(--color-text-primary); font-weight: var(--weight-medium); margin-top: var(--space-2); }
+ .login-error.is-visible { display: block; }
  </style>
 </head>
 
 <body>
- <div class="app-shell">
+ <!--
+ LOGIN PAGE LAYOUT NOTE:
+ This page does NOT use the .app-shell wrapper used by other pages.
+ It's a full-viewport layout because it's a standalone entry screen.
+ Other pages use .app-shell to create the 430px phone-frame constraint.
+ -->
+ <div class="login-page">
 
- <!-- ════════════════════════════════════════════════════
- TOP HEADER
- ═════════════════════════════════════════════════ -->
- <header class="app-header">
- <div class="app-header__logo">Fit<span>Forge</span></div>
-
- <div style="display:flex; gap:8px; align-items:center;">
- <!-- Streak counter badge -->
- <div style="display:flex; align-items:center; gap:5px; background:var(--color-accent-subtle); border:1px solid var(--color-border-accent); border-radius:var(--radius-full); padding:4px 10px;">
- 
- <span id="streak-count" style="font-family:var(--font-mono); font-size:var(--text-sm); font-weight:700; color:var(--color-accent);">0</span>
+ <!-- Decorative background layers -->
+ <div class="login-page__bg" aria-hidden="true">
+ <div class="login-page__bg-grid"></div>
+ <div class="login-page__bg-shard"></div>
+ <!-- Secondary diagonal accent -->
+ <div style="
+ position:absolute; bottom:-10%; right:-15%;
+ width:60%; height:50%;
+ background: radial-gradient(ellipse, rgba(0,200,255,0.04) 0%, transparent 70%);
+ border-radius:50%;
+ "></div>
  </div>
 
- <!-- Avatar / profile button -->
- <button class="app-header__action" aria-label="Open profile menu" onclick="window.location.href='settings.html'">
- 
- </button>
+ <!-- ══════════════════════════════════════════════════
+ HERO — Brand section at top of screen
+ ════════════════════════════════════════════════ -->
+ <div class="login-hero" role="banner">
+ <p class="login-hero__eyebrow">Train. Track. Transform.</p>
+
+ <h1 class="login-hero__logo">Fit<span>Forge</span></h1>
+
+ <p class="login-hero__tagline">
+ Your personalized fitness and nutrition engine.
+ Built around your body, your goal, your food.
+ </p>
+
+ <!-- App feature pills -->
+ <div class="login-features" role="list">
+ <div class="login-feature-pill" role="listitem">TDEE Calculated</div>
+ <div class="login-feature-pill" role="listitem">Progress Charts</div>
+ <div class="login-feature-pill" role="listitem">Macro Recipes</div>
+ <div class="login-feature-pill" role="listitem">Weekly Plans</div>
  </div>
- </header>
 
- <!-- ════════════════════════════════════════════════════
- MAIN PAGE CONTENT
- All sections below are inside the scrollable area.
- ═════════════════════════════════════════════════ -->
- <main class="page-content" id="page-content">
+ <!-- Vanity stats (static demo numbers) -->
+ <div class="login-stats" aria-label="App statistics">
+ <div>
+ <div class="login-stat__value">8</div>
+ <div class="login-stat__label">Pages</div>
+ </div>
+ <div>
+ <div class="login-stat__value">100%</div>
+ <div class="login-stat__label">Vanilla</div>
+ </div>
+ <div>
+ <div class="login-stat__value">∞</div>
+ <div class="login-stat__label">Goals</div>
+ </div>
+ </div>
+ </div>
 
- <!-- SECTION 1: Hero Greeting -->
- <section class="hero">
- <p class="hero__date" id="today-date">Loading...</p>
- <h1 class="hero__greeting">
- Good <span id="time-of-day">morning</span>,
- <em id="user-name">Athlete</em>.
- </h1>
- <p class="hero__sub" id="goal-summary">Loading your plan...</p>
- </section>
+ <!-- ══════════════════════════════════════════════════
+ LOGIN PANEL — Auth controls at bottom of screen
+ ════════════════════════════════════════════════ -->
+ <div class="login-panel" role="main">
 
+ <!-- Error message (hidden by default, shown on failed auth) -->
+ <div class="login-error" id="login-error" role="alert" aria-live="polite"></div>
 
- <!-- PHASE TRACKER BANNER -->
- <section aria-label="Phase progress" id="phase-section"></section>
-
- <!-- SECTION 2: Calorie Ring Card -->
- <section aria-label="Calorie summary">
- <div class="calorie-card">
-
- <!-- Donut ring: stroke-dasharray progress technique -->
- <div class="calorie-card__ring-wrap">
- <svg class="calorie-ring" viewBox="0 0 120 120" aria-hidden="true">
- <!-- Background track circle -->
- <circle class="calorie-ring__track" cx="60" cy="60" r="54"/>
- <!-- Foreground progress circle — animated by JS -->
- <circle class="calorie-ring__fill" id="calorie-ring-fill" cx="60" cy="60" r="54"/>
+ <!-- Primary CTA: Google Sign-In -->
+ <button
+ class="btn btn--secondary btn--lg btn--full btn--google"
+ id="btn-google-signin"
+ aria-label="Sign in with Google"
+ onclick="handleGoogleSignIn()"
+ >
+ <!--
+ Google logo SVG inline.
+ Using the official Google "G" logo colors (not a third-party import).
+ This is safe to inline in vanilla HTML.
+ -->
+ <svg class="google-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+ <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+ <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+ <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+ <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
  </svg>
+ Continue with Google
+ </button>
 
- <!-- Centered text inside the ring -->
- <div class="calorie-card__ring-center">
- <span class="calorie-card__cal-consumed" id="cal-consumed">0</span>
- <span class="calorie-card__cal-label">eaten</span>
- </div>
- </div>
-
- <!-- Text info to the right of the ring -->
- <div class="calorie-card__info">
- <div>
- <div class="calorie-card__remaining-label">Remaining</div>
- <div class="calorie-card__remaining" id="cal-remaining">—</div>
- </div>
- <div class="calorie-card__target-line">
- Goal: <strong id="cal-target">—</strong>
- </div>
- <div id="calorie-status-badge"></div>
- </div>
- </div>
- </section>
-
- <!-- SECTION 3: Macro Progress Bars -->
- <section aria-label="Macronutrient breakdown">
- <div class="macro-card">
- <p class="macro-card__title">Today's Macros</p>
-
- <div class="macro-bars" id="macro-bars">
- <!-- Macro items injected by JS -->
- <!-- Skeleton placeholders while loading -->
- <div class="skeleton skeleton--text" style="height:16px; width:100%;"></div>
- <div class="skeleton skeleton--text" style="height:16px; width:100%;"></div>
- <div class="skeleton skeleton--text" style="height:16px; width:100%;"></div>
- </div>
- </div>
- </section>
-
- <!-- SECTION 4: Quick Stats Grid -->
- <section aria-label="Quick stats">
- <div class="section-header">
- <h2 class="section-header__title">At a Glance</h2>
+ <!-- Divider -->
+ <div class="login-divider" aria-hidden="true">
+ <div class="login-divider__line"></div>
+ <span class="login-divider__text">or</span>
+ <div class="login-divider__line"></div>
  </div>
 
- <div class="quick-stats" id="quick-stats">
- <!-- Metric Card 1: Workouts this week -->
- <div class="metric-card" id="card-workouts">
- <div class="metric-card__icon metric-card__icon--lime"></div>
- <div>
- <div class="metric-card__label">Workouts</div>
- <div class="metric-card__value metric-card__value--accent" id="workouts-count">—</div>
- <div class="metric-card__sub">this week</div>
- </div>
- <div class="metric-card__bg-circle" style="background:var(--color-accent);"></div>
- </div>
+ <!-- Secondary CTA: Guest / demo mode -->
+ <button
+ class="btn btn--ghost btn--lg btn--full"
+ id="btn-guest"
+ aria-label="Continue without signing in (demo mode)"
+ onclick="handleGuestMode()"
+ >
+ <span>Continue as Guest</span>
+ <span style="font-size:var(--text-xs); color:var(--color-text-muted);">· No account needed</span>
+ </button>
 
- <!-- Metric Card 2: Water intake -->
- <div class="metric-card" id="card-water">
- <div class="metric-card__icon metric-card__icon--blue"></div>
- <div>
- <div class="metric-card__label">Water</div>
- <div class="metric-card__value metric-card__value--blue" id="water-oz">—</div>
- <div class="metric-card__sub">oz today</div>
- </div>
- <div class="metric-card__bg-circle" style="background:var(--color-blue);"></div>
- </div>
+ <!-- Legal disclaimer -->
+ <p class="login-legal">
+ By continuing, you agree to our
+ <a href="#" onclick="return false;">Terms of Service</a>
+ and
+ <a href="#" onclick="return false;">Privacy Policy</a>.
+ Your data stays on your device until you sign in.
+ </p>
 
- <!-- Metric Card 3: Current weight -->
- <div class="metric-card" id="card-weight">
- <div class="metric-card__icon metric-card__icon--amber">⚖</div>
- <div>
- <div class="metric-card__label">Weight</div>
- <div class="metric-card__value metric-card__value--amber" id="current-weight">—</div>
- <div class="metric-card__sub" id="weight-delta">vs. start</div>
- </div>
- <div class="metric-card__bg-circle" style="background:var(--color-warning);"></div>
- </div>
+ </div><!-- end .login-panel -->
+ </div><!-- end .login-page -->
 
- <!-- Metric Card 4: Streak -->
- <div class="metric-card" id="card-streak">
- <div class="metric-card__icon metric-card__icon--danger"></div>
- <div>
- <div class="metric-card__label">Streak</div>
- <div class="metric-card__value" style="color:var(--color-danger);" id="streak-days">—</div>
- <div class="metric-card__sub">days</div>
- </div>
- <div class="metric-card__bg-circle" style="background:var(--color-danger);"></div>
- </div>
- </div>
- </section>
-
-
-
- <!-- EVALUATION TIP (research-backed, goal-specific) -->
- <section aria-label="How to evaluate your progress" id="eval-tip-section"></section>
-
- <!-- SECTION 5: Today's Workout -->
- <section aria-label="Today's workout">
- <div class="section-header">
- <h2 class="section-header__title">Today's Workout</h2>
- <a class="section-header__link" href="workouts.html">View Plan →</a>
- </div>
-
- <div class="workout-today-card" onclick="window.location.href='workouts.html'"
- role="button" tabindex="0" aria-label="Go to today's workout">
- <div>
- <div class="workout-today-card__badge">
- <span>●</span>
- <span id="workout-day-type">Training Day</span>
- </div>
- <div class="workout-today-card__name" id="workout-name">Loading workout...</div>
- <div class="workout-today-card__meta" id="workout-meta">— exercises · — min</div>
- </div>
- <div class="workout-today-card__arrow" aria-hidden="true">→</div>
- </div>
- </section>
-
- <!-- SECTION 6: Water Tracker -->
- <section aria-label="Water intake tracker">
- <div class="section-header">
- <h2 class="section-header__title">Hydration</h2>
- <span class="section-header__link" id="water-label">0 / 8 cups</span>
- </div>
-
- <div class="water-tracker">
- <div class="water-tracker__cups" id="water-cups" role="group" aria-label="Water cups tracker">
- <!-- 8 cup buttons injected by JS -->
- </div>
- </div>
- </section>
-
- <!-- SECTION 7: Recent Activity Feed -->
- <section aria-label="Recent activity">
- <div class="section-header">
- <h2 class="section-header__title">Recent Activity</h2>
- </div>
-
- <div class="activity-list" id="activity-list">
- <!-- Activity items injected by JS -->
- <div class="skeleton skeleton--card" style="height:56px;"></div>
- <div class="skeleton skeleton--card" style="height:56px;"></div>
- <div class="skeleton skeleton--card" style="height:56px;"></div>
- </div>
- </section>
-
- <!-- Spacer so last content clears the bottom nav -->
- <div style="height: var(--space-8);"></div>
- </main>
-
- <!-- Bottom navigation bar — rendered by JS -->
- <div id="bottom-nav-container"></div>
-
- </div><!-- end .app-shell -->
-
- <!-- Load global script first (provides AppState, FitnessCalculator, etc.) -->
+ <!--
+ script.js loaded LAST so CONFIG, AppState, Router, etc.
+ are all available when the inline script below runs.
+ -->
  <script src="script-merged.js"></script>
+ 
 
- <!-- Page-specific JavaScript for the dashboard -->
  <script>
  /**
  * ============================================================
- * DASHBOARD PAGE SCRIPT
- * index.html — inline script
+ * LOGIN PAGE SCRIPT
+ * login.html — inline script
  *
- * This script is responsible ONLY for the dashboard page.
- * It reads from AppState (populated by script.js) and
- * hydrates the DOM with personalized data.
+ * ROUTING LOGIC (runs immediately on page load):
+ *
+ * Check 1: Is there an auth token in localStorage?
+ * No → Stay on login page (user must sign in)
+ * Yes → Check 2:
+ *
+ * Check 2: Is there a completed UserProfile?
+ * No → Redirect to onboarding.html (new user, logged in)
+ * Yes → Redirect to index.html (returning user, all set)
+ *
+ * Python analogy: this is like middleware in a Flask app —
+ * it runs before the page renders and redirects if conditions
+ * aren't met.
  * ============================================================
  */
 
- // ─── Constants for this page ──────────────────────────────
- // Total circumference of the SVG ring (2π × radius 54)
- const RING_CIRCUMFERENCE = 2 * Math.PI * 54; // ≈ 339.29
-
- // How many water cups we track per day
- const TOTAL_WATER_CUPS = 8;
-
- // ─── Page State ───────────────────────────────────────────
- // Local state for this page (distinct from AppState).
- // Only data that's dashboard-specific lives here.
- const dashboardState = {
- waterCupsFilled: 0, // How many cups the user has tapped
- dailyLog: null, // Today's DailyLog from the API
- profile: null, // User profile from AppState
- };
-
-
- /* ─────────────────────────────────────────────────────────
- INITIALIZATION — called on DOMContentLoaded (via script.js)
- We add our own listener here so it runs after script.js's.
+ /* ─── IMMEDIATE ROUTING CHECK ───────────────────────────────
+ Runs synchronously before the DOM renders (no flash of
+ the login UI for already-authenticated users).
  ─────────────────────────────────────────────────────────── */
- document.addEventListener('DOMContentLoaded', async () => {
+ (function checkExistingAuth() {
+ const token = localStorage.getItem(CONFIG.STORAGE_KEYS.AUTH_TOKEN);
+ const profile = AppState.getProfile();
 
- // 1. Get the user profile (stored during onboarding)
- // AppState.getProfile() checks memory first, then localStorage.
- dashboardState.profile = AppState.getProfile();
+ if (token && profile?.onboardingComplete) {
+ // Returning user: fully set up → go straight to dashboard
+ window.location.replace('dashboard.html');
+ return;
+ }
 
- // 2. Render the greeting section (fast, sync, no API needed)
- renderGreeting(dashboardState.profile);
+ if (token && !profile?.onboardingComplete) {
+ // New user: signed in but hasn't finished onboarding
+ window.location.replace('onboarding.html');
+ return;
+ }
 
- // 3. Build the water cup buttons (interactive, pure DOM)
- renderWaterCups();
+ // No token → stay on login page (do nothing)
+ })();
 
- // 4. Fetch today's daily log from the backend (async)
- // While fetching, skeletons are visible (they're in the HTML)
+
+ /* ─── GOOGLE SIGN-IN HANDLER ────────────────────────────────
+ Called when user taps the "Continue with Google" button.
+ ─────────────────────────────────────────────────────────── */
+ async function handleGoogleSignIn() {
+ const btn = document.getElementById('btn-google-signin');
+ hideError();
+
+ // Show loading state — btn--loading class hides text and shows spinner
+ btn.classList.add('btn--loading');
+ btn.disabled = true;
+
  try {
- const userId = dashboardState.profile?.id ?? 'anonymous';
- const today = UIHelpers.getTodayString();
+ // Call the placeholder (returns mock user data in Phase 3)
+ // In production, Supabase triggers an OAuth redirect here.
+ // The user would leave the page, sign in at Google, then
+ // return to a callback URL that sets the session.
+ const { user, session } = await SupabaseAPI.signInWithGoogle();
 
- dashboardState.dailyLog = await SupabaseAPI.getDailyLog(userId, today);
+ // Store the auth token in localStorage
+ // In production, Supabase auto-manages this via supabase.auth.onAuthStateChange()
+ localStorage.setItem(CONFIG.STORAGE_KEYS.AUTH_TOKEN, session.access_token);
 
- // 5. Once we have data, update all the metrics
- renderCalorieRing(dashboardState.dailyLog, dashboardState.profile);
- renderMacroBars(dashboardState.dailyLog, dashboardState.profile);
- renderQuickStats(dashboardState.dailyLog, dashboardState.profile);
- renderWorkoutCard(dashboardState.profile);
- renderActivityFeed(dashboardState.dailyLog);
- renderPhaseBanner(dashboardState.profile);
- renderEvalTip(dashboardState.profile);
+ // Store the mock user object in AppState
+ AppState.set('user', user);
+
+ // Now check if this user has completed onboarding
+ const existingProfile = await SupabaseAPI.getProfile(user.id);
+
+ if (existingProfile?.onboardingComplete) {
+ // Returning user → update AppState and go to dashboard
+ await AppState.saveProfile(existingProfile);
+ window.location.replace('dashboard.html');
+ } else {
+ // New user → go to onboarding
+ window.location.replace('onboarding.html');
+ }
 
  } catch (error) {
- console.error('Dashboard data fetch failed:', error);
- UIHelpers.showToast('Could not load today's data', 'error');
- renderFallbackState();
+ console.error('Google sign-in failed:', error);
+ showError('Sign-in failed. Please try again or use Guest mode.');
+ btn.classList.remove('btn--loading');
+ btn.disabled = false;
  }
- });
+ }
 
 
- /* ─────────────────────────────────────────────────────────
- RENDER: GREETING
- Updates the hero section at the top of the page.
+ /* ─── GUEST MODE HANDLER ────────────────────────────────────
+ Creates a local-only "guest" session — no real auth.
+ Perfect for demoing the app without a backend.
  ─────────────────────────────────────────────────────────── */
- function renderGreeting(profile) {
- // Get the hour to determine time-of-day greeting
- const hour = new Date().getHours();
- const timeLabel = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+ function handleGuestMode() {
+ // Create a guest token (not a real JWT — just a flag)
+ const guestToken = `guest-${Date.now()}`;
+ localStorage.setItem(CONFIG.STORAGE_KEYS.AUTH_TOKEN, guestToken);
 
- // Format today's date in a friendly way: "Monday, June 3"
- const dateStr = UIHelpers.formatDate(new Date(), 'long');
+ // Check if onboarding was previously completed (guest may have done this before)
+ const existingProfile = AppState.getProfile();
 
- // Update DOM elements using UIHelpers.setText (safe, null-checks)
- UIHelpers.setText('#today-date', dateStr);
- UIHelpers.setText('#time-of-day', timeLabel);
- UIHelpers.setText('#user-name', profile?.name?.split(' ')[0] ?? 'Athlete');
-
- // Goal-specific motivational subtitle
- const goalMessages = {
- fat_loss: ' You're in a fat loss phase. Stay in the deficit.',
- muscle_gain: ' Building phase active. Hit your protein.',
- maintenance: '⚖ Maintenance mode. Keep up the good work.',
- recomp: ' Recomp phase. Consistency is everything.',
- };
- const goal = profile?.goal ?? 'maintenance';
- UIHelpers.setText('#goal-summary', goalMessages[goal] ?? 'Crush today's plan.');
- }
-
-
- /* ─────────────────────────────────────────────────────────
- RENDER: CALORIE RING
- Animates the SVG donut chart and updates calorie numbers.
-
- The ring uses the "stroke-dasharray" SVG technique:
- - stroke-dasharray: [dash_length] [gap_length]
- - Setting dash_length to (progress/100 × circumference)
- makes the ring appear partially filled.
- ─────────────────────────────────────────────────────────── */
- function renderCalorieRing(log, profile) {
- if (!log || !profile) return;
-
- // Get the target from the stored nutrition plan on the profile
- const targetCal = profile.calculatedMacros?.targetCalories ?? 2000;
- const consumed = log.caloriesIn ?? 0;
- const remaining = Math.max(0, targetCal - consumed);
-
- // Calculate the progress percentage (capped at 100%)
- const percent = Math.min(1, consumed / targetCal);
- // The "dash" part of the ring (filled arc length)
- const dashLen = percent * RING_CIRCUMFERENCE;
- // The "gap" part (unfilled arc length)
- const gapLen = RING_CIRCUMFERENCE - dashLen;
-
- // Update the SVG circle's stroke-dasharray
- // We do this inside requestAnimationFrame so the CSS transition triggers
- const ringFill = document.getElementById('calorie-ring-fill');
- requestAnimationFrame(() => {
- if (ringFill) {
- ringFill.style.strokeDasharray = `${dashLen} ${gapLen}`;
-
- // Change ring color if over budget
- if (consumed > targetCal) {
- ringFill.style.stroke = 'var(--color-danger)';
- }
- }
- });
-
- // Update the text inside the ring
- UIHelpers.setText('#cal-consumed', consumed.toLocaleString());
- UIHelpers.setText('#cal-remaining', remaining.toLocaleString());
- UIHelpers.setText('#cal-target', targetCal.toLocaleString());
-
- // Add a status badge below the target
- const statusContainer = document.getElementById('calorie-status-badge');
- if (statusContainer) {
- if (consumed <= targetCal) {
- statusContainer.innerHTML = `<span class="badge badge--success">On Track</span>`;
+ if (existingProfile?.onboardingComplete) {
+ // Guest has completed onboarding in a previous session
+ window.location.replace('dashboard.html');
  } else {
- statusContainer.innerHTML = `<span class="badge badge--warning">Over Budget</span>`;
- }
+ // First time → go to onboarding
+ window.location.replace('onboarding.html');
  }
  }
 
 
- /* ─────────────────────────────────────────────────────────
- RENDER: MACRO BARS
- Creates the three macro progress bars (protein/carbs/fat).
+ /* ─── UI HELPERS (local to this page) ──────────────────────
  ─────────────────────────────────────────────────────────── */
- function renderMacroBars(log, profile) {
- const macroContainer = document.getElementById('macro-bars');
- if (!macroContainer || !log || !profile) return;
-
- // Get targets from profile's stored nutrition plan
- const targets = profile.calculatedMacros ?? {
- proteinG: 180, carbsG: 200, fatG: 60
- };
-
- // Define the three macro rows with their display config
- const macros = [
- {
- name: 'Protein',
- consumed: log.proteinG ?? 0,
- target: targets.proteinG ?? 180,
- color: 'var(--color-protein)', // lime
- dot: '#002244',
- },
- {
- name: 'Carbs',
- consumed: log.carbsG ?? 0,
- target: targets.carbsG ?? 200,
- color: 'var(--color-carbs)', // blue
- dot: '#00c8ff',
- },
- {
- name: 'Fat',
- consumed: log.fatG ?? 0,
- target: targets.fatG ?? 60,
- color: 'var(--color-fat)', // amber
- dot: '#f59e0b',
- },
- ];
-
- // Build the HTML for all three macro rows
- // Note: data-fill-percent is read back by the animation code below
- macroContainer.innerHTML = macros.map(macro => {
- const percent = Math.min(100, Math.round((macro.consumed / macro.target) * 100));
- return `
- <div class="macro-item">
- <div class="macro-item__dot" style="background:${macro.dot};"></div>
- <span class="macro-item__name">${macro.name}</span>
- <div class="macro-item__bar-wrap">
- <div
- class="macro-item__bar-fill"
- style="background:${macro.color};"
- data-fill-percent="${percent}"
- ></div>
- </div>
- <span class="macro-item__values">${macro.consumed}g / ${macro.target}g</span>
- </div>
- `;
- }).join('');
-
- // After the HTML is injected, animate each bar to its fill width.
- // We use requestAnimationFrame to ensure the browser has painted
- // the 0% width before we change it (otherwise the transition won't fire).
- requestAnimationFrame(() => {
- macroContainer.querySelectorAll('[data-fill-percent]').forEach(bar => {
- bar.style.width = `${bar.dataset.fillPercent}%`;
- });
- });
- }
-
-
- /* ─────────────────────────────────────────────────────────
- RENDER: QUICK STATS
- Updates the 4 metric cards in the 2x2 grid.
- ─────────────────────────────────────────────────────────── */
- function renderQuickStats(log, profile) {
- // Workout count — from profile's stored streak/week data
- // (In a full app, this would come from a weekly aggregate query)
- const workoutsThisWeek = profile?.weeklyWorkouts ?? 0;
- UIHelpers.setText('#workouts-count', workoutsThisWeek);
-
- // Water intake in oz
- UIHelpers.setText('#water-oz', log?.waterOz ?? '0');
-
- // Current weight
- const currentWeight = profile?.weightLbs ?? '—';
- UIHelpers.setText('#current-weight', currentWeight ? `${currentWeight} lb` : '—');
-
- // Streak days
- const streak = profile?.streakDays ?? 0;
- UIHelpers.setText('#streak-days', streak);
- UIHelpers.setText('#streak-count', streak);
-
- // Animate metric cards in sequence
- document.querySelectorAll('.metric-card').forEach((card, i) => {
- card.style.animationDelay = `${i * 80}ms`;
- card.classList.add('animate-fade-in-up');
- });
- }
-
-
- /* ─────────────────────────────────────────────────────────
- RENDER: WORKOUT CARD
- Shows today's planned workout based on goal + day of week.
- ─────────────────────────────────────────────────────────── */
- function renderWorkoutCard(profile) {
- if (!profile) return;
-
- // Map day of week (0=Sun) to a workout name based on goal
- const dayOfWeek = new Date().getDay();
-
- // Simple weekly templates (workouts.html will have the full version)
- const WORKOUT_SCHEDULE = {
- fat_loss: {
- // Sun=0, Mon=1, ... Sat=6
- 0: { type: 'Rest Day', name: 'Active Recovery', meta: 'Light walk or stretch · 20–30 min' },
- 1: { type: 'Training Day', name: 'Upper Body Circuit', meta: '8 exercises · 45 min' },
- 2: { type: 'Training Day', name: 'HIIT Cardio', meta: '6 intervals · 30 min' },
- 3: { type: 'Training Day', name: 'Lower Body Strength', meta: '8 exercises · 50 min' },
- 4: { type: 'Rest Day', name: 'Mobility & Stretch', meta: 'Foam roll + yoga · 25 min' },
- 5: { type: 'Training Day', name: 'Full Body HIIT', meta: '10 exercises · 40 min' },
- 6: { type: 'Rest Day', name: 'Rest & Recover', meta: 'You earned it ' },
- },
- muscle_gain: {
- 0: { type: 'Rest Day', name: 'Active Recovery', meta: 'Light walk or stretch' },
- 1: { type: 'Training Day', name: 'Chest & Triceps', meta: '9 exercises · 60 min' },
- 2: { type: 'Training Day', name: 'Back & Biceps', meta: '9 exercises · 60 min' },
- 3: { type: 'Rest Day', name: 'Rest Day', meta: 'Prioritize sleep ' },
- 4: { type: 'Training Day', name: 'Shoulders & Arms', meta: '8 exercises · 55 min' },
- 5: { type: 'Training Day', name: 'Legs & Glutes', meta: '10 exercises · 65 min' },
- 6: { type: 'Training Day', name: 'Functional Core', meta: '6 exercises · 35 min' },
- },
- };
-
- // Default to fat_loss schedule if goal not found
- const goal = profile.goal ?? 'fat_loss';
- const schedule = WORKOUT_SCHEDULE[goal] ?? WORKOUT_SCHEDULE.fat_loss;
- const todayWorkout = schedule[dayOfWeek];
-
- if (todayWorkout) {
- // Update the workout type badge
- const dayTypeBadge = document.getElementById('workout-day-type');
- if (dayTypeBadge) {
- dayTypeBadge.textContent = todayWorkout.type;
-
- // Change badge color for rest days
- if (todayWorkout.type === 'Rest Day') {
- dayTypeBadge.closest('.workout-today-card__badge').style.background = 'rgba(74,85,104,0.2)';
- dayTypeBadge.closest('.workout-today-card__badge').style.color = 'var(--color-text-secondary)';
+ function showError(message) {
+ const errorEl = document.getElementById('login-error');
+ if (errorEl) {
+ errorEl.textContent = message;
+ errorEl.classList.add('is-visible');
  }
  }
 
- UIHelpers.setText('#workout-name', todayWorkout.name);
- UIHelpers.setText('#workout-meta', todayWorkout.meta);
- }
- }
-
-
- /* ─────────────────────────────────────────────────────────
- RENDER: WATER CUPS
- Creates 8 interactive cup buttons. Tapping fills them.
- ─────────────────────────────────────────────────────────── */
- function renderWaterCups() {
- const cupsContainer = document.getElementById('water-cups');
- if (!cupsContainer) return;
-
- cupsContainer.innerHTML = '';
-
- // Create each cup button programmatically
- for (let i = 0; i < TOTAL_WATER_CUPS; i++) {
- const cupBtn = document.createElement('button');
- cupBtn.className = 'water-cup';
- cupBtn.setAttribute('aria-label', `Cup ${i + 1} of ${TOTAL_WATER_CUPS}`);
- cupBtn.setAttribute('aria-pressed', 'false');
- cupBtn.textContent = '';
-
- // Each cup button toggles its filled state on click
- // Arrow function captures `i` from the outer loop scope
- cupBtn.addEventListener('click', () => handleWaterCupTap(cupBtn, i));
-
- cupsContainer.appendChild(cupBtn);
- }
- }
-
- /**
- * Handle a water cup button tap.
- * Fills all cups UP TO AND INCLUDING the tapped cup.
- * (Tap cup 3 → cups 1, 2, 3 are filled)
- *
- * @param {HTMLElement} tappedCup - The button element that was tapped
- * @param {number} index - 0-based index of the tapped cup
- */
- function handleWaterCupTap(tappedCup, index) {
- const allCups = document.querySelectorAll('.water-cup');
-
- // Determine new fill count:
- // If tapping an already-filled cup at index, toggle it off (fill = index)
- // Otherwise fill up to and including the tapped cup (fill = index + 1)
- const currentlyFilled = dashboardState.waterCupsFilled;
- const newFillCount = (currentlyFilled === index + 1) ? index : index + 1;
- dashboardState.waterCupsFilled = newFillCount;
-
- // Update each cup's visual state
- allCups.forEach((cup, i) => {
- const shouldFill = i < newFillCount;
- cup.classList.toggle('is-filled', shouldFill);
- cup.setAttribute('aria-pressed', String(shouldFill));
- });
-
- // Update the label counter
- UIHelpers.setText('#water-label', `${newFillCount} / ${TOTAL_WATER_CUPS} cups`);
-
- // Show encouraging toast at key milestones
- if (newFillCount === 4) {
- UIHelpers.showToast('Halfway there! Keep hydrating ', 'info');
- } else if (newFillCount === TOTAL_WATER_CUPS) {
- UIHelpers.showToast('Daily water goal hit! ', 'success');
- }
-
- // TODO: Debounce this and sync to Supabase
- // SupabaseAPI.updateDailyLog({ waterCups: newFillCount });
- }
-
-
- /* ─────────────────────────────────────────────────────────
- RENDER: ACTIVITY FEED
- Shows recent logged meals / workout completions.
- ─────────────────────────────────────────────────────────── */
- function renderActivityFeed(log) {
- const feedContainer = document.getElementById('activity-list');
- if (!feedContainer) return;
-
- // Mock activity items — in production these come from the DailyLog
- const activities = [
- { icon: '', title: 'Breakfast logged', time: '7:32 AM', value: `+${Math.round((log?.caloriesIn ?? 400) * 0.3)} cal` },
- { icon: '', title: 'Workout completed', time: '9:15 AM', value: ' −320 cal' },
- { icon: '', title: 'Lunch logged', time: '12:48 PM', value: `+${Math.round((log?.caloriesIn ?? 400) * 0.4)} cal` },
- { icon: '', title: 'Supplements taken', time: '1:00 PM', value: '' },
- ];
-
- feedContainer.innerHTML = activities.map(item => `
- <div class="activity-item">
- <div class="activity-item__icon" aria-hidden="true">${UIHelpers.escapeHTML(item.icon)}</div>
- <div class="activity-item__info">
- <div class="activity-item__title">${UIHelpers.escapeHTML(item.title)}</div>
- <div class="activity-item__time">${UIHelpers.escapeHTML(item.time)}</div>
- </div>
- <div class="activity-item__value">${UIHelpers.escapeHTML(item.value)}</div>
- </div>
- `).join('');
- }
-
-
-
- /* ─────────────────────────────────────────────────────────
- RENDER: PHASE TRACKER BANNER
- Shows current week, phase type, progress bar, deload/
- reassessment alerts — all driven by PhaseTracker.
- ─────────────────────────────────────────────────────────── */
- function renderPhaseBanner(profile) {
- const section = document.getElementById('phase-section');
- if (!section || !profile) return;
-
- const status = PhaseTracker.getStatus(profile);
- const macros = profile.calculatedMacros;
- const weeklyTarget = FitnessCalculator.getWeeklyWeightTarget(profile.goal, profile.weightLbs);
-
- // Determine which banner variant to show (priority order)
- let variant = 'active';
- let icon = '';
- let label = PhaseTracker.getPhaseLabel(profile.goal);
- let title = `Week ${status.currentWeek}`;
- let sub = '';
-
- if (status.isPhaseComplete) {
- variant = 'complete';
- icon = '';
- label = 'Phase Complete';
- title = `${status.maxWeeks}-week phase done — time to reassess your goal`;
- sub = 'Consider a 4–8 week maintenance phase before your next block (Melby et al., 2019)';
- } else if (status.isReassessmentDue) {
- variant = 'reassess';
- icon = '';
- label = 'Reassessment Week';
- title = `Week ${status.currentWeek} — Check your progress`;
- sub = 'Review your 7-day rolling average weight and strength log before continuing';
- } else if (status.isDeloadWeek) {
- variant = 'deload';
- icon = '';
- label = 'Deload Week';
- title = `Week ${status.currentWeek} — Reduce volume 40–50%`;
- sub = 'Deload weeks prevent accumulated fatigue and support long-term progress';
- } else {
- title = `Week ${status.currentWeek}${status.maxWeeks ? ' of ' + status.maxWeeks : ''}`;
- sub = weeklyTarget
- ? (profile.goal === 'fat_loss'
- ? `Target: ${Math.abs(weeklyTarget.minLbs)}–${Math.abs(weeklyTarget.maxLbs)} lbs/week loss (7-day avg)`
- : profile.goal === 'muscle_gain'
- ? `Target: +${weeklyTarget.minLbs}–${weeklyTarget.maxLbs} lbs/week gain`
- : profile.goal === 'recomp'
- ? `Scale may not move — track waist + strength instead`
- : `Weight fluctuation of ±2–4 lbs is normal`)
- : '';
- }
-
- const progressPct = status.progressPercent ?? 0;
-
- section.innerHTML = `
- <div class="phase-banner phase-banner--${variant}">
- 
- <div class="phase-banner__body">
- <div class="phase-banner__label">${label}</div>
- <div class="phase-banner__title">${UIHelpers.escapeHTML(title)}</div>
- ${sub ? `<div class="phase-banner__sub">${UIHelpers.escapeHTML(sub)}</div>` : ''}
- ${status.maxWeeks ? `
- <div class="phase-progress-bar" aria-label="Phase progress: ${progressPct}%">
- <div class="phase-progress-bar__fill" style="width: ${progressPct}%;"></div>
- </div>` : ''}
- </div>
- </div>
- `;
- }
-
-
- /* ─────────────────────────────────────────────────────────
- RENDER: EVALUATION TIP
- Research-backed metric guidance per goal.
- ─────────────────────────────────────────────────────────── */
- function renderEvalTip(profile) {
- const section = document.getElementById('eval-tip-section');
- if (!section || !profile) return;
-
- const metrics = CONFIG.EVALUATION_METRICS[profile.goal];
- if (!metrics) return;
-
- const citations = {
- fat_loss: 'Kim, 2021',
- muscle_gain: 'Stark et al., 2012',
- recomp: 'Roberts et al., 2020',
- maintenance: 'Melby et al., 2019',
- };
-
- section.innerHTML = `
- <div class="eval-tip-card">
- <div class="eval-tip-card__label">How to Evaluate — ${citations[profile.goal] ?? ''}</div>
- <div class="eval-tip-card__text">${UIHelpers.escapeHTML(metrics.primary)}</div>
- <div class="eval-tip-card__metric">Target: ${UIHelpers.escapeHTML(metrics.target)}</div>
- ${metrics.avoid ? `<div class="eval-tip-card__text" style="margin-top:6px; color:var(--color-danger);">⚠ Avoid: ${UIHelpers.escapeHTML(metrics.avoid)}</div>` : ''}
- ${metrics.warning ? `<div class="eval-tip-card__text" style="margin-top:6px; color:var(--color-warning);">⚠ ${UIHelpers.escapeHTML(metrics.warning)}</div>` : ''}
- ${metrics.note ? `<div class="eval-tip-card__text" style="margin-top:6px;"> ${UIHelpers.escapeHTML(metrics.note)}</div>` : ''}
- </div>
- `;
- }
-
-
- /* ─────────────────────────────────────────────────────────
- FALLBACK: Render when data loading fails
- ─────────────────────────────────────────────────────────── */
- function renderFallbackState() {
- UIHelpers.setText('#cal-consumed', '—');
- UIHelpers.setText('#cal-remaining', '—');
- UIHelpers.setText('#cal-target', '—');
-
- const macroContainer = document.getElementById('macro-bars');
- if (macroContainer) {
- macroContainer.innerHTML = `
- <p style="color:var(--color-text-muted); font-size:var(--text-sm); text-align:center; padding:var(--space-4);">
- Could not load data. Check your connection.
- </p>
- `;
- }
+ function hideError() {
+ const errorEl = document.getElementById('login-error');
+ if (errorEl) errorEl.classList.remove('is-visible');
  }
  </script>
 </body>
