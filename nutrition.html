@@ -4,903 +4,1329 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#090b10">
-  <meta name="description" content="FitForge Nutrition — Your daily macro targets and meal plan">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="styles-light-full.css">
-  
-
   <title>FitForge — Nutrition</title>
 
   <style>
-    /* ── PAGE-SPECIFIC STYLES ──────────────────────────────────── */
-
-    /* Calorie budget breakdown: three-column row */
-    .cal-breakdown {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-3);
-      margin-top: var(--space-4);
-    }
-
-    .cal-breakdown-cell {
-      background: var(--color-bg-input);
-      border-radius: var(--radius-md);
-      padding: var(--space-3) var(--space-4);
+    /* ── PANTRY PILLS ──────────────────────────────────────────── */
+    .pantry-row {
       display: flex;
-      flex-direction: column;
-      gap: var(--space-1);
+      gap: var(--space-2);
+      flex-wrap: wrap;
     }
 
-    .cal-breakdown-cell__label {
-      font-size: var(--text-xs);
-      color: var(--color-text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      font-weight: var(--weight-bold);
-    }
-
-    .cal-breakdown-cell__value {
-      font-family: var(--font-mono);
-      font-size: var(--text-lg);
-      color: var(--color-text-primary);
-      line-height: 1;
-    }
-
-    .cal-breakdown-cell__value--remaining { color: var(--color-accent); }
-    .cal-breakdown-cell__value--burned    { color: var(--color-blue); }
-    .cal-breakdown-cell__value--eaten     { color: var(--color-warning); }
-
-    /* Section titles with a left accent line */
-    .section-title-accented {
+    .pantry-pill {
       display: flex;
       align-items: center;
-      gap: var(--space-3);
-      margin-bottom: var(--space-4);
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      border: 1.5px solid;
+      transition: all var(--transition-fast);
     }
 
-    .section-title-accented::before {
-      content: '';
-      width: 3px;
-      height: 20px;
-      background: var(--color-accent);
-      border-radius: var(--radius-full);
+    .pantry-pill--available {
+      background: rgba(22,163,74,0.08);
+      border-color: rgba(22,163,74,0.3);
+      color: #15803d;
+    }
+
+    .pantry-pill--missing {
+      background: var(--color-bg-elevated);
+      border-color: var(--color-border);
+      color: var(--color-text-muted);
+    }
+
+    .pantry-pill__dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
       flex-shrink: 0;
     }
 
-    .section-title-accented span {
+    .pantry-pill--available .pantry-pill__dot { background: var(--color-success); }
+    .pantry-pill--missing   .pantry-pill__dot { background: var(--color-text-muted); }
+
+    /* ── MEAL SLOT CARDS ───────────────────────────────────────── */
+    .meal-plan-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .meal-slot-card {
+      background: var(--color-bg-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .meal-slot-card.is-filled {
+      border-color: var(--color-border-accent);
+    }
+
+    .meal-slot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-bg-elevated);
+    }
+
+    .meal-slot-header__left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .meal-slot-header__time {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-bold);
+      letter-spacing: var(--tracking-widest);
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+    }
+
+    .meal-slot-header__cal {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+    }
+
+    .meal-slot-header__pct {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+    }
+
+    /* Empty state — tap to choose */
+    .meal-slot-empty {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-5);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .meal-slot-empty:hover { background: rgba(140,200,0,0.04); }
+
+    .meal-slot-empty__text {
+      font-size: var(--text-base);
+      color: var(--color-text-muted);
+    }
+
+    .meal-slot-empty__badge {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-bold);
+      background: var(--color-accent);
+      color: #0f1923;
+      border-radius: var(--radius-full);
+      padding: 2px 10px;
+    }
+
+    .meal-slot-empty__badge--zero {
+      background: var(--color-bg-elevated);
+      color: var(--color-text-muted);
+    }
+
+    /* Filled state — shows chosen recipe */
+    .meal-slot-filled {
+      padding: var(--space-4) var(--space-5);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-3);
+      cursor: pointer;
+    }
+
+    .meal-slot-filled:hover { background: rgba(140,200,0,0.02); }
+
+    .meal-slot-filled__info { flex: 1; min-width: 0; }
+
+    .meal-slot-filled__name {
+      font-size: var(--text-base);
+      font-weight: var(--weight-bold);
+      color: var(--color-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .meal-slot-filled__macros {
+      display: flex;
+      gap: var(--space-3);
+      margin-top: var(--space-2);
+    }
+
+    .meal-macro-chip {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+    }
+
+    .meal-macro-chip__dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+
+    .meal-slot-filled__actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      align-items: flex-end;
+    }
+
+    .meal-slot-filled__cal {
+      font-family: var(--font-mono);
       font-size: var(--text-md);
       font-weight: var(--weight-bold);
       color: var(--color-text-primary);
     }
 
-    /* Detailed macro progress card */
-    .macro-detail-card {
+    .meal-slot-filled__swap {
+      font-size: var(--text-xs);
+      color: var(--color-accent-text);
+      font-weight: var(--weight-medium);
+      cursor: pointer;
+    }
+
+    /* ── MACRO SUMMARY ─────────────────────────────────────────── */
+    .macro-summary-card {
       background: var(--color-bg-surface);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
       padding: var(--space-5);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
+      box-shadow: var(--shadow-sm);
     }
 
-    .macro-detail-row {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-    }
-
-    .macro-detail-header {
+    .macro-summary-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: baseline;
+      margin-bottom: var(--space-5);
     }
 
-    .macro-detail-left {
+    .macro-summary__title {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-bold);
+      letter-spacing: var(--tracking-widest);
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+    }
+
+    .macro-summary__cal {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .macro-summary__cal span {
+      color: var(--color-text-primary);
+      font-weight: var(--weight-bold);
+    }
+
+    .macro-summary-bars {
       display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .macro-summary-row {
+      display: grid;
+      grid-template-columns: 60px 1fr auto;
       align-items: center;
-      gap: var(--space-2);
+      gap: var(--space-3);
     }
 
-    .macro-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .macro-detail-name {
+    .macro-summary-row__label {
       font-size: var(--text-sm);
       font-weight: var(--weight-medium);
-      color: var(--color-text-primary);
+      color: var(--color-text-secondary);
     }
 
-    .macro-detail-pct {
+    .macro-summary-row__values {
+      font-family: var(--font-mono);
       font-size: var(--text-xs);
       color: var(--color-text-muted);
-      background: var(--color-bg-input);
-      padding: 1px 6px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    /* ── RECIPE PICKER MODAL ───────────────────────────────────── */
+    .picker-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,25,35,0.5);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 500;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-normal);
+    }
+
+    .picker-overlay.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .picker-sheet {
+      width: 100%;
+      max-width: var(--max-width-app);
+      background: var(--color-bg-surface);
+      border-top: 1px solid var(--color-border);
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      padding: var(--space-5);
+      padding-bottom: calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
+      max-height: 82dvh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      transform: translateY(100%);
+      transition: transform var(--transition-slow) cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.12);
+    }
+
+    .picker-overlay.is-open .picker-sheet {
+      transform: translateY(0);
+    }
+
+    .picker-handle {
+      width: 40px; height: 4px;
+      background: var(--color-border);
       border-radius: var(--radius-full);
-      font-family: var(--font-mono);
+      margin: 0 auto;
     }
 
-    .macro-detail-values {
-      font-family: var(--font-mono);
-      font-size: var(--text-sm);
-      color: var(--color-text-secondary);
+    .picker-header { display: flex; flex-direction: column; gap: var(--space-1); }
+    .picker-header__slot { font-size: var(--text-xs); font-weight: var(--weight-bold); letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--color-accent-text); }
+    .picker-header__title { font-family: var(--font-display); font-size: var(--text-xl); color: var(--color-text-primary); }
+
+    /* Picker filter tabs */
+    .picker-tabs {
+      display: flex;
+      background: var(--color-bg-elevated);
+      border-radius: var(--radius-full);
+      padding: 3px;
+      gap: 2px;
     }
 
-    .macro-detail-values strong {
+    .picker-tab {
+      flex: 1;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-bold);
+      text-align: center;
+      cursor: pointer;
+      color: var(--color-text-muted);
+      background: transparent;
+      border: none;
+      transition: all var(--transition-fast);
+      font-family: var(--font-body);
+      white-space: nowrap;
+    }
+
+    .picker-tab.is-active {
+      background: var(--color-bg-surface);
+      color: var(--color-text-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Recipe cards inside the picker */
+    .picker-recipe-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .picker-recipe-card {
+      background: var(--color-bg-elevated);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex;
+      gap: var(--space-4);
+      align-items: center;
+    }
+
+    .picker-recipe-card:hover { border-color: var(--color-border-accent); background: rgba(140,200,0,0.04); }
+    .picker-recipe-card.is-selected { border-color: var(--color-accent); background: rgba(140,200,0,0.07); }
+    .picker-recipe-card.is-almost { opacity: 0.75; }
+    .picker-recipe-card.is-locked { opacity: 0.4; pointer-events: none; }
+
+    .picker-recipe-card__thumb {
+      width: 52px; height: 52px;
+      border-radius: var(--radius-md);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .picker-recipe-card__thumb--protein  { background: linear-gradient(135deg, #d4f0b0, #b8e090); }
+    .picker-recipe-card__thumb--carbs    { background: linear-gradient(135deg, #b0d4f0, #90b8e8); }
+    .picker-recipe-card__thumb--balanced { background: linear-gradient(135deg, #f0e0b0, #e8c880); }
+
+    .picker-recipe-card__info { flex: 1; min-width: 0; }
+
+    .picker-recipe-card__name {
+      font-size: var(--text-base);
+      font-weight: var(--weight-bold);
       color: var(--color-text-primary);
     }
 
-    /* Nutrition tip card */
-    .tip-card {
-      background: linear-gradient(135deg, #0d1525 0%, #111d30 100%);
-      border: 1px solid rgba(0, 200, 255, 0.12);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4) var(--space-5);
+    .picker-recipe-card__macros {
       display: flex;
-      gap: var(--space-4);
-      align-items: flex-start;
+      gap: var(--space-3);
+      margin-top: var(--space-2);
     }
 
-    .tip-card__icon {
-      font-size: 22px;
+    .picker-recipe-card__missing {
+      font-size: var(--text-xs);
+      color: var(--color-warning);
+      font-weight: var(--weight-medium);
+      margin-top: var(--space-1);
+    }
+
+    .picker-recipe-card__cal {
+      font-family: var(--font-mono);
+      font-size: var(--text-md);
+      font-weight: var(--weight-bold);
+      color: var(--color-text-primary);
+      text-align: right;
       flex-shrink: 0;
-      margin-top: 2px;
     }
 
-    .tip-card__text {
-      font-size: var(--text-sm);
-      color: var(--color-text-secondary);
-      line-height: var(--leading-relaxed);
+    .picker-recipe-card__cal small {
+      display: block;
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      font-weight: var(--weight-normal);
     }
 
-    .tip-card__text strong {
-      color: var(--color-blue);
+    /* Available badge on card */
+    .avail-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 9px;
+      font-weight: var(--weight-bold);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
     }
+
+    .avail-badge--ready  { background: rgba(22,163,74,0.1); color: #15803d; }
+    .avail-badge--almost { background: rgba(194,112,10,0.1); color: var(--color-warning); }
+
+    /* Empty picker state */
+    .picker-empty {
+      text-align: center;
+      padding: var(--space-10) var(--space-4);
+      color: var(--color-text-muted);
+    }
+    .picker-empty__icon { font-size: 36px; margin-bottom: var(--space-3); }
+    .picker-empty__text { font-size: var(--text-sm); line-height: var(--leading-relaxed); }
+    .picker-empty__link { color: var(--color-accent-text); font-weight: var(--weight-bold); cursor: pointer; }
+
+    /* ── ALMOST READY SECTION ──────────────────────────────────── */
+    .almost-card {
+      background: var(--color-bg-surface);
+      border: 1px solid rgba(194,112,10,0.2);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .almost-card__icon { font-size: 28px; flex-shrink: 0; }
+    .almost-card__info { flex: 1; }
+    .almost-card__name { font-size: var(--text-base); font-weight: var(--weight-bold); color: var(--color-text-primary); }
+    .almost-card__missing { font-size: var(--text-xs); color: var(--color-warning); margin-top: 2px; font-weight: var(--weight-medium); }
+    .almost-card__macros { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px; font-family: var(--font-mono); }
+    .almost-card__add { font-size: var(--text-xs); font-weight: var(--weight-bold); color: var(--color-accent-text); cursor: pointer; white-space: nowrap; flex-shrink: 0; }
   </style>
 </head>
 
 <body>
   <div class="app-shell">
 
-    <!-- ══════════════════════════════════════════════════════
-         HEADER
-         ═════════════════════════════════════════════════════ -->
     <header class="app-header">
       <div class="app-header__logo">Fit<span>Forge</span></div>
       <div style="display:flex; gap:8px; align-items:center;">
-        <!-- Today's date pill -->
-        <div style="background:var(--color-bg-elevated); border:1px solid var(--color-border); border-radius:var(--radius-full); padding:4px 12px;">
-          <span id="header-date" style="font-size:var(--text-xs); color:var(--color-text-secondary); font-family:var(--font-mono);">—</span>
+        <div id="recipes-ready-badge" style="background:var(--color-accent); color:#0f1923; font-weight:700; font-size:var(--text-xs); padding:4px 12px; border-radius:var(--radius-full); display:none;">
+          — ready
         </div>
+        <a href="grocery-list.html" class="btn btn--secondary btn--sm" style="font-size:var(--text-xs);">🛒 Grocery</a>
       </div>
     </header>
 
-    <!-- ══════════════════════════════════════════════════════
-         MAIN CONTENT
-         ═════════════════════════════════════════════════════ -->
     <main class="page-content" id="page-content">
 
-      <!-- SECTION 1: Page Hero -->
+      <!-- SECTION 1: Page title -->
       <section style="padding: var(--space-4) 0 var(--space-2);">
-        <p class="label" style="margin-bottom: var(--space-2); color: var(--color-accent);">Your Nutrition Plan</p>
-        <h1 class="heading-1" style="font-family: var(--font-display); letter-spacing: var(--tracking-tight);">
-          Macro Targets
-        </h1>
-        <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin-top: var(--space-2);" id="nutrition-subtitle">
-          Loading your personalized plan...
+        <p class="label" style="color:var(--color-accent-text); margin-bottom:var(--space-2);">Today's Nutrition</p>
+        <h1 class="heading-1" style="font-family:var(--font-display); letter-spacing:var(--tracking-tight);">Meal Plan</h1>
+        <p style="font-size:var(--text-sm); color:var(--color-text-secondary); margin-top:var(--space-2);" id="pantry-subtitle">
+          Loading your grocery list...
         </p>
       </section>
 
-      <!-- SECTION 2: Macro Donut Chart Card -->
-      <section aria-label="Macro calorie split">
-        <div class="card card--accent animate-fade-in-up">
+      <!-- SECTION 2: Your Pantry Today -->
+      <section>
+        <div class="section-header">
+          <h2 class="section-header__title">Your Pantry</h2>
+          <a href="grocery-list.html" class="section-header__link">Update list →</a>
+        </div>
+        <div class="pantry-row" id="pantry-pills">
+          <!-- Injected by JS -->
+          <div class="skeleton" style="height:32px; width:90px; border-radius:999px;"></div>
+          <div class="skeleton" style="height:32px; width:80px; border-radius:999px;"></div>
+          <div class="skeleton" style="height:32px; width:70px; border-radius:999px;"></div>
+        </div>
+      </section>
 
-          <!-- Card header -->
-          <div class="split" style="margin-bottom: var(--space-5);">
-            <div>
-              <p class="label">Caloric Split</p>
-              <p style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 3px;">
-                % of daily target calories
-              </p>
-            </div>
-            <span class="badge badge--accent" id="goal-badge">Loading...</span>
-          </div>
+      <!-- SECTION 3: Meal Slots -->
+      <section>
+        <div class="section-header">
+          <h2 class="section-header__title">Today's Meals</h2>
+          <span class="section-header__link" id="meals-cal-total" style="font-family:var(--font-mono);">0 kcal planned</span>
+        </div>
 
-          <!-- Donut chart: SVG + centered label + legend -->
-          <div class="donut-chart-wrap">
+        <div class="meal-plan-grid" id="meal-plan-grid">
+          <!-- Injected by JS -->
+        </div>
+      </section>
 
-            <!-- SVG ring + absolute center text -->
-            <div class="donut-svg-wrap">
-              <!--
-                The SVG uses three stacked <circle> elements.
-                Each circle draws ONE arc segment using the stroke-dasharray trick.
-                The circumference of a circle with r=80 is 2π×80 ≈ 502.65 pixels.
-
-                stroke-dasharray: "dashLength gapLength"
-                  - dashLength = (macroFraction) × circumference (the visible arc)
-                  - gapLength  = circumference - dashLength (the invisible part)
-
-                stroke-dashoffset: negative number
-                  - Shifts the start of the dash clockwise
-                  - Each segment starts where the previous one ended
-              -->
-              <svg class="donut-svg" viewBox="0 0 200 200" aria-hidden="true">
-                <!-- Background ring (grey track) -->
-                <circle
-                  class="donut-track"
-                  cx="100" cy="100" r="80"
-                />
-
-                <!-- Protein arc (segment 1 — always starts from top due to CSS rotate) -->
-                <circle
-                  class="donut-arc donut-arc--protein"
-                  id="arc-protein"
-                  cx="100" cy="100" r="80"
-                  stroke-dashoffset="0"
-                />
-
-                <!-- Carbs arc (segment 2 — starts right after protein ends) -->
-                <circle
-                  class="donut-arc donut-arc--carbs"
-                  id="arc-carbs"
-                  cx="100" cy="100" r="80"
-                  stroke-dashoffset="0"
-                />
-
-                <!-- Fat arc (segment 3 — starts right after carbs ends) -->
-                <circle
-                  class="donut-arc donut-arc--fat"
-                  id="arc-fat"
-                  cx="100" cy="100" r="80"
-                  stroke-dashoffset="0"
-                />
-              </svg>
-
-              <!-- Centered text INSIDE the donut hole -->
-              <!-- Note: this div CANNOT be inside the SVG — it's a sibling -->
-              <div class="donut-center">
-                <span class="donut-center__value" id="donut-center-calories">—</span>
-                <span class="donut-center__label">kcal/day</span>
-              </div>
-            </div>
-
-            <!-- Legend: three rows of macro name + gram amount -->
-            <div class="donut-legend">
-              <div class="donut-legend__item">
-                <div class="donut-legend__dot" style="background: var(--color-protein);"></div>
-                <div class="donut-legend__grams" id="legend-protein">—g</div>
-                <div class="donut-legend__name">Protein</div>
-              </div>
-              <div class="donut-legend__item">
-                <div class="donut-legend__dot" style="background: var(--color-carbs);"></div>
-                <div class="donut-legend__grams" id="legend-carbs">—g</div>
-                <div class="donut-legend__name">Carbs</div>
-              </div>
-              <div class="donut-legend__item">
-                <div class="donut-legend__dot" style="background: var(--color-fat);"></div>
-                <div class="donut-legend__grams" id="legend-fat">—g</div>
-                <div class="donut-legend__name">Fat</div>
-              </div>
+      <!-- SECTION 4: Daily Macro Summary -->
+      <section>
+        <div class="macro-summary-card animate-fade-in-up">
+          <div class="macro-summary-header">
+            <p class="macro-summary__title">Macro Summary</p>
+            <div class="macro-summary__cal">
+              <span id="summary-cal-planned">0</span> / <span id="summary-cal-target">—</span> kcal
             </div>
           </div>
-
-          <!-- Calorie budget: Target / Eaten / Remaining -->
-          <div class="cal-breakdown" id="cal-breakdown">
-            <div class="cal-breakdown-cell">
-              <span class="cal-breakdown-cell__label">Target</span>
-              <span class="cal-breakdown-cell__value" id="cal-target">—</span>
-            </div>
-            <div class="cal-breakdown-cell">
-              <span class="cal-breakdown-cell__label">Eaten</span>
-              <span class="cal-breakdown-cell__value cal-breakdown-cell__value--eaten" id="cal-eaten">—</span>
-            </div>
-            <div class="cal-breakdown-cell">
-              <span class="cal-breakdown-cell__label">Left</span>
-              <span class="cal-breakdown-cell__value cal-breakdown-cell__value--remaining" id="cal-remaining">—</span>
-            </div>
+          <div class="macro-summary-bars" id="macro-summary-bars">
+            <!-- Injected by JS -->
           </div>
         </div>
       </section>
 
-      <!-- SECTION 3: Detailed Macro Progress Bars -->
-      <section aria-label="Macro progress detail">
-        <div class="section-title-accented">
-          <span>Today's Intake vs. Target</span>
+      <!-- SECTION 5: Almost Ready -->
+      <section id="almost-section">
+        <div class="section-header">
+          <h2 class="section-header__title">Almost Ready</h2>
+          <span style="font-size:var(--text-xs); color:var(--color-text-muted);">Missing 1 item</span>
         </div>
-
-        <div class="macro-detail-card animate-fade-in-up" id="macro-detail-card">
-          <!-- Skeleton placeholders — replaced by JS -->
-          <div class="skeleton" style="height:50px; border-radius:var(--radius-md);"></div>
-          <div class="skeleton" style="height:50px; border-radius:var(--radius-md);"></div>
-          <div class="skeleton" style="height:50px; border-radius:var(--radius-md);"></div>
+        <div class="stack stack-sm" id="almost-list">
+          <!-- Injected by JS -->
         </div>
       </section>
 
-      <!-- SECTION 4: Contextual Nutrition Tip -->
-      <section aria-label="Nutrition tip">
-        <div class="tip-card animate-fade-in-up" id="tip-card">
-          <div class="tip-card__icon">💡</div>
-          <p class="tip-card__text" id="tip-text">Loading your personalized tip...</p>
-        </div>
-      </section>
-
-      <!-- SECTION 5: Recipe Recommendations (from SupabaseAPI) -->
-      <section aria-label="Recipe recommendations">
-        <div class="section-title-accented">
-          <span>Recommended for You</span>
-        </div>
-        <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin-bottom: var(--space-4);">
-          Based on your favorite foods & macro targets.
-        </p>
-
-        <!-- Horizontal scrollable strip — cards injected by JS -->
-        <div class="recipe-strip" id="recipe-strip" role="list" aria-label="Recipe recommendations">
-          <!-- Skeleton cards while loading -->
-          <div class="skeleton" style="width:200px; height:240px; border-radius:var(--radius-lg); flex-shrink:0;"></div>
-          <div class="skeleton" style="width:200px; height:240px; border-radius:var(--radius-lg); flex-shrink:0;"></div>
-          <div class="skeleton" style="width:200px; height:240px; border-radius:var(--radius-lg); flex-shrink:0;"></div>
-        </div>
-      </section>
-
-      <!-- SECTION 6: Meal Timing Breakdown -->
-      <section aria-label="Suggested meal timing">
-        <div class="section-title-accented">
-          <span>Meal Timing</span>
-        </div>
-
-        <!-- 
-          Four meal slots shown in a 2x2 grid.
-          Calorie distribution follows a roughly 25/35/25/15 split
-          (Breakfast / Lunch / Dinner / Snack) — a common coaching approach.
-          These are rendered by JS using the user's target calories.
-        -->
-        <div class="stack stack-sm" id="meal-timing-section">
-          <div class="meal-timing-row">
-            <div class="meal-slot" id="meal-breakfast">
-              <span class="meal-slot__time">7:00 AM</span>
-              <span class="meal-slot__name">Breakfast</span>
-              <span class="meal-slot__cal" id="meal-cal-breakfast">— kcal</span>
-              <div class="meal-slot__dot"></div>
-            </div>
-            <div class="meal-slot" id="meal-lunch">
-              <span class="meal-slot__time">12:30 PM</span>
-              <span class="meal-slot__name">Lunch</span>
-              <span class="meal-slot__cal" id="meal-cal-lunch">— kcal</span>
-              <div class="meal-slot__dot" style="background: var(--color-blue);"></div>
-            </div>
-          </div>
-          <div class="meal-timing-row">
-            <div class="meal-slot" id="meal-dinner">
-              <span class="meal-slot__time">6:30 PM</span>
-              <span class="meal-slot__name">Dinner</span>
-              <span class="meal-slot__cal" id="meal-cal-dinner">— kcal</span>
-              <div class="meal-slot__dot" style="background: var(--color-warning);"></div>
-            </div>
-            <div class="meal-slot" id="meal-snack">
-              <span class="meal-slot__time">3:00 PM</span>
-              <span class="meal-slot__name">Snack</span>
-              <span class="meal-slot__cal" id="meal-cal-snack">— kcal</span>
-              <div class="meal-slot__dot" style="background: var(--color-text-muted);"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SECTION 7: Grocery List CTA Banner -->
-      <section aria-label="Grocery list link">
-        <a class="grocery-banner" href="grocery-list.html" aria-label="Go to grocery list">
-          <div class="grocery-banner__icon" aria-hidden="true">🛒</div>
-          <div class="grocery-banner__text">
-            <div class="grocery-banner__title">Your Grocery List is Ready</div>
-            <div class="grocery-banner__sub" id="grocery-banner-sub">
-              Organized by macro category · Tap to view
-            </div>
-          </div>
-          <div class="grocery-banner__arrow" aria-hidden="true">→</div>
-        </a>
-      </section>
-
-      <div style="height: var(--space-6);"></div>
+      <div style="height: var(--space-8);"></div>
     </main>
 
-    <!-- Bottom nav container — rendered by BottomNav.render() in script.js -->
+    <!-- MEAL PICKER MODAL -->
+    <div class="picker-overlay" id="picker-overlay" role="dialog" aria-modal="true" aria-label="Choose a meal">
+      <div class="picker-sheet" id="picker-sheet">
+        <div class="picker-handle" aria-hidden="true"></div>
+
+        <div class="picker-header">
+          <div class="picker-header__slot" id="picker-slot-label">Breakfast</div>
+          <div class="picker-header__title">Choose a meal</div>
+        </div>
+
+        <!-- Filter tabs: Available / Almost Ready / All -->
+        <div class="picker-tabs" role="tablist" id="picker-tabs">
+          <button class="picker-tab is-active" data-filter="available" onclick="setPickerFilter('available')">✅ Available</button>
+          <button class="picker-tab" data-filter="almost"    onclick="setPickerFilter('almost')">⚠ Almost</button>
+          <button class="picker-tab" data-filter="all"       onclick="setPickerFilter('all')">All Recipes</button>
+        </div>
+
+        <div class="picker-recipe-list" id="picker-recipe-list">
+          <!-- Injected by JS when modal opens -->
+        </div>
+      </div>
+    </div>
+
     <div id="bottom-nav-container"></div>
+  </div>
 
-  </div><!-- end .app-shell -->
-
-  <!-- Global script (AppState, FitnessCalculator, SupabaseAPI, etc.) -->
   <script src="script-merged.js"></script>
 
   <script>
     /**
      * ============================================================
      * NUTRITION PAGE SCRIPT
-     * nutrition.html — inline script
+     * nutrition.html
      *
      * DATA FLOW:
-     *   1. AppState.getProfile() → reads UserProfile from localStorage
-     *   2. profile.calculatedMacros → drives the donut chart & bars
-     *   3. profile.favoriteFoods → passed to SupabaseAPI.getRecipes()
-     *   4. Recipe data → rendered as horizontal scroll cards
-     *
-     * This page is intentionally READ-ONLY for Phase 2.
-     * The "log a meal" write path will be added in Phase 3.
+     *   1. Read grocery list from localStorage (StorageHelpers or direct)
+     *   2. Extract all checked items → their foodKeys
+     *   3. For each recipe, check which required ingredients are checked
+     *      available  = all required foodKeys are in checkedFoodKeys
+     *      almost     = exactly 1 required foodKey is missing
+     *      locked     = 2+ required foodKeys are missing
+     *   4. Render 4 meal slots (Breakfast / Lunch / Dinner / Snack)
+     *   5. Load saved meal plan from localStorage
+     *   6. Picker modal opens on slot tap, filtered by availability
+     *   7. Recipe selection updates slot + macro totals
      * ============================================================
      */
 
-    /* ─── CONSTANTS ───────────────────────────────────────────────
-       SVG circle with r=80 has circumference = 2π×80 ≈ 502.655
-       This is the total "length" of a stroke drawn around the circle.
-       We partition this length across three arcs (protein, carbs, fat).
-    ─────────────────────────────────────────────────────────────── */
-    const DONUT_RADIUS        = 80;
-    const DONUT_CIRCUMFERENCE = 2 * Math.PI * DONUT_RADIUS; // ≈ 502.655
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       RECIPE CATALOG
+       Each recipe has:
+         slots[]             — which meal types it fits
+         requiredIngredients — foodKeys that must be checked in grocery list
+         thumbType           — visual style of the thumbnail
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    const RECIPE_CATALOG = [
+      // ── BREAKFAST ──────────────────────────────────────────────
+      {
+        id: 'r-b1',
+        name: 'Overnight Protein Oats',
+        emoji: '🥣',
+        slots: ['breakfast'],
+        thumbType: 'carbs',
+        calories: 380, proteinG: 28, carbsG: 48, fatG: 8,
+        prepMin: 5,
+        requiredIngredients: ['oats', 'greek_yogurt'],
+        instructions: 'Combine oats, Greek yogurt, and protein powder. Refrigerate overnight. Top with blueberries.',
+      },
+      {
+        id: 'r-b2',
+        name: 'Egg White Scramble',
+        emoji: '🍳',
+        slots: ['breakfast'],
+        thumbType: 'protein',
+        calories: 280, proteinG: 32, carbsG: 12, fatG: 7,
+        prepMin: 10,
+        requiredIngredients: ['eggs', 'veggies'],
+        instructions: 'Scramble egg whites with bell peppers and spinach. Season with salt and pepper.',
+      },
+      {
+        id: 'r-b3',
+        name: 'Greek Yogurt Power Bowl',
+        emoji: '🫙',
+        slots: ['breakfast', 'snack'],
+        thumbType: 'protein',
+        calories: 350, proteinG: 38, carbsG: 22, fatG: 10,
+        prepMin: 5,
+        requiredIngredients: ['greek_yogurt'],
+        instructions: 'Layer Greek yogurt with berries, walnuts, and a drizzle of honey.',
+      },
+      {
+        id: 'r-b4',
+        name: 'PB Banana Oats',
+        emoji: '🥜',
+        slots: ['breakfast'],
+        thumbType: 'carbs',
+        calories: 420, proteinG: 14, carbsG: 58, fatG: 14,
+        prepMin: 5,
+        requiredIngredients: ['oats'],
+        instructions: 'Cook oats, stir in peanut butter and sliced banana. Top with chia seeds.',
+      },
 
-    /* Meal split percentages — how calories are distributed across meals */
-    const MEAL_SPLITS = {
-      breakfast: 0.25, // 25% of daily calories
-      lunch:     0.35, // 35%
-      dinner:    0.25, // 25%
-      snack:     0.15, // 15%
-    };
+      // ── LUNCH ──────────────────────────────────────────────────
+      {
+        id: 'r-l1',
+        name: 'Grilled Chicken Bowl',
+        emoji: '🍗',
+        slots: ['lunch', 'dinner'],
+        thumbType: 'protein',
+        calories: 520, proteinG: 45, carbsG: 52, fatG: 9,
+        prepMin: 25,
+        requiredIngredients: ['chicken', 'rice', 'veggies'],
+        instructions: 'Grill chicken breast, serve over brown rice with roasted broccoli. Drizzle with olive oil.',
+      },
+      {
+        id: 'r-l2',
+        name: 'Turkey Taco Bowl',
+        emoji: '🦃',
+        slots: ['lunch', 'dinner'],
+        thumbType: 'balanced',
+        calories: 540, proteinG: 48, carbsG: 55, fatG: 12,
+        prepMin: 20,
+        requiredIngredients: ['turkey', 'rice'],
+        instructions: 'Cook ground turkey with taco seasoning. Serve over rice with salsa and avocado.',
+      },
+      {
+        id: 'r-l3',
+        name: 'Tuna & Veggie Wrap',
+        emoji: '🐟',
+        slots: ['lunch'],
+        thumbType: 'protein',
+        calories: 380, proteinG: 36, carbsG: 28, fatG: 10,
+        prepMin: 10,
+        requiredIngredients: ['tuna', 'veggies'],
+        instructions: 'Mix canned tuna with Greek yogurt and diced veggies. Wrap in whole grain tortilla.',
+      },
+      {
+        id: 'r-l4',
+        name: 'Shrimp Stir Fry',
+        emoji: '🍤',
+        slots: ['lunch', 'dinner'],
+        thumbType: 'protein',
+        calories: 410, proteinG: 36, carbsG: 44, fatG: 8,
+        prepMin: 15,
+        requiredIngredients: ['shrimp', 'rice', 'veggies'],
+        instructions: 'Stir-fry shrimp with broccoli and bell peppers in low-sodium soy sauce. Serve over rice.',
+      },
 
-    /* Goal-specific nutrition tips */
-    const NUTRITION_TIPS = {
-      fat_loss: `<strong>Protein timing matters.</strong> Aim to eat 30–40g of protein within 2 hours of waking. Studies show this reduces total daily calorie intake by an average of 441 kcal through satiety.`,
-      muscle_gain: `<strong>Hit your protein ceiling first.</strong> On training days, distribute your protein across 4+ meals to maximize muscle protein synthesis. No single meal should exceed ~50g for absorption efficiency.`,
-      recomp: `<strong>Carb cycle around training.</strong> Eat your highest-carb meals on training days (pre/post workout). On rest days, shift calories toward protein and fat to stay in a mild deficit.`,
-      maintenance: `<strong>Micronutrients matter now.</strong> At maintenance, focus on food quality. Prioritize whole foods, adequate fiber (25–35g/day), and consistent meal timing for sustained energy.`,
-    };
+      // ── DINNER ─────────────────────────────────────────────────
+      {
+        id: 'r-d1',
+        name: 'Salmon & Asparagus',
+        emoji: '🐠',
+        slots: ['dinner'],
+        thumbType: 'protein',
+        calories: 460, proteinG: 42, carbsG: 8, fatG: 22,
+        prepMin: 20,
+        requiredIngredients: ['salmon', 'veggies'],
+        instructions: 'Pan-sear salmon fillet, roast asparagus with olive oil and lemon. Serve together.',
+      },
+      {
+        id: 'r-d2',
+        name: 'Beef & Sweet Potato',
+        emoji: '🥩',
+        slots: ['dinner'],
+        thumbType: 'balanced',
+        calories: 580, proteinG: 44, carbsG: 42, fatG: 18,
+        prepMin: 30,
+        requiredIngredients: ['beef', 'potato', 'veggies'],
+        instructions: 'Brown ground beef, roast sweet potato cubes. Serve with steamed broccoli.',
+      },
+      {
+        id: 'r-d3',
+        name: 'Tofu Veggie Bowl',
+        emoji: '🫙',
+        slots: ['lunch', 'dinner'],
+        thumbType: 'balanced',
+        calories: 380, proteinG: 22, carbsG: 38, fatG: 14,
+        prepMin: 20,
+        requiredIngredients: ['tofu', 'veggies', 'rice'],
+        instructions: 'Pan-fry firm tofu until golden. Serve over rice with sautéed vegetables.',
+      },
 
-    /* Thumbnail gradient category per recipe — maps recipe id to a visual theme */
-    const RECIPE_THUMB_CLASS = {
-      r1: { cls: 'recipe-card__thumb--protein',  icon: '🍗', prep: '20 min' },
-      r2: { cls: 'recipe-card__thumb--carbs',    icon: '🥣', prep: '5 min'  },
-      r3: { cls: 'recipe-card__thumb--protein',  icon: '🍳', prep: '10 min' },
-      r4: { cls: 'recipe-card__thumb--balanced', icon: '🐟', prep: '25 min' },
-      r5: { cls: 'recipe-card__thumb--balanced', icon: '🌮', prep: '30 min' },
-    };
+      // ── SNACK ──────────────────────────────────────────────────
+      {
+        id: 'r-s1',
+        name: 'Cottage Cheese Bowl',
+        emoji: '🧀',
+        slots: ['snack'],
+        thumbType: 'protein',
+        calories: 220, proteinG: 26, carbsG: 12, fatG: 5,
+        prepMin: 2,
+        requiredIngredients: ['cottage_cheese'],
+        instructions: 'Top cottage cheese with blueberries and a sprinkle of chia seeds.',
+      },
+      {
+        id: 'r-s2',
+        name: 'Hard Boiled Eggs',
+        emoji: '🥚',
+        slots: ['snack', 'breakfast'],
+        thumbType: 'protein',
+        calories: 140, proteinG: 12, carbsG: 1, fatG: 10,
+        prepMin: 12,
+        requiredIngredients: ['eggs'],
+        instructions: 'Boil eggs for 10–12 minutes, cool in ice water, peel and season.',
+      },
+      {
+        id: 'r-s3',
+        name: 'Avocado Rice Cake',
+        emoji: '🥑',
+        slots: ['snack'],
+        thumbType: 'balanced',
+        calories: 180, proteinG: 4, carbsG: 22, fatG: 9,
+        prepMin: 3,
+        requiredIngredients: ['avocado'],
+        instructions: 'Slice avocado over rice cakes. Season with salt, pepper, and red pepper flakes.',
+      },
+    ];
 
-
-    /* ─── MAIN INIT ───────────────────────────────────────────────
-       Runs after DOMContentLoaded (script.js fires its own
-       DOMContentLoaded first — both listeners are queued and run
-       in registration order, so this is safe).
+    /* ── MEAL SLOT DEFINITIONS ───────────────────────────────────
+       Each slot: id, display name, time label, calorie % of target,
+       which recipe slots are compatible
     ─────────────────────────────────────────────────────────── */
-    document.addEventListener('DOMContentLoaded', async () => {
+    const MEAL_SLOTS = [
+      { id: 'breakfast', label: 'Breakfast', time: '7–9 AM',   pct: 0.25, compatibleSlots: ['breakfast'] },
+      { id: 'lunch',     label: 'Lunch',     time: '12–1 PM',  pct: 0.35, compatibleSlots: ['lunch'] },
+      { id: 'dinner',    label: 'Dinner',    time: '6–7 PM',   pct: 0.30, compatibleSlots: ['dinner', 'lunch'] },
+      { id: 'snack',     label: 'Snack',     time: 'Anytime',  pct: 0.10, compatibleSlots: ['snack'] },
+    ];
 
-      // ── Step 1: Load profile (sync — reads from localStorage) ──
-      const profile = AppState.getProfile();
+    const STORAGE_MEAL_PLAN_KEY = 'fitforge_meal_plan';
 
-      // Update the header date
-      UIHelpers.setText('#header-date', UIHelpers.formatDate(new Date(), 'short'));
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PAGE STATE
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    const nutritionState = {
+      profile:          null,
+      checkedFoodKeys:  [],   // foodKeys of checked grocery items
+      checkedCategories:[],   // which categories have any checked items
+      mealPlan: {             // chosen recipe per slot (null = empty)
+        breakfast: null,
+        lunch:     null,
+        dinner:    null,
+        snack:     null,
+      },
+      // Active picker state
+      activeSlotId:  null,
+      pickerFilter:  'available',
+    };
 
-      // ── Step 2: Render static/sync sections immediately ────────
-      // These don't need API calls — data is already in the profile.
-      if (profile) {
-        renderNutritionHero(profile);
-        renderDonutChart(profile.calculatedMacros);
-        renderMacroBars(profile);
-        renderMealTiming(profile.calculatedMacros?.targetCalories ?? 2000);
-        renderNutritionTip(profile.goal);
-        updateGroceryBanner(profile);
-      } else {
-        renderNoProfileState();
-      }
 
-      // ── Step 3: Fetch recipes (async — hits SupabaseAPI) ───────
-      // While this loads, the skeleton cards are visible in the HTML.
-      try {
-        const favFoods = profile?.favoriteFoods ?? [];
-        const recipes  = await SupabaseAPI.getRecipes(favFoods);
-        renderRecipeCards(recipes, profile);
-      } catch (err) {
-        console.error('Failed to load recipes:', err);
-        renderRecipeError();
-      }
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       INITIALIZATION
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    document.addEventListener('DOMContentLoaded', () => {
+      nutritionState.profile = AppState.getProfile();
 
-      // ── Step 4: Fetch today's log to show actual intake ─────────
-      try {
-        const userId   = profile?.id ?? 'anonymous';
-        const today    = UIHelpers.getTodayString();
-        const dailyLog = await SupabaseAPI.getDailyLog(userId, today);
-        AppState.set('dailyLog', dailyLog);
-        updateCalorieBreakdown(dailyLog, profile?.calculatedMacros);
-      } catch (err) {
-        console.warn('Daily log fetch failed:', err);
-      }
+      // 1. Load grocery list and extract checked foodKeys
+      loadGroceryData();
+
+      // 2. Load saved meal plan for today
+      loadSavedMealPlan();
+
+      // 3. Render all sections
+      renderPantry();
+      renderMealSlots();
+      renderMacroSummary();
+      renderAlmostReady();
+      renderHeaderBadge();
+
+      // 4. Wire up modal close on overlay tap
+      document.getElementById('picker-overlay')?.addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closePicker();
+      });
     });
 
 
-    /* ─────────────────────────────────────────────────────────────
-       RENDER: HERO SECTION
-       Updates the page subtitle with goal-specific framing.
-    ─────────────────────────────────────────────────────────── */
-    function renderNutritionHero(profile) {
-      const goalLabel = {
-        fat_loss:    '500 kcal deficit · High protein · Macro tracking',
-        muscle_gain: '250 kcal surplus · High protein · Progressive fueling',
-        recomp:      '200 kcal deficit · Very high protein · Carb cycling',
-        maintenance: 'TDEE maintenance · Balanced macros · Quality focus',
-      };
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       DATA: GROCERY LIST → CHECKED FOOD KEYS
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    function loadGroceryData() {
+      try {
+        const stored = localStorage.getItem('fitforge_grocery_list');
+        if (!stored) {
+          UIHelpers.setText('#pantry-subtitle', 'No grocery list found — add items to unlock recipes.');
+          return;
+        }
 
-      UIHelpers.setText(
-        '#nutrition-subtitle',
-        goalLabel[profile.goal] ?? 'Personalized macro targets for your goal.'
-      );
+        const data  = JSON.parse(stored);
+        const items = data?.items ?? [];
 
-      // Goal badge in the chart card header
-      const goalNames = {
-        fat_loss: 'Fat Loss', muscle_gain: 'Muscle Gain',
-        recomp: 'Recomp', maintenance: 'Maintenance',
-      };
-      UIHelpers.setText('#goal-badge', goalNames[profile.goal] ?? profile.goal);
+        // Extract foodKeys from CHECKED items only
+        const checkedItems = items.filter(i => i.checked && i.foodKey);
+        nutritionState.checkedFoodKeys = [...new Set(checkedItems.map(i => i.foodKey))];
+
+        // Which categories have any checked items
+        const checkedCats = [...new Set(items.filter(i => i.checked).map(i => i.category))];
+        nutritionState.checkedCategories = checkedCats;
+
+        // Subtitle
+        const totalChecked = items.filter(i => i.checked).length;
+        const totalItems   = items.length;
+        UIHelpers.setText('#pantry-subtitle',
+          totalChecked > 0
+            ? `${totalChecked} of ${totalItems} grocery items checked`
+            : 'Check items on your grocery list to unlock recipes.'
+        );
+
+      } catch (e) {
+        console.error('Failed to load grocery data:', e);
+        UIHelpers.setText('#pantry-subtitle', 'Could not load grocery list.');
+      }
     }
 
 
-    /* ─────────────────────────────────────────────────────────────
-       RENDER: DONUT CHART
-       Animates three SVG arcs to represent the caloric split.
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       RECIPE AVAILABILITY LOGIC
+       Core function: checks a recipe against checkedFoodKeys.
+       Returns: 'available' | 'almost' | 'locked'
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    function getRecipeAvailability(recipe) {
+      const required = recipe.requiredIngredients ?? [];
 
-       ALGORITHM:
-       1. Calculate each macro's calories (protein×4, carbs×4, fat×9)
-       2. Calculate each macro's FRACTION of total calories
-       3. Convert fraction to arc length = fraction × circumference
-       4. Set stroke-dasharray (the "filled" portion) for each arc
-       5. Set stroke-dashoffset (the "start position") for each arc
+      // Recipes with no required ingredients are always available
+      if (required.length === 0) return { status: 'available', missing: [] };
 
-       The negative dashoffset shifts the arc's start point clockwise
-       by the sum of all previous arcs — placing each segment right
-       after the last.
+      const missing = required.filter(key => !nutritionState.checkedFoodKeys.includes(key));
 
-       Python analogy: this is like slicing a pie where each slice's
-       start angle = sum(all previous slice angles).
-    ─────────────────────────────────────────────────────────── */
-    function renderDonutChart(macros) {
-      if (!macros) return;
+      if (missing.length === 0) return { status: 'available', missing: [] };
+      if (missing.length === 1) return { status: 'almost',    missing };
+      return                            { status: 'locked',    missing };
+    }
 
-      const { proteinG, carbsG, fatG, targetCalories } = macros;
+    /** Get ingredient display name from foodKey */
+    function foodKeyToName(key) {
+      const map = {
+        chicken: 'Chicken', rice: 'Rice', veggies: 'Vegetables',
+        turkey: 'Turkey', salmon: 'Salmon', tuna: 'Tuna',
+        shrimp: 'Shrimp', beef: 'Beef', tofu: 'Tofu',
+        eggs: 'Eggs', greek_yogurt: 'Greek Yogurt',
+        cottage_cheese: 'Cottage Cheese', oats: 'Oats',
+        potato: 'Sweet Potato', avocado: 'Avocado',
+        pasta: 'Pasta', bread: 'Bread', quinoa: 'Quinoa',
+      };
+      return map[key] ?? key;
+    }
 
-      // Step 1: Convert grams to calories for each macro
-      const proteinCal = proteinG * 4;  // 4 kcal per gram
-      const carbsCal   = carbsG   * 4;  // 4 kcal per gram
-      const fatCal     = fatG     * 9;  // 9 kcal per gram — fat is more calorie-dense!
-      const totalMacroCal = proteinCal + carbsCal + fatCal;
+    /** Count available recipes for a given slot */
+    function countAvailableForSlot(slotId) {
+      const slot = MEAL_SLOTS.find(s => s.id === slotId);
+      if (!slot) return 0;
+      return RECIPE_CATALOG.filter(r =>
+        slot.compatibleSlots.some(cs => r.slots.includes(cs)) &&
+        getRecipeAvailability(r).status === 'available'
+      ).length;
+    }
 
-      // Step 2: Calculate fraction of total calories
-      // Guard against division-by-zero if macros haven't been set yet
-      if (totalMacroCal === 0) return;
+    /** Total count of available recipes across all slots */
+    function countTotalAvailable() {
+      return RECIPE_CATALOG.filter(r => getRecipeAvailability(r).status === 'available').length;
+    }
 
-      const proteinFrac = proteinCal / totalMacroCal;
-      const carbsFrac   = carbsCal   / totalMacroCal;
-      const fatFrac     = fatCal     / totalMacroCal;
 
-      // Step 3: Convert fractions to arc lengths in SVG "units" (pixels along stroke)
-      const proteinDash = proteinFrac * DONUT_CIRCUMFERENCE;
-      const carbsDash   = carbsFrac   * DONUT_CIRCUMFERENCE;
-      const fatDash     = fatFrac     * DONUT_CIRCUMFERENCE;
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       MEAL PLAN PERSISTENCE
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    function loadSavedMealPlan() {
+      try {
+        const raw = localStorage.getItem(STORAGE_MEAL_PLAN_KEY);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
 
-      // Step 4 + 5: Apply to SVG elements
-      // We use requestAnimationFrame to ensure the browser has rendered
-      // the initial state (dasharray: "0 502") before animating to final state.
-      // Without rAF, the CSS transition won't fire because the browser
-      // never paints the "before" frame.
-      requestAnimationFrame(() => {
+        // Only load if saved for today (meal plan resets each day)
+        const today = UIHelpers.getTodayString();
+        if (saved.date !== today) return;
 
-        // Protein arc — starts at position 0 (top of circle after CSS rotate)
-        setArc('arc-protein', proteinDash, 0);
+        MEAL_SLOTS.forEach(slot => {
+          if (saved[slot.id]) {
+            // Find recipe by id to ensure it's still valid
+            const recipe = RECIPE_CATALOG.find(r => r.id === saved[slot.id]);
+            if (recipe) nutritionState.mealPlan[slot.id] = recipe;
+          }
+        });
+      } catch (e) {
+        console.error('Failed to load meal plan:', e);
+      }
+    }
 
-        // Carbs arc — starts right after protein ends
-        setArc('arc-carbs', carbsDash, -proteinDash);
-
-        // Fat arc — starts right after carbs ends
-        setArc('arc-fat', fatDash, -(proteinDash + carbsDash));
+    function saveMealPlan() {
+      const toSave = { date: UIHelpers.getTodayString() };
+      MEAL_SLOTS.forEach(slot => {
+        toSave[slot.id] = nutritionState.mealPlan[slot.id]?.id ?? null;
       });
-
-      // Update center value
-      UIHelpers.setText('#donut-center-calories', targetCalories?.toLocaleString() ?? '—');
-
-      // Update legend grams
-      UIHelpers.setText('#legend-protein', `${proteinG}g`);
-      UIHelpers.setText('#legend-carbs',   `${carbsG}g`);
-      UIHelpers.setText('#legend-fat',     `${fatG}g`);
-
-      // Update calorie breakdown cells
-      UIHelpers.setText('#cal-target', targetCalories?.toLocaleString() ?? '—');
-      // Eaten/Remaining populated by updateCalorieBreakdown() after log fetch
-    }
-
-    /**
-     * Helper: set stroke-dasharray and stroke-dashoffset on an SVG arc element.
-     *
-     * @param {string} elementId  - The SVG circle element's id
-     * @param {number} dashLength - The visible arc length in SVG units
-     * @param {number} offset     - The starting position offset (negative = clockwise shift)
-     */
-    function setArc(elementId, dashLength, offset) {
-      const el = document.getElementById(elementId);
-      if (!el) return;
-
-      // dasharray = "visible_length gap_length"
-      // gap = circumference - dash ensures only ONE arc segment is drawn per circle
-      const gap = DONUT_CIRCUMFERENCE - dashLength;
-      el.style.strokeDasharray  = `${dashLength.toFixed(2)} ${gap.toFixed(2)}`;
-      el.style.strokeDashoffset = offset.toFixed(2);
+      localStorage.setItem(STORAGE_MEAL_PLAN_KEY, JSON.stringify(toSave));
     }
 
 
-    /* ─────────────────────────────────────────────────────────────
-       RENDER: DETAILED MACRO PROGRESS BARS
-       Shows consumed vs. target for each macro with percentage.
-    ─────────────────────────────────────────────────────────── */
-    function renderMacroBars(profile) {
-      const macroDetail = document.getElementById('macro-detail-card');
-      if (!macroDetail) return;
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       RENDER: HEADER BADGE — "X recipes ready"
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    function renderHeaderBadge() {
+      const badge = document.getElementById('recipes-ready-badge');
+      if (!badge) return;
+      const count = countTotalAvailable();
+      if (count > 0) {
+        badge.textContent = `${count} ready`;
+        badge.style.display = 'block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
 
-      const targets = profile.calculatedMacros;
-      if (!targets) return;
 
-      // Mock today's consumed values
-      // In Phase 3, these come from the daily log API response
-      const consumed = {
-        proteinG: Math.round(targets.proteinG * 0.62), // ~62% through the day
-        carbsG:   Math.round(targets.carbsG   * 0.54),
-        fatG:     Math.round(targets.fatG     * 0.71),
-      };
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       RENDER: PANTRY PILLS
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    function renderPantry() {
+      const container = document.getElementById('pantry-pills');
+      if (!container) return;
 
-      // Define all three macro rows with their display config
-      const macros = [
-        {
-          key:      'protein',
-          name:     'Protein',
-          color:    'var(--color-protein)',
-          dot:      '#c8ff00',
-          consumed: consumed.proteinG,
-          target:   targets.proteinG,
-          calsPerG: 4,
-        },
-        {
-          key:      'carbs',
-          name:     'Carbohydrates',
-          color:    'var(--color-carbs)',
-          dot:      '#00c8ff',
-          consumed: consumed.carbsG,
-          target:   targets.carbsG,
-          calsPerG: 4,
-        },
-        {
-          key:      'fat',
-          name:     'Fat',
-          color:    'var(--color-fat)',
-          dot:      '#f59e0b',
-          consumed: consumed.fatG,
-          target:   targets.fatG,
-          calsPerG: 9,
-        },
+      const categories = [
+        { key: 'protein', label: 'Proteins', icon: '🍗' },
+        { key: 'carbs',   label: 'Carbs',    icon: '🌾' },
+        { key: 'fat',     label: 'Fats',      icon: '🥑' },
+        { key: 'produce', label: 'Produce',   icon: '🥦' },
       ];
 
-      // Build HTML for all three detailed rows
-      macroDetail.innerHTML = macros.map((macro) => {
-        const pct = Math.min(100, Math.round((macro.consumed / macro.target) * 100));
+      container.innerHTML = categories.map(cat => {
+        const available = nutritionState.checkedCategories.includes(cat.key);
+        return `
+          <div class="pantry-pill pantry-pill--${available ? 'available' : 'missing'}">
+            <div class="pantry-pill__dot"></div>
+            <span>${cat.icon} ${cat.label}</span>
+          </div>
+        `;
+      }).join('');
+    }
 
-        // What % of daily calories does this macro target represent?
-        const totalCals = targets.targetCalories || 1;
-        const macroCals = macro.target * macro.calsPerG;
-        const calPct    = Math.round((macroCals / totalCals) * 100);
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       RENDER: MEAL SLOTS
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    function renderMealSlots() {
+      const grid = document.getElementById('meal-plan-grid');
+      if (!grid) return;
+
+      const profile       = nutritionState.profile;
+      const targetCal     = profile?.calculatedMacros?.targetCalories ?? 2000;
+
+      grid.innerHTML = MEAL_SLOTS.map(slot => {
+        const recipe     = nutritionState.mealPlan[slot.id];
+        const slotTarget = Math.round(targetCal * slot.pct);
+        const available  = countAvailableForSlot(slot.id);
 
         return `
-          <div class="macro-detail-row">
-            <div class="macro-detail-header">
-              <div class="macro-detail-left">
-                <div class="macro-dot" style="background:${macro.dot};"></div>
-                <span class="macro-detail-name">${macro.name}</span>
-                <span class="macro-detail-pct">${calPct}% of cals</span>
+          <div class="meal-slot-card ${recipe ? 'is-filled' : ''}" id="slot-card-${slot.id}">
+
+            <!-- Slot header row -->
+            <div class="meal-slot-header">
+              <div class="meal-slot-header__left">
+                <span class="meal-slot-header__time">${slot.label}</span>
+                <span class="meal-slot-header__pct" style="color:var(--color-text-muted);">· ${slot.time}</span>
               </div>
-              <span class="macro-detail-values">
-                <strong>${macro.consumed}g</strong> / ${macro.target}g
-              </span>
+              <span class="meal-slot-header__cal">~${slotTarget} kcal target</span>
             </div>
-            <!-- Progress bar: animated to pct% via rAF -->
-            <div class="progress-bar">
-              <div
-                class="progress-bar__fill"
-                style="background:${macro.color}; width:0%;"
-                data-target-width="${pct}"
-              ></div>
-            </div>
+
+            <!-- Slot body: empty or filled -->
+            ${recipe
+              ? buildFilledSlot(slot, recipe)
+              : buildEmptySlot(slot, available)
+            }
           </div>
         `;
       }).join('');
 
-      // Animate bars after HTML is inserted (same rAF trick as the donut)
-      requestAnimationFrame(() => {
-        macroDetail.querySelectorAll('[data-target-width]').forEach(fill => {
-          fill.style.width = `${fill.dataset.targetWidth}%`;
-        });
-      });
+      updateCalTotals();
+    }
+
+    function buildEmptySlot(slot, availableCount) {
+      return `
+        <div class="meal-slot-empty" onclick="openPicker('${slot.id}')"
+             role="button" tabindex="0" aria-label="Choose ${slot.label}">
+          <span class="meal-slot-empty__text">Tap to choose a ${slot.label.toLowerCase()}</span>
+          <span class="meal-slot-empty__badge ${availableCount === 0 ? 'meal-slot-empty__badge--zero' : ''}">
+            ${availableCount > 0 ? `${availableCount} available` : 'Check grocery list'}
+          </span>
+        </div>
+      `;
+    }
+
+    function buildFilledSlot(slot, recipe) {
+      return `
+        <div class="meal-slot-filled" onclick="openPicker('${slot.id}')"
+             role="button" tabindex="0" aria-label="Change ${slot.label}: currently ${recipe.name}">
+          <div class="meal-slot-filled__info">
+            <div class="meal-slot-filled__name">${UIHelpers.escapeHTML(recipe.emoji)} ${UIHelpers.escapeHTML(recipe.name)}</div>
+            <div class="meal-slot-filled__macros">
+              <span class="meal-macro-chip">
+                <span class="meal-macro-chip__dot" style="background:var(--color-protein);"></span>
+                ${recipe.proteinG}g P
+              </span>
+              <span class="meal-macro-chip">
+                <span class="meal-macro-chip__dot" style="background:var(--color-carbs);"></span>
+                ${recipe.carbsG}g C
+              </span>
+              <span class="meal-macro-chip">
+                <span class="meal-macro-chip__dot" style="background:var(--color-fat);"></span>
+                ${recipe.fatG}g F
+              </span>
+            </div>
+          </div>
+          <div class="meal-slot-filled__actions">
+            <div class="meal-slot-filled__cal">${recipe.calories}</div>
+            <div class="meal-slot-filled__swap">Swap ⇄</div>
+          </div>
+        </div>
+      `;
     }
 
 
-    /* ─────────────────────────────────────────────────────────────
-       RENDER: RECIPE CARDS
-       Transforms SupabaseAPI.getRecipes() response into card HTML.
-    ─────────────────────────────────────────────────────────── */
-    function renderRecipeCards(recipes, profile) {
-      const strip = document.getElementById('recipe-strip');
-      if (!strip) return;
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       RENDER: MACRO SUMMARY
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    function renderMacroSummary() {
+      const profile   = nutritionState.profile;
+      const macros    = profile?.calculatedMacros;
+      const container = document.getElementById('macro-summary-bars');
+      if (!container) return;
 
-      if (!recipes || recipes.length === 0) {
-        strip.innerHTML = `
-          <div style="width:100%; text-align:center; padding:var(--space-8); color:var(--color-text-muted); font-size:var(--text-sm);">
-            No recipes match your food preferences yet.
-            <br>Update your profile to add more foods.
+      const targets = {
+        proteinG: macros?.proteinG ?? 180,
+        carbsG:   macros?.carbsG   ?? 200,
+        fatG:     macros?.fatG     ?? 55,
+        calories: macros?.targetCalories ?? 2000,
+      };
+
+      // Sum macros from chosen meals
+      const planned = getTotalPlannedMacros();
+
+      UIHelpers.setText('#summary-cal-planned', planned.calories);
+      UIHelpers.setText('#summary-cal-target',  targets.calories);
+
+      const rows = [
+        { label: 'Protein', planned: planned.proteinG, target: targets.proteinG, color: 'var(--color-protein)' },
+        { label: 'Carbs',   planned: planned.carbsG,   target: targets.carbsG,   color: 'var(--color-carbs)' },
+        { label: 'Fat',     planned: planned.fatG,      target: targets.fatG,     color: 'var(--color-fat)' },
+      ];
+
+      container.innerHTML = rows.map(row => {
+        const pct = Math.min(100, Math.round((row.planned / row.target) * 100));
+        return `
+          <div class="macro-summary-row">
+            <span class="macro-summary-row__label">${row.label}</span>
+            <div style="flex:1;">
+              <div class="progress-bar">
+                <div class="progress-bar__fill" style="background:${row.color}; width:${pct}%;"></div>
+              </div>
+            </div>
+            <span class="macro-summary-row__values">${row.planned}g / ${row.target}g</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       RENDER: ALMOST READY SECTION
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    function renderAlmostReady() {
+      const section = document.getElementById('almost-section');
+      const list    = document.getElementById('almost-list');
+      if (!list) return;
+
+      const almostRecipes = RECIPE_CATALOG.filter(r => {
+        const { status } = getRecipeAvailability(r);
+        return status === 'almost';
+      });
+
+      if (almostRecipes.length === 0) {
+        section?.style && (section.style.display = 'none');
+        return;
+      }
+
+      list.innerHTML = almostRecipes.slice(0, 4).map(recipe => {
+        const { missing } = getRecipeAvailability(recipe);
+        const missingName = missing.map(foodKeyToName).join(', ');
+        return `
+          <div class="almost-card">
+            <div class="almost-card__icon">${UIHelpers.escapeHTML(recipe.emoji)}</div>
+            <div class="almost-card__info">
+              <div class="almost-card__name">${UIHelpers.escapeHTML(recipe.name)}</div>
+              <div class="almost-card__missing">Missing: ${UIHelpers.escapeHTML(missingName)}</div>
+              <div class="almost-card__macros">${recipe.calories} kcal · ${recipe.proteinG}P · ${recipe.carbsG}C · ${recipe.fatG}F</div>
+            </div>
+            <a href="grocery-list.html" class="almost-card__add">+ Add →</a>
+          </div>
+        `;
+      }).join('');
+    }
+
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       TOTALS HELPERS
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    function getTotalPlannedMacros() {
+      const totals = { calories: 0, proteinG: 0, carbsG: 0, fatG: 0 };
+      MEAL_SLOTS.forEach(slot => {
+        const r = nutritionState.mealPlan[slot.id];
+        if (r) {
+          totals.calories += r.calories;
+          totals.proteinG += r.proteinG;
+          totals.carbsG   += r.carbsG;
+          totals.fatG     += r.fatG;
+        }
+      });
+      return totals;
+    }
+
+    function updateCalTotals() {
+      const totals = getTotalPlannedMacros();
+      UIHelpers.setText('#meals-cal-total', `${totals.calories.toLocaleString()} kcal planned`);
+    }
+
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       MEAL PICKER MODAL
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    function openPicker(slotId) {
+      nutritionState.activeSlotId = slotId;
+      nutritionState.pickerFilter = 'available';
+
+      const slot = MEAL_SLOTS.find(s => s.id === slotId);
+
+      UIHelpers.setText('#picker-slot-label', slot?.label ?? slotId);
+
+      // Reset tab active state
+      setPickerFilter('available');
+
+      // Show the modal
+      document.getElementById('picker-overlay').classList.add('is-open');
+    }
+
+    function closePicker() {
+      document.getElementById('picker-overlay').classList.remove('is-open');
+      nutritionState.activeSlotId = null;
+    }
+
+    function setPickerFilter(filter) {
+      nutritionState.pickerFilter = filter;
+
+      // Update tab styles
+      document.querySelectorAll('.picker-tab').forEach(btn => {
+        btn.classList.toggle('is-active', btn.dataset.filter === filter);
+      });
+
+      renderPickerRecipes();
+    }
+
+    function renderPickerRecipes() {
+      const list    = document.getElementById('picker-recipe-list');
+      const slotId  = nutritionState.activeSlotId;
+      const filter  = nutritionState.pickerFilter;
+      if (!list || !slotId) return;
+
+      const slot = MEAL_SLOTS.find(s => s.id === slotId);
+      if (!slot) return;
+
+      // Get recipes compatible with this slot
+      let recipes = RECIPE_CATALOG.filter(r =>
+        slot.compatibleSlots.some(cs => r.slots.includes(cs))
+      );
+
+      // Apply availability filter
+      recipes = recipes.filter(r => {
+        const { status } = getRecipeAvailability(r);
+        if (filter === 'available') return status === 'available';
+        if (filter === 'almost')    return status === 'almost';
+        return true; // 'all'
+      });
+
+      if (recipes.length === 0) {
+        list.innerHTML = `
+          <div class="picker-empty">
+            <div class="picker-empty__icon">${filter === 'available' ? '🛒' : '📋'}</div>
+            <div class="picker-empty__text">
+              ${filter === 'available'
+                ? `No recipes available yet for ${slot.label}.<br>
+                   <span class="picker-empty__link" onclick="window.location.href='grocery-list.html'">
+                     Check items on your grocery list →
+                   </span>`
+                : `No ${filter === 'almost' ? '"almost ready"' : ''} recipes for ${slot.label}.`}
+            </div>
           </div>
         `;
         return;
       }
 
-      // Build HTML for each recipe card
-      strip.innerHTML = recipes.map(recipe => {
-        const thumbConfig = RECIPE_THUMB_CLASS[recipe.id] ?? {
-          cls: 'recipe-card__thumb--balanced',
-          icon: '🥗',
-          prep: '20 min',
-        };
+      const currentRecipe = nutritionState.mealPlan[slotId];
 
-        // Determine if this recipe matches a user's favorite food
-        const userFoods = profile?.favoriteFoods ?? [];
-        const matchTag  = recipe.tags?.find(t => userFoods.includes(t));
-        const matchBadge = matchTag
-          ? `<span class="badge badge--accent" style="font-size:9px; padding:1px 6px;">${UIHelpers.escapeHTML(matchTag)} ✓</span>`
-          : '';
+      list.innerHTML = recipes.map(recipe => {
+        const { status, missing } = getRecipeAvailability(recipe);
+        const isSelected = currentRecipe?.id === recipe.id;
 
         return `
-          <article class="recipe-card" role="listitem" aria-label="${UIHelpers.escapeHTML(recipe.name)}">
+          <div class="picker-recipe-card ${isSelected ? 'is-selected' : ''} ${status === 'almost' ? 'is-almost' : ''}"
+               onclick="selectRecipe('${recipe.id}')"
+               role="button"
+               tabindex="0"
+               aria-label="Select ${recipe.name}, ${recipe.calories} calories"
+               aria-pressed="${isSelected}">
 
-            <!-- Gradient thumbnail with calorie badge and food icon -->
-            <div class="recipe-card__thumb ${thumbConfig.cls}">
-              <span class="recipe-card__cal-badge">${recipe.calories} kcal</span>
-              <span class="recipe-card__thumb-icon" aria-hidden="true">${thumbConfig.icon}</span>
+            <!-- Thumb -->
+            <div class="picker-recipe-card__thumb picker-recipe-card__thumb--${recipe.thumbType}">
+              ${UIHelpers.escapeHTML(recipe.emoji)}
             </div>
 
-            <div class="recipe-card__body">
-              <!-- Recipe name -->
-              <div class="recipe-card__name">${UIHelpers.escapeHTML(recipe.name)}</div>
-
-              <!-- If this recipe matches a user food preference, show badge -->
-              ${matchBadge}
-
-              <!-- Three macro pills: P / C / F -->
-              <div class="recipe-card__macros" aria-label="Macros">
-                <div class="recipe-macro-pill">
-                  <span class="recipe-macro-pill__value" style="color:var(--color-protein);">
-                    ${recipe.proteinG}g
-                  </span>
-                  <span class="recipe-macro-pill__label">P</span>
-                </div>
-                <div class="recipe-macro-pill">
-                  <span class="recipe-macro-pill__value" style="color:var(--color-carbs);">
-                    ${recipe.carbsG}g
-                  </span>
-                  <span class="recipe-macro-pill__label">C</span>
-                </div>
-                <div class="recipe-macro-pill">
-                  <span class="recipe-macro-pill__value" style="color:var(--color-fat);">
-                    ${recipe.fatG}g
-                  </span>
-                  <span class="recipe-macro-pill__label">F</span>
-                </div>
+            <!-- Info -->
+            <div class="picker-recipe-card__info">
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                <span class="picker-recipe-card__name">${UIHelpers.escapeHTML(recipe.name)}</span>
+                ${status === 'available'
+                  ? `<span class="avail-badge avail-badge--ready">✓ Ready</span>`
+                  : status === 'almost'
+                  ? `<span class="avail-badge avail-badge--almost">⚠ Almost</span>`
+                  : ''}
               </div>
-
-              <!-- Prep time -->
-              <div class="recipe-card__prep">
-                <span>⏱</span>
-                <span>${thumbConfig.prep} prep</span>
+              <div class="picker-recipe-card__macros">
+                <span class="meal-macro-chip">
+                  <span class="meal-macro-chip__dot" style="background:var(--color-protein);"></span>${recipe.proteinG}g P
+                </span>
+                <span class="meal-macro-chip">
+                  <span class="meal-macro-chip__dot" style="background:var(--color-carbs);"></span>${recipe.carbsG}g C
+                </span>
+                <span class="meal-macro-chip">
+                  <span class="meal-macro-chip__dot" style="background:var(--color-fat);"></span>${recipe.fatG}g F
+                </span>
+              </div>
+              ${missing.length > 0
+                ? `<div class="picker-recipe-card__missing">
+                     Missing: ${missing.map(foodKeyToName).map(n => UIHelpers.escapeHTML(n)).join(', ')}
+                   </div>`
+                : ''}
+              <div style="font-size:var(--text-xs); color:var(--color-text-muted); margin-top:3px;">
+                ⏱ ${recipe.prepMin} min
               </div>
             </div>
-          </article>
+
+            <!-- Cal -->
+            <div class="picker-recipe-card__cal">
+              ${recipe.calories}
+              <small>kcal</small>
+            </div>
+          </div>
         `;
       }).join('');
     }
 
-    function renderRecipeError() {
-      const strip = document.getElementById('recipe-strip');
-      if (strip) {
-        strip.innerHTML = `
-          <p style="color:var(--color-text-muted); font-size:var(--text-sm); padding:var(--space-4);">
-            Couldn't load recipes. Check your connection.
-          </p>
-        `;
-      }
-    }
+    function selectRecipe(recipeId) {
+      const slotId = nutritionState.activeSlotId;
+      if (!slotId) return;
 
+      const recipe = RECIPE_CATALOG.find(r => r.id === recipeId);
+      if (!recipe) return;
 
-    /* ─────────────────────────────────────────────────────────────
-       RENDER: MEAL TIMING
-       Distributes target calories across 4 standard meal times.
-    ─────────────────────────────────────────────────────────── */
-    function renderMealTiming(targetCalories) {
-      // Each meal gets a fraction of the daily target
-      const slots = ['breakfast', 'lunch', 'dinner', 'snack'];
-      slots.forEach(slot => {
-        const cals = Math.round(targetCalories * MEAL_SPLITS[slot]);
-        UIHelpers.setText(`#meal-cal-${slot}`, `~${cals} kcal`);
-      });
-    }
+      // Set in state
+      nutritionState.mealPlan[slotId] = recipe;
 
+      // Save to localStorage
+      saveMealPlan();
 
-    /* ─────────────────────────────────────────────────────────────
-       RENDER: NUTRITION TIP
-       Goal-specific coaching insight pulled from local constants.
-    ─────────────────────────────────────────────────────────── */
-    function renderNutritionTip(goal) {
-      const tipEl = document.getElementById('tip-text');
-      if (tipEl) {
-        tipEl.innerHTML = NUTRITION_TIPS[goal] ?? NUTRITION_TIPS.maintenance;
-      }
-    }
+      // Close picker
+      closePicker();
 
+      // Re-render updated sections
+      renderMealSlots();
+      renderMacroSummary();
+      renderAlmostReady();
 
-    /* ─────────────────────────────────────────────────────────────
-       UPDATE: CALORIE BREAKDOWN CELLS
-       Called after the daily log is fetched — fills in "eaten" and
-       "remaining" values in the three-cell breakdown row.
-    ─────────────────────────────────────────────────────────── */
-    function updateCalorieBreakdown(log, macros) {
-      if (!log || !macros) return;
-
-      const eaten     = log.caloriesIn ?? 0;
-      const remaining = Math.max(0, macros.targetCalories - eaten);
-
-      UIHelpers.setText('#cal-eaten',     eaten.toLocaleString());
-      UIHelpers.setText('#cal-remaining', remaining.toLocaleString());
-    }
-
-
-    /* ─────────────────────────────────────────────────────────────
-       UPDATE: GROCERY BANNER
-       Shows a count of how many items are on the list.
-       In Phase 3, this queries the actual grocery list count.
-    ─────────────────────────────────────────────────────────── */
-    function updateGroceryBanner(profile) {
-      // Estimate item count from food preferences
-      // Real count will come from SupabaseAPI.getGroceryList() in Phase 3
-      const itemCount = (profile?.favoriteFoods?.length ?? 0) * 3;
-      UIHelpers.setText(
-        '#grocery-banner-sub',
-        `~${itemCount > 0 ? itemCount : 18} items · Organized by macro · Tap to view`
-      );
-    }
-
-
-    /* ─────────────────────────────────────────────────────────────
-       FALLBACK: No profile found
-    ─────────────────────────────────────────────────────────── */
-    function renderNoProfileState() {
-      UIHelpers.setText('#nutrition-subtitle', 'Complete onboarding to see your nutrition plan.');
-      UIHelpers.setText('#donut-center-calories', '—');
-
-      const macroDetailCard = document.getElementById('macro-detail-card');
-      if (macroDetailCard) {
-        macroDetailCard.innerHTML = `
-          <div style="text-align:center; padding:var(--space-6);">
-            <p style="color:var(--color-text-muted); font-size:var(--text-sm);">
-              No profile found.
-            </p>
-            <a href="onboarding.html" class="btn btn--ghost btn--sm" style="margin-top:var(--space-4); display:inline-flex;">
-              Complete Setup →
-            </a>
-          </div>
-        `;
-      }
+      UIHelpers.showToast(`${recipe.name} added to ${MEAL_SLOTS.find(s => s.id === slotId)?.label}`, 'success');
     }
   </script>
 </body>
