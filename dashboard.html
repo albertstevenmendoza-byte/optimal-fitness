@@ -418,6 +418,59 @@
     .water-cup:hover:not(.is-filled) {
       border-color: rgba(0, 200, 255, 0.4);
     }
+
+    /* ── PHASE TRACKER BANNER ─────────────────────────────────── */
+    .phase-banner {
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      border: 1px solid;
+    }
+    .phase-banner--active      { background: rgba(140,200,0,0.07);  border-color: rgba(80,160,0,0.25); }
+    .phase-banner--deload      { background: rgba(0,136,187,0.07);  border-color: rgba(0,136,187,0.25); }
+    .phase-banner--reassess    { background: rgba(245,158,11,0.08); border-color: rgba(194,112,10,0.3); }
+    .phase-banner--complete    { background: rgba(220,38,38,0.06);  border-color: rgba(220,38,38,0.25); }
+
+    .phase-banner__icon { font-size: 24px; flex-shrink: 0; }
+    .phase-banner__body { flex: 1; }
+    .phase-banner__label {
+      font-size: var(--text-xs); font-weight: var(--weight-bold);
+      letter-spacing: var(--tracking-widest); text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .phase-banner--active   .phase-banner__label { color: var(--color-accent-text); }
+    .phase-banner--deload   .phase-banner__label { color: var(--color-blue); }
+    .phase-banner--reassess .phase-banner__label { color: var(--color-warning); }
+    .phase-banner--complete .phase-banner__label { color: var(--color-danger); }
+
+    .phase-banner__title { font-size: var(--text-base); font-weight: var(--weight-bold); color: var(--color-text-primary); }
+    .phase-banner__sub   { font-size: var(--text-xs); color: var(--color-text-secondary); margin-top: 2px; }
+
+    .phase-progress-bar {
+      height: 3px; background: rgba(0,0,0,0.08); border-radius: var(--radius-full);
+      overflow: hidden; margin-top: var(--space-3);
+    }
+    .phase-progress-bar__fill {
+      height: 100%; border-radius: var(--radius-full);
+      background: var(--color-accent); transition: width 1s ease;
+    }
+
+    .eval-tip-card {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-left: 3px solid var(--color-accent);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+    }
+    .eval-tip-card__label {
+      font-size: var(--text-xs); font-weight: var(--weight-bold);
+      letter-spacing: var(--tracking-widest); text-transform: uppercase;
+      color: var(--color-accent-text); margin-bottom: var(--space-2);
+    }
+    .eval-tip-card__text { font-size: var(--text-sm); color: var(--color-text-secondary); line-height: var(--leading-relaxed); }
+    .eval-tip-card__metric { font-size: var(--text-sm); color: var(--color-text-primary); font-weight: var(--weight-medium); margin-top: var(--space-2); }
   </style>
 </head>
 
@@ -459,6 +512,10 @@
         </h1>
         <p class="hero__sub" id="goal-summary">Loading your plan...</p>
       </section>
+
+
+      <!-- PHASE TRACKER BANNER -->
+      <section aria-label="Phase progress" id="phase-section"></section>
 
       <!-- SECTION 2: Calorie Ring Card -->
       <section aria-label="Calorie summary">
@@ -561,6 +618,11 @@
           </div>
         </div>
       </section>
+
+
+
+      <!-- EVALUATION TIP (research-backed, goal-specific) -->
+      <section aria-label="How to evaluate your progress" id="eval-tip-section"></section>
 
       <!-- SECTION 5: Today's Workout -->
       <section aria-label="Today's workout">
@@ -683,6 +745,8 @@
         renderQuickStats(dashboardState.dailyLog, dashboardState.profile);
         renderWorkoutCard(dashboardState.profile);
         renderActivityFeed(dashboardState.dailyLog);
+        renderPhaseBanner(dashboardState.profile);
+        renderEvalTip(dashboardState.profile);
 
       } catch (error) {
         console.error('Dashboard data fetch failed:', error);
@@ -1024,6 +1088,108 @@
           <div class="activity-item__value">${UIHelpers.escapeHTML(item.value)}</div>
         </div>
       `).join('');
+    }
+
+
+
+    /* ─────────────────────────────────────────────────────────
+       RENDER: PHASE TRACKER BANNER
+       Shows current week, phase type, progress bar, deload/
+       reassessment alerts — all driven by PhaseTracker.
+    ─────────────────────────────────────────────────────────── */
+    function renderPhaseBanner(profile) {
+      const section = document.getElementById('phase-section');
+      if (!section || !profile) return;
+
+      const status = PhaseTracker.getStatus(profile);
+      const macros = profile.calculatedMacros;
+      const weeklyTarget = FitnessCalculator.getWeeklyWeightTarget(profile.goal, profile.weightLbs);
+
+      // Determine which banner variant to show (priority order)
+      let variant = 'active';
+      let icon    = '📅';
+      let label   = PhaseTracker.getPhaseLabel(profile.goal);
+      let title   = `Week ${status.currentWeek}`;
+      let sub     = '';
+
+      if (status.isPhaseComplete) {
+        variant = 'complete';
+        icon    = '🏁';
+        label   = 'Phase Complete';
+        title   = `${status.maxWeeks}-week phase done — time to reassess your goal`;
+        sub     = 'Consider a 4–8 week maintenance phase before your next block (Melby et al., 2019)';
+      } else if (status.isReassessmentDue) {
+        variant = 'reassess';
+        icon    = '📊';
+        label   = 'Reassessment Week';
+        title   = `Week ${status.currentWeek} — Check your progress`;
+        sub     = 'Review your 7-day rolling average weight and strength log before continuing';
+      } else if (status.isDeloadWeek) {
+        variant = 'deload';
+        icon    = '🔄';
+        label   = 'Deload Week';
+        title   = `Week ${status.currentWeek} — Reduce volume 40–50%`;
+        sub     = 'Deload weeks prevent accumulated fatigue and support long-term progress';
+      } else {
+        title = `Week ${status.currentWeek}${status.maxWeeks ? ' of ' + status.maxWeeks : ''}`;
+        sub   = weeklyTarget
+          ? (profile.goal === 'fat_loss'
+              ? `Target: ${Math.abs(weeklyTarget.minLbs)}–${Math.abs(weeklyTarget.maxLbs)} lbs/week loss (7-day avg)`
+              : profile.goal === 'muscle_gain'
+              ? `Target: +${weeklyTarget.minLbs}–${weeklyTarget.maxLbs} lbs/week gain`
+              : profile.goal === 'recomp'
+              ? `Scale may not move — track waist + strength instead`
+              : `Weight fluctuation of ±2–4 lbs is normal`)
+          : '';
+      }
+
+      const progressPct = status.progressPercent ?? 0;
+
+      section.innerHTML = `
+        <div class="phase-banner phase-banner--${variant}">
+          <div class="phase-banner__icon" aria-hidden="true">${icon}</div>
+          <div class="phase-banner__body">
+            <div class="phase-banner__label">${label}</div>
+            <div class="phase-banner__title">${UIHelpers.escapeHTML(title)}</div>
+            ${sub ? `<div class="phase-banner__sub">${UIHelpers.escapeHTML(sub)}</div>` : ''}
+            ${status.maxWeeks ? `
+              <div class="phase-progress-bar" aria-label="Phase progress: ${progressPct}%">
+                <div class="phase-progress-bar__fill" style="width: ${progressPct}%;"></div>
+              </div>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────
+       RENDER: EVALUATION TIP
+       Research-backed metric guidance per goal.
+    ─────────────────────────────────────────────────────────── */
+    function renderEvalTip(profile) {
+      const section = document.getElementById('eval-tip-section');
+      if (!section || !profile) return;
+
+      const metrics = CONFIG.EVALUATION_METRICS[profile.goal];
+      if (!metrics) return;
+
+      const citations = {
+        fat_loss:    'Kim, 2021',
+        muscle_gain: 'Stark et al., 2012',
+        recomp:      'Roberts et al., 2020',
+        maintenance: 'Melby et al., 2019',
+      };
+
+      section.innerHTML = `
+        <div class="eval-tip-card">
+          <div class="eval-tip-card__label">📐 How to Evaluate — ${citations[profile.goal] ?? ''}</div>
+          <div class="eval-tip-card__text">${UIHelpers.escapeHTML(metrics.primary)}</div>
+          <div class="eval-tip-card__metric">Target: ${UIHelpers.escapeHTML(metrics.target)}</div>
+          ${metrics.avoid ? `<div class="eval-tip-card__text" style="margin-top:6px; color:var(--color-danger);">⚠ Avoid: ${UIHelpers.escapeHTML(metrics.avoid)}</div>` : ''}
+          ${metrics.warning ? `<div class="eval-tip-card__text" style="margin-top:6px; color:var(--color-warning);">⚠ ${UIHelpers.escapeHTML(metrics.warning)}</div>` : ''}
+          ${metrics.note ? `<div class="eval-tip-card__text" style="margin-top:6px;">💡 ${UIHelpers.escapeHTML(metrics.note)}</div>` : ''}
+        </div>
+      `;
     }
 
 
