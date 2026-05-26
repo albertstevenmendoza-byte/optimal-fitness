@@ -224,25 +224,7 @@
  color: var(--color-text-primary);
  }
 
- /* Weight/height display above the slider */
- .slider-display {
- display: flex;
- justify-content: space-between;
- align-items: baseline;
- margin-bottom: var(--space-2);
- }
-
- .slider-display__value {
- font-family: var(--font-mono);
- font-size: var(--text-2xl);
- color: var(--color-text-primary);
- letter-spacing: -0.03em;
- }
-
- .slider-display__unit {
- font-size: var(--text-sm);
- color: var(--color-text-secondary);
- }
+ /* Slider display styles removed — replaced with number inputs and dropdowns */
 
  /* ─── FOOD TAGS GRID ─────────────────────────────────────── */
 
@@ -476,98 +458,102 @@
 
  <div class="biometric-form">
 
- <!-- Sex toggle -->
- <div class="form-group">
- <label class="form-label" id="sex-label">Biological sex</label>
- <div class="sex-toggle" role="radiogroup" aria-labelledby="sex-label">
- <button class="sex-toggle__btn" data-group="sex" data-value="male" role="radio" aria-checked="false">
- 
- <span class="sex-toggle__label">Male</span>
- </button>
- <button class="sex-toggle__btn" data-group="sex" data-value="female" role="radio" aria-checked="false">
- 
- <span class="sex-toggle__label">Female</span>
- </button>
- </div>
- </div>
+        <!-- Sex toggle -->
+        <div class="form-group">
+          <label class="form-label" id="sex-label">Biological sex</label>
+          <div class="sex-toggle" role="radiogroup" aria-labelledby="sex-label">
+            <button class="sex-toggle__btn" data-group="sex" data-value="male"   role="radio" aria-checked="false"><span class="sex-toggle__label">Male</span></button>
+            <button class="sex-toggle__btn" data-group="sex" data-value="female" role="radio" aria-checked="false"><span class="sex-toggle__label">Female</span></button>
+          </div>
+        </div>
 
- <!-- Age slider -->
- <div class="form-group">
- <div class="slider-display">
- <div>
- <span class="form-label">Age</span>
- </div>
- <div>
- <span class="slider-display__value" id="age-display">25</span>
- <span class="slider-display__unit"> yrs</span>
- </div>
- </div>
- <input
- type="range"
- class="form-slider"
- id="age-slider"
- min="16" max="80" value="25" step="1"
- aria-label="Age"
- aria-valuemin="16" aria-valuemax="80" aria-valuenow="25"
- >
- </div>
+        <!-- Age — number input (keyboard friendly) -->
+        <div class="form-group">
+          <label class="form-label" for="age-input">Age</label>
+          <div class="input-with-suffix">
+            <input
+              type="number"
+              class="form-input"
+              id="age-input"
+              min="16" max="100"
+              placeholder="25"
+              inputmode="numeric"
+              autocomplete="off"
+              aria-label="Age in years"
+            >
+            <span class="input-with-suffix__suffix">yrs</span>
+          </div>
+        </div>
 
- <!-- Weight slider -->
- <div class="form-group">
- <div class="slider-display">
- <div>
- <span class="form-label">Weight</span>
- </div>
- <div>
- <span class="slider-display__value" id="weight-display">165</span>
- <span class="slider-display__unit"> lbs</span>
- </div>
- </div>
- <input
- type="range"
- class="form-slider"
- id="weight-slider"
- min="80" max="400" value="165" step="1"
- aria-label="Weight in pounds"
- >
- </div>
+        <!-- Weight — number input (supports decimals like 174.5) -->
+        <div class="form-group">
+          <label class="form-label" for="weight-input">Weight</label>
+          <div class="input-with-suffix">
+            <input
+              type="number"
+              class="form-input"
+              id="weight-input"
+              min="60" max="600" step="0.5"
+              placeholder="165"
+              inputmode="decimal"
+              autocomplete="off"
+              aria-label="Weight in pounds"
+            >
+            <span class="input-with-suffix__suffix">lbs</span>
+          </div>
+        </div>
 
- <!-- Height slider -->
- <div class="form-group">
- <div class="slider-display">
- <div>
- <span class="form-label">Height</span>
- </div>
- <div>
- <span class="slider-display__value" id="height-display">5′ 9″</span>
- </div>
- </div>
- <input
- type="range"
- class="form-slider"
- id="height-slider"
- min="58" max="84" value="69" step="1"
- aria-label="Height in inches"
- >
- </div>
+        <!-- Height — feet + inches dropdowns
+             On mobile, <select> triggers the native wheel picker which
+             is far easier to use accurately than a slider. -->
+        <div class="form-group">
+          <label class="form-label">Height</label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3);">
+            <select class="form-select" id="height-feet" aria-label="Feet">
+              <option value="">Feet</option>
+              <option value="4">4 ft</option>
+              <option value="5" selected>5 ft</option>
+              <option value="6">6 ft</option>
+              <option value="7">7 ft</option>
+            </select>
+            <select class="form-select" id="height-inches" aria-label="Inches">
+              <option value="">Inches</option>
+              <option value="0">0 in</option>
+              <option value="1">1 in</option>
+              <option value="2">2 in</option>
+              <option value="3">3 in</option>
+              <option value="4">4 in</option>
+              <option value="5">5 in</option>
+              <option value="6">6 in</option>
+              <option value="7">7 in</option>
+              <option value="8">8 in</option>
+              <option value="9" selected>9 in</option>
+              <option value="10">10 in</option>
+              <option value="11">11 in</option>
+            </select>
+          </div>
+          <div id="height-preview" style="font-size:var(--text-xs); color:var(--color-text-muted); margin-top:var(--space-2); font-family:var(--font-mono);">
+            5 ft 9 in &rarr; 69 in total
+          </div>
+        </div>
 
- <!-- Name input -->
- <div class="form-group">
- <label class="form-label" for="name-input">Your first name</label>
- <input
- type="text"
- class="form-input"
- id="name-input"
- placeholder="e.g. Alex"
- autocomplete="given-name"
- maxlength="50"
- >
- </div>
+        <!-- First name -->
+        <div class="form-group">
+          <label class="form-label" for="name-input">Your first name</label>
+          <input
+            type="text"
+            class="form-input"
+            id="name-input"
+            placeholder="e.g. Alex"
+            autocomplete="given-name"
+            maxlength="50"
+          >
+        </div>
 
- </div>
- </section>
+      </div>
+      </section>
 
- <!-- ─── STEP 4: Dietary Preferences ───────────────────── -->
+      <!-- ─── STEP 4: Dietary Preferences ───────────────────── -->
  <section class="onboarding-step" id="step-4" aria-label="Step 4: Dietary restrictions">
  <div class="step-heading">
  <span class="step-heading__eyebrow">Step 4 — Diet</span>
@@ -1034,42 +1020,57 @@
  return `${feet}′ ${inches}″`;
  }
 
- function initSliders() {
- // Age slider
- const ageSlider = document.getElementById('age-slider');
- ageSlider?.addEventListener('input', e => {
- const val = parseInt(e.target.value, 10);
- formData.age = val;
- UIHelpers.setText('#age-display', val);
- ageSlider.setAttribute('aria-valuenow', val);
- validateCurrentStep();
- });
+ () {
+      // Age — number input
+      document.getElementById('age-input')?.addEventListener('input', e => {
+        const val = parseInt(e.target.value, 10);
+        if (!isNaN(val) && val >= 16 && val <= 100) {
+          formData.age = val;
+        }
+        validateCurrentStep();
+      });
 
- // Weight slider
- const weightSlider = document.getElementById('weight-slider');
- weightSlider?.addEventListener('input', e => {
- const val = parseInt(e.target.value, 10);
- formData.weightLbs = val;
- UIHelpers.setText('#weight-display', val);
- validateCurrentStep();
- });
+      // Weight — number input (decimal supported)
+      document.getElementById('weight-input')?.addEventListener('input', e => {
+        const val = parseFloat(e.target.value);
+        if (!isNaN(val) && val >= 60 && val <= 600) {
+          formData.weightLbs = val;
+        }
+        validateCurrentStep();
+      });
 
- // Height slider
- const heightSlider = document.getElementById('height-slider');
- heightSlider?.addEventListener('input', e => {
- const val = parseInt(e.target.value, 10);
- formData.heightIn = val;
- UIHelpers.setText('#height-display', inchesToFeetStr(val));
- validateCurrentStep();
- });
+      // Height — feet + inches dropdowns → combined to total inches
+      // e.g. 5 ft + 9 in = 69 inches (stored as formData.heightIn)
+      function updateHeight() {
+        const feetEl   = document.getElementById('height-feet');
+        const inchesEl = document.getElementById('height-inches');
+        const feet     = parseInt(feetEl?.value, 10);
+        const inches   = parseInt(inchesEl?.value, 10);
 
- // Name input
- const nameInput = document.getElementById('name-input');
- nameInput?.addEventListener('input', e => {
- formData.name = e.target.value.trim();
- validateCurrentStep();
- });
- }
+        if (!isNaN(feet) && !isNaN(inches)) {
+          formData.heightIn = feet * 12 + inches;
+
+          // Update the preview label below the dropdowns
+          const preview = document.getElementById('height-preview');
+          if (preview) {
+            preview.textContent = `${feet} ft ${inches} in → ${formData.heightIn} in total`;
+          }
+        }
+        validateCurrentStep();
+      }
+
+      document.getElementById('height-feet')?.addEventListener('change', updateHeight);
+      document.getElementById('height-inches')?.addEventListener('change', updateHeight);
+
+      // Initialise with the default selected values (5 ft 9 in = 69 in)
+      updateHeight();
+
+      // Name
+      document.getElementById('name-input')?.addEventListener('input', e => {
+        formData.name = e.target.value.trim();
+        validateCurrentStep();
+      });
+    }
 
 
  /* ─────────────────────────────────────────────────────────────
