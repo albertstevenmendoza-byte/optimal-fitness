@@ -1,1378 +1,1378 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#090b10">
-  <meta name="description" content="FitForge Workouts — Your personalized weekly training plan">
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="theme-color" content="#090b10">
+ <meta name="description" content="FitForge Workouts — Your personalized weekly training plan">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles-light-full.css">
-  
+ <link rel="stylesheet" href="styles-light-full.css">
+ 
 
-  <title>FitForge — Workouts</title>
+ <title>FitForge — Workouts</title>
 
-  <style>
-    /* ── PAGE-SPECIFIC STYLES ──────────────────────────────────── */
+ <style>
+ /* ── PAGE-SPECIFIC STYLES ──────────────────────────────────── */
 
-    /* Plan header card (sits above the week strip) */
-    .plan-header-card {
-      background: linear-gradient(135deg, #0a1520 0%, #0d1a2a 100%);
-      border: 1px solid rgba(0, 200, 255, 0.12);
-      border-radius: var(--radius-lg);
-      padding: var(--space-5);
-      margin-bottom: var(--space-4);
-    }
+ /* Plan header card (sits above the week strip) */
+ .plan-header-card {
+ background: linear-gradient(135deg, #0a1520 0%, #0d1a2a 100%);
+ border: 1px solid rgba(0, 200, 255, 0.12);
+ border-radius: var(--radius-lg);
+ padding: var(--space-5);
+ margin-bottom: var(--space-4);
+ }
 
-    .plan-header-card__label {
-      font-size: var(--text-xs);
-      font-weight: var(--weight-bold);
-      letter-spacing: var(--tracking-widest);
-      text-transform: uppercase;
-      color: var(--color-blue);
-      margin-bottom: var(--space-2);
-    }
+ .plan-header-card__label {
+ font-size: var(--text-xs);
+ font-weight: var(--weight-bold);
+ letter-spacing: var(--tracking-widest);
+ text-transform: uppercase;
+ color: var(--color-blue);
+ margin-bottom: var(--space-2);
+ }
 
-    .plan-header-card__name {
-      font-family: var(--font-display);
-      font-size: var(--text-2xl);
-      color: var(--color-text-primary);
-      letter-spacing: var(--tracking-tight);
-      line-height: var(--leading-tight);
-      margin-bottom: var(--space-3);
-    }
+ .plan-header-card__name {
+ font-family: var(--font-display);
+ font-size: var(--text-2xl);
+ color: var(--color-text-primary);
+ letter-spacing: var(--tracking-tight);
+ line-height: var(--leading-tight);
+ margin-bottom: var(--space-3);
+ }
 
-    .plan-meta-row {
-      display: flex;
-      gap: var(--space-4);
-      flex-wrap: wrap;
-    }
+ .plan-meta-row {
+ display: flex;
+ gap: var(--space-4);
+ flex-wrap: wrap;
+ }
 
-    .plan-meta-item {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      font-size: var(--text-xs);
-      color: var(--color-text-secondary);
-    }
+ .plan-meta-item {
+ display: flex;
+ align-items: center;
+ gap: var(--space-2);
+ font-size: var(--text-xs);
+ color: var(--color-text-secondary);
+ }
 
-    .plan-meta-item__dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--color-blue);
-    }
+ .plan-meta-item__dot {
+ width: 6px;
+ height: 6px;
+ border-radius: 50%;
+ background: var(--color-blue);
+ }
 
-    /* Week strip section wrapper */
-    .week-section {
-      margin: 0 calc(-1 * var(--space-4));
-    }
+ /* Week strip section wrapper */
+ .week-section {
+ margin: 0 calc(-1 * var(--space-4));
+ }
 
-    /* The exercises list label */
-    .exercises-label {
-      font-size: var(--text-xs);
-      font-weight: var(--weight-bold);
-      letter-spacing: var(--tracking-widest);
-      text-transform: uppercase;
-      color: var(--color-text-muted);
-      padding: var(--space-4) 0 var(--space-3);
-    }
+ /* The exercises list label */
+ .exercises-label {
+ font-size: var(--text-xs);
+ font-weight: var(--weight-bold);
+ letter-spacing: var(--tracking-widest);
+ text-transform: uppercase;
+ color: var(--color-text-muted);
+ padding: var(--space-4) 0 var(--space-3);
+ }
 
-    /* "Mark Day Complete" button at bottom of exercise list */
-    .complete-day-btn-wrap {
-      padding-top: var(--space-4);
-    }
+ /* "Mark Day Complete" button at bottom of exercise list */
+ .complete-day-btn-wrap {
+ padding-top: var(--space-4);
+ }
 
-    /* Swap button injury indicator row */
-    .injury-notice {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-3) var(--space-4);
-      background: rgba(245, 158, 11, 0.06);
-      border: 1px solid rgba(245, 158, 11, 0.15);
-      border-radius: var(--radius-md);
-      font-size: var(--text-xs);
-      color: var(--color-warning);
-    }
-  </style>
+ /* Swap button injury indicator row */
+ .injury-notice {
+ display: flex;
+ align-items: center;
+ gap: var(--space-2);
+ padding: var(--space-3) var(--space-4);
+ background: rgba(245, 158, 11, 0.06);
+ border: 1px solid rgba(245, 158, 11, 0.15);
+ border-radius: var(--radius-md);
+ font-size: var(--text-xs);
+ color: var(--color-warning);
+ }
+ </style>
 </head>
 
 <body>
-  <div class="app-shell">
-
-    <!-- ══════════════════════════════════════════════════════
-         HEADER
-         ═════════════════════════════════════════════════════ -->
-    <header class="app-header">
-      <div class="app-header__logo">Fit<span>Forge</span></div>
-      <div style="display:flex; gap:8px;">
-        <!-- Week number pill -->
-        <div style="background:var(--color-bg-elevated); border:1px solid var(--color-border); border-radius:var(--radius-full); padding:4px 12px;">
-          <span id="week-label" style="font-size:var(--text-xs); color:var(--color-text-secondary); font-family:var(--font-mono);">Week —</span>
-        </div>
-      </div>
-    </header>
-
-    <!-- ══════════════════════════════════════════════════════
-         MAIN CONTENT
-         ═════════════════════════════════════════════════════ -->
-    <main class="page-content" id="page-content">
-
-      <!-- SECTION 1: Plan Header Card -->
-      <div class="plan-header-card animate-fade-in-up" id="plan-header-card">
-        <div class="plan-header-card__label" id="plan-label">Loading plan...</div>
-        <div class="plan-header-card__name" id="plan-name">—</div>
-        <div class="plan-meta-row" id="plan-meta"></div>
-      </div>
-
-      <!-- SECTION 2: Week Strip (sticky, 7-day selector) -->
-      <div class="week-section">
-        <div class="week-strip-wrap">
-          <!-- 7 day pill buttons — rendered by JS -->
-          <div class="week-strip" id="week-strip" role="tablist" aria-label="Day of week selector">
-            <!-- Skeleton placeholder -->
-            <div class="skeleton" style="height:52px; border-radius:var(--radius-md); grid-column:1/-1;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SECTION 3: Injury Notice (shown only if user flagged injuries) -->
-      <div class="injury-notice hidden" id="injury-notice">
-        <span>⚠️</span>
-        <span id="injury-notice-text">Swap buttons are highlighted for exercises that may stress your flagged areas.</span>
-      </div>
-
-      <!-- SECTION 4: Day Workout Panels -->
-      <!--
-        Each day has a .workout-day-panel div.
-        Only the active panel has .is-active and is rendered as flex.
-        JS switches panels by toggling .is-active.
-        
-        The panels themselves are EMPTY placeholders here —
-        JS generates their inner HTML from the WORKOUT_TEMPLATES data.
-        This keeps the HTML clean and the data in one place.
-      -->
-      <div id="day-panels-container">
-        <!-- Day panels: Sun=0 through Sat=6 -->
-        <div class="workout-day-panel" id="day-panel-0" role="tabpanel"></div>
-        <div class="workout-day-panel" id="day-panel-1" role="tabpanel"></div>
-        <div class="workout-day-panel" id="day-panel-2" role="tabpanel"></div>
-        <div class="workout-day-panel" id="day-panel-3" role="tabpanel"></div>
-        <div class="workout-day-panel" id="day-panel-4" role="tabpanel"></div>
-        <div class="workout-day-panel" id="day-panel-5" role="tabpanel"></div>
-        <div class="workout-day-panel" id="day-panel-6" role="tabpanel"></div>
-      </div>
-
-      <!-- SECTION 5: Weekly Summary Card (always visible) -->
-      <div class="weekly-summary-card animate-fade-in-up" id="weekly-summary">
-        <div class="weekly-summary-card__title">This Week</div>
-        <div class="weekly-summary-grid">
-          <div class="weekly-stat">
-            <span class="weekly-stat__value" id="stat-completed">0</span>
-            <span class="weekly-stat__label">Days Done</span>
-          </div>
-          <div class="weekly-stat">
-            <span class="weekly-stat__value" id="stat-training">—</span>
-            <span class="weekly-stat__label">Training Days</span>
-          </div>
-          <div class="weekly-stat">
-            <span class="weekly-stat__value" id="stat-exercises">0</span>
-            <span class="weekly-stat__label">Total Exercises</span>
-          </div>
-        </div>
-      </div>
-
-      <div style="height: var(--space-8);"></div>
-    </main>
-
-    <!-- ══════════════════════════════════════════════════════
-         EXERCISE SWAP MODAL
-         Lives outside .page-content so it overlays everything.
-         ═════════════════════════════════════════════════════ -->
-    <div
-      class="modal-overlay"
-      id="swap-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="swap-modal-title"
-      aria-hidden="true"
-    >
-      <div class="modal-sheet">
-        <!-- Drag handle (visual affordance) -->
-        <div class="modal-handle" aria-hidden="true"></div>
-
-        <!-- Modal header -->
-        <div class="modal-header">
-          <p class="modal-eyebrow">Exercise Swap</p>
-          <h2 class="modal-title" id="swap-modal-title">Choose a replacement</h2>
-        </div>
-
-        <!-- Currently-being-replaced exercise -->
-        <div class="modal-current-exercise">
-          <div>
-            <div class="modal-current-exercise__label">Replacing</div>
-            <div class="modal-current-exercise__name" id="swap-current-name">—</div>
-          </div>
-        </div>
-
-        <!-- Alternatives list label -->
-        <p class="modal-section-label">Select an alternative:</p>
-
-        <!-- Alternatives list — injected by JS -->
-        <div class="stack stack-sm" id="swap-options-list">
-          <!-- Populated by renderSwapOptions() -->
-        </div>
-
-        <!-- Modal action buttons -->
-        <div class="modal-footer">
-          <button class="btn btn--secondary btn--md" id="swap-cancel-btn" aria-label="Cancel swap">
-            Cancel
-          </button>
-          <button class="btn btn--primary btn--md" id="swap-confirm-btn" disabled aria-label="Confirm exercise swap">
-            Confirm Swap
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bottom nav -->
-    <div id="bottom-nav-container"></div>
-
-  </div><!-- end .app-shell -->
-
-  <script src="script-merged.js"></script>
-
-  <script>
-    /**
-     * ============================================================
-     * WORKOUTS PAGE SCRIPT
-     * workouts.html — inline script
-     *
-     * ARCHITECTURE OVERVIEW:
-     *
-     * DATA LAYER (pure objects — no DOM):
-     *   WORKOUT_TEMPLATES — all weekly plans keyed by goal
-     *   SWAP_OPTIONS      — alternatives keyed by swapGroup
-     *   completionStore   — localStorage-backed completion state
-     *
-     * STATE MACHINE (controls UI):
-     *   pageState.selectedDay  — which day pill is active (0-6)
-     *   swapState              — controls the swap modal (open/closed)
-     *   activeSwaps            — applied swaps (overrides template data)
-     *
-     * RENDER LAYER (DOM manipulation):
-     *   renderWeekStrip()      — builds the 7 day pills
-     *   renderDayPanel()       — builds one day's exercise list
-     *   renderSwapOptions()    — populates the modal alternatives
-     *   updateWeeklySummary()  — updates the stats card at the bottom
-     * ============================================================
-     */
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       WORKOUT TEMPLATES
-       The source-of-truth for all exercise data.
-
-       Structure:
-         WORKOUT_TEMPLATES[goal].schedule[dayIndex (0=Sun)]
-           → { type, name, muscleGroups[], exercises[] }
-
-         Each exercise:
-           { id, name, sets, reps, swapGroup, notes }
-
-       Python analogy: think of this as a dict of dataclasses.
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    const WORKOUT_TEMPLATES = {
-
-      /* ── FAT LOSS — 4 Training Days ─────────────────────────── */
-      fat_loss: {
-        name:       '4-Day Circuit + HIIT',
-        style:      'Circuit Training / HIIT',
-        daysPerWeek: 4,
-        schedule: [
-          // ── Sunday (index 0) — Rest ──
-          {
-            type: 'rest',
-            name: 'Rest & Recover',
-            icon: '🛌',
-            notes: 'Prioritize 7–9 hours of sleep. Recovery is where the adaptation happens.',
-            muscleGroups: [],
-            exercises: [],
-          },
-          // ── Monday (index 1) — Upper Body Circuit ──
-          {
-            type: 'training',
-            name: 'Upper Body Circuit',
-            icon: '💪',
-            muscleGroups: ['Chest', 'Back', 'Shoulders', 'Arms'],
-            duration: 45,
-            exercises: [
-              { id: 'fl-mon-1', name: 'Push-Up',               sets: 3, reps: '15',    swapGroup: 'horizontal_push', notes: 'Go to failure on last set' },
-              { id: 'fl-mon-2', name: 'Dumbbell Row',           sets: 3, reps: '12 ea', swapGroup: 'horizontal_pull', notes: 'Keep back flat, elbow tight' },
-              { id: 'fl-mon-3', name: 'DB Shoulder Press',      sets: 3, reps: '12',    swapGroup: 'vertical_push',   notes: 'Seated or standing' },
-              { id: 'fl-mon-4', name: 'Bicep Curl',             sets: 3, reps: '15',    swapGroup: 'elbow_flexion',   notes: 'Control the eccentric (down)' },
-              { id: 'fl-mon-5', name: 'Tricep Dip',             sets: 3, reps: '12',    swapGroup: 'elbow_extension', notes: 'Use a bench or chair' },
-              { id: 'fl-mon-6', name: 'Plank',                  sets: 3, reps: '45 sec',swapGroup: 'core_anterior',   notes: 'Squeeze glutes and abs' },
-            ],
-          },
-          // ── Tuesday (index 2) — HIIT Cardio ──
-          {
-            type: 'training',
-            name: 'HIIT Cardio',
-            icon: '⚡',
-            muscleGroups: ['Full Body', 'Cardiovascular'],
-            duration: 30,
-            exercises: [
-              { id: 'fl-tue-1', name: 'Jump Rope / Jacks',     sets: 1, reps: '3 min',   swapGroup: 'low_impact_cardio', notes: 'Warm-up pace' },
-              { id: 'fl-tue-2', name: 'Burpee',                sets: 4, reps: '30 sec',  swapGroup: 'full_body_cardio',  notes: '30s work / 30s rest' },
-              { id: 'fl-tue-3', name: 'High Knees',            sets: 4, reps: '30 sec',  swapGroup: 'low_impact_cardio', notes: '30s work / 30s rest' },
-              { id: 'fl-tue-4', name: 'Mountain Climber',      sets: 4, reps: '30 sec',  swapGroup: 'core_cardio',       notes: '30s work / 30s rest' },
-              { id: 'fl-tue-5', name: 'Box Jump',              sets: 4, reps: '8',        swapGroup: 'plyometric_lower',  notes: 'Land softly, full hip extension at top' },
-            ],
-          },
-          // ── Wednesday (index 3) — Lower Body Strength ──
-          {
-            type: 'training',
-            name: 'Lower Body Strength',
-            icon: '🦵',
-            muscleGroups: ['Quads', 'Hamstrings', 'Glutes', 'Calves'],
-            duration: 50,
-            exercises: [
-              { id: 'fl-wed-1', name: 'Goblet Squat',          sets: 4, reps: '12',    swapGroup: 'knee_dominant',  notes: 'Hold dumbbell at chest' },
-              { id: 'fl-wed-2', name: 'Romanian Deadlift',     sets: 3, reps: '12',    swapGroup: 'hip_dominant',   notes: 'Push hips back, soft knee' },
-              { id: 'fl-wed-3', name: 'Walking Lunge',         sets: 3, reps: '12 ea', swapGroup: 'knee_dominant',  notes: 'Long stride, upright torso' },
-              { id: 'fl-wed-4', name: 'Hip Thrust',            sets: 4, reps: '15',    swapGroup: 'hip_dominant',   notes: 'Squeeze glutes at top for 2s' },
-              { id: 'fl-wed-5', name: 'Calf Raise',            sets: 3, reps: '20',    swapGroup: 'ankle_push',     notes: 'Slow eccentric (3s down)' },
-              { id: 'fl-wed-6', name: 'Dead Bug',              sets: 3, reps: '10 ea', swapGroup: 'core_anterior',  notes: 'Press lower back to floor' },
-            ],
-          },
-          // ── Thursday (index 4) — Rest ──
-          {
-            type: 'rest',
-            name: 'Mobility Day',
-            icon: '🧘',
-            notes: 'Light stretching, foam rolling. 20–30 minutes. Focus on whatever is tight from Mon/Tue/Wed.',
-            muscleGroups: [],
-            exercises: [],
-          },
-          // ── Friday (index 5) — Full Body HIIT ──
-          {
-            type: 'training',
-            name: 'Full Body HIIT',
-            icon: '🔥',
-            muscleGroups: ['Full Body', 'Core', 'Cardiovascular'],
-            duration: 40,
-            exercises: [
-              { id: 'fl-fri-1', name: 'Kettlebell Swing',      sets: 4, reps: '15',    swapGroup: 'hip_dominant',    notes: 'Drive hips, not arms' },
-              { id: 'fl-fri-2', name: 'Push-Up',               sets: 3, reps: '15',    swapGroup: 'horizontal_push', notes: 'Strict form, chest to floor' },
-              { id: 'fl-fri-3', name: 'Jump Squat',            sets: 4, reps: '10',    swapGroup: 'plyometric_lower',notes: 'Land with soft knees' },
-              { id: 'fl-fri-4', name: 'Pull-Up / Lat Pulldown',sets: 3, reps: '10',    swapGroup: 'vertical_pull',   notes: 'Full range of motion' },
-              { id: 'fl-fri-5', name: 'Plank to Push-Up',      sets: 3, reps: '8 ea',  swapGroup: 'core_anterior',   notes: 'Keep hips level, no rotation' },
-            ],
-          },
-          // ── Saturday (index 6) — Active Recovery ──
-          {
-            type: 'recovery',
-            name: 'Active Recovery',
-            icon: '🚶',
-            notes: '20–30 min walk or light cycling. Keep heart rate below 60% max. Movement without stress.',
-            muscleGroups: [],
-            exercises: [],
-          },
-        ],
-      }, // end fat_loss
-
-      /* ── MUSCLE GAIN — 5 Training Days (Push/Pull/Legs) ──────── */
-      muscle_gain: {
-        name:       '5-Day Push / Pull / Legs',
-        style:      'Hypertrophy / Progressive Overload',
-        daysPerWeek: 5,
-        schedule: [
-          // Sunday — Rest
-          {
-            type: 'rest', name: 'Rest Day', icon: '🛌',
-            notes: 'Full rest. Limit cardio. Let muscles repair and grow.',
-            muscleGroups: [], exercises: [],
-          },
-          // Monday — Chest & Triceps (Push A)
-          {
-            type: 'training', name: 'Chest & Triceps', icon: '📈',
-            muscleGroups: ['Chest', 'Triceps', 'Front Delts'],
-            duration: 60,
-            exercises: [
-              { id: 'mg-mon-1', name: 'Barbell Bench Press',      sets: 4, reps: '6–8',  swapGroup: 'horizontal_push', notes: 'Primary strength movement' },
-              { id: 'mg-mon-2', name: 'Incline DB Press',         sets: 3, reps: '10–12', swapGroup: 'incline_push',    notes: 'Upper chest emphasis' },
-              { id: 'mg-mon-3', name: 'Cable Chest Fly',          sets: 3, reps: '12–15', swapGroup: 'chest_isolation', notes: 'Full stretch at bottom' },
-              { id: 'mg-mon-4', name: 'Overhead Tricep Ext.',     sets: 3, reps: '12–15', swapGroup: 'elbow_extension', notes: 'Long head emphasis — elbows in' },
-              { id: 'mg-mon-5', name: 'Tricep Pushdown',          sets: 3, reps: '15',    swapGroup: 'elbow_extension', notes: 'Rope or bar attachment' },
-            ],
-          },
-          // Tuesday — Back & Biceps (Pull A)
-          {
-            type: 'training', name: 'Back & Biceps', icon: '🏗️',
-            muscleGroups: ['Lats', 'Traps', 'Rear Delts', 'Biceps'],
-            duration: 60,
-            exercises: [
-              { id: 'mg-tue-1', name: 'Barbell Row',              sets: 4, reps: '6–8',  swapGroup: 'horizontal_pull', notes: 'Overhand, row to lower chest' },
-              { id: 'mg-tue-2', name: 'Pull-Up',                  sets: 4, reps: '8–10', swapGroup: 'vertical_pull',   notes: 'Add weight if 10 is easy' },
-              { id: 'mg-tue-3', name: 'Seated Cable Row',         sets: 3, reps: '12',   swapGroup: 'horizontal_pull', notes: 'V-bar, elbows tight to body' },
-              { id: 'mg-tue-4', name: 'Face Pull',                sets: 3, reps: '15–20',swapGroup: 'rear_delt',       notes: 'External rotation at top' },
-              { id: 'mg-tue-5', name: 'Barbell Curl',             sets: 3, reps: '10–12',swapGroup: 'elbow_flexion',   notes: 'No swinging' },
-              { id: 'mg-tue-6', name: 'Hammer Curl',              sets: 2, reps: '12–15',swapGroup: 'elbow_flexion',   notes: 'Brachialis emphasis' },
-            ],
-          },
-          // Wednesday — Legs A
-          {
-            type: 'training', name: 'Legs', icon: '🏔️',
-            muscleGroups: ['Quads', 'Hamstrings', 'Glutes', 'Calves'],
-            duration: 65,
-            exercises: [
-              { id: 'mg-wed-1', name: 'Barbell Back Squat',       sets: 4, reps: '6–8',  swapGroup: 'knee_dominant',  notes: 'Primary lower body movement' },
-              { id: 'mg-wed-2', name: 'Romanian Deadlift',        sets: 4, reps: '10–12', swapGroup: 'hip_dominant',   notes: 'Heavy — hamstring focus' },
-              { id: 'mg-wed-3', name: 'Leg Press',                sets: 3, reps: '12–15', swapGroup: 'knee_dominant',  notes: 'Feet high = glute focus' },
-              { id: 'mg-wed-4', name: 'Lying Leg Curl',           sets: 3, reps: '12–15', swapGroup: 'knee_flexion',   notes: 'Full stretch, slow eccentric' },
-              { id: 'mg-wed-5', name: 'Leg Extension',            sets: 3, reps: '15',    swapGroup: 'knee_extension', notes: 'Terminal knee extension hold' },
-              { id: 'mg-wed-6', name: 'Standing Calf Raise',      sets: 4, reps: '15–20', swapGroup: 'ankle_push',     notes: 'Pause 2s at bottom stretch' },
-            ],
-          },
-          // Thursday — Rest
-          {
-            type: 'rest', name: 'Rest Day', icon: '🛌',
-            notes: 'Recovery. High sleep, adequate protein. Optional light walk.',
-            muscleGroups: [], exercises: [],
-          },
-          // Friday — Shoulders & Arms (Push B)
-          {
-            type: 'training', name: 'Shoulders & Arms', icon: '⚡',
-            muscleGroups: ['Shoulders', 'Biceps', 'Triceps'],
-            duration: 55,
-            exercises: [
-              { id: 'mg-fri-1', name: 'Overhead Press',           sets: 4, reps: '6–8',  swapGroup: 'vertical_push',        notes: 'Standing barbell or seated DB' },
-              { id: 'mg-fri-2', name: 'Lateral Raise',            sets: 4, reps: '15–20', swapGroup: 'shoulder_abduction',   notes: 'Slight forward lean, slow' },
-              { id: 'mg-fri-3', name: 'Rear Delt Fly',            sets: 3, reps: '15–20', swapGroup: 'rear_delt',            notes: 'Hinge forward or cable' },
-              { id: 'mg-fri-4', name: 'Concentration Curl',       sets: 3, reps: '12 ea', swapGroup: 'elbow_flexion',        notes: 'Full supination at top' },
-              { id: 'mg-fri-5', name: 'Skull Crusher',            sets: 3, reps: '12',    swapGroup: 'elbow_extension',      notes: 'EZ bar, close grip' },
-            ],
-          },
-          // Saturday — Legs B
-          {
-            type: 'training', name: 'Legs (Variation)', icon: '🏋️',
-            muscleGroups: ['Glutes', 'Hamstrings', 'Quads', 'Calves'],
-            duration: 60,
-            exercises: [
-              { id: 'mg-sat-1', name: 'Front Squat',              sets: 4, reps: '6–8',  swapGroup: 'knee_dominant',  notes: 'Quad dominant — upright torso' },
-              { id: 'mg-sat-2', name: 'Hip Thrust',               sets: 4, reps: '12–15', swapGroup: 'hip_dominant',   notes: 'Pause 2s at top contraction' },
-              { id: 'mg-sat-3', name: 'Bulgarian Split Squat',    sets: 3, reps: '10 ea', swapGroup: 'knee_dominant',  notes: 'Front foot far enough forward' },
-              { id: 'mg-sat-4', name: 'Nordic Curl',              sets: 3, reps: '6–8',  swapGroup: 'knee_flexion',   notes: 'Hardest hamstring exercise — go slow' },
-              { id: 'mg-sat-5', name: 'Seated Calf Raise',        sets: 3, reps: '20',   swapGroup: 'ankle_push',     notes: 'Soleus emphasis (bent knee)' },
-            ],
-          },
-        ],
-      }, // end muscle_gain
-
-      /* ── RECOMP — 4 Days Full Body ──────────────────────────── */
-      recomp: {
-        name:        '4-Day Full Body Recomp',
-        style:       'Compound-First / Moderate Volume',
-        daysPerWeek: 4,
-        schedule: [
-          { type:'rest',     name:'Rest',    icon:'🛌', notes:'Rest.',  muscleGroups:[], exercises:[] },
-          { type:'training', name:'Full Body A', icon:'⚡', muscleGroups:['Full Body'], duration:55,
-            exercises:[
-              { id:'rc-a-1', name:'Barbell Squat',      sets:4, reps:'8',    swapGroup:'knee_dominant',  notes:'Primary compound' },
-              { id:'rc-a-2', name:'Bench Press',        sets:4, reps:'8',    swapGroup:'horizontal_push',notes:'Primary upper push' },
-              { id:'rc-a-3', name:'Pull-Up',            sets:3, reps:'8–10', swapGroup:'vertical_pull',  notes:'Add band if needed' },
-              { id:'rc-a-4', name:'Romanian Deadlift',  sets:3, reps:'10',   swapGroup:'hip_dominant',   notes:'Hinge pattern' },
-              { id:'rc-a-5', name:'Plank',              sets:3, reps:'45s',  swapGroup:'core_anterior',  notes:'Core finisher' },
-            ]
-          },
-          { type:'rest',     name:'Rest',    icon:'🛌', notes:'Light activity OK.',  muscleGroups:[], exercises:[] },
-          { type:'training', name:'Full Body B', icon:'💪', muscleGroups:['Full Body'], duration:55,
-            exercises:[
-              { id:'rc-b-1', name:'Deadlift',           sets:4, reps:'6–8',  swapGroup:'hip_dominant',    notes:'Heaviest lift of the week' },
-              { id:'rc-b-2', name:'Overhead Press',     sets:4, reps:'8',    swapGroup:'vertical_push',   notes:'Standing barbell' },
-              { id:'rc-b-3', name:'Barbell Row',        sets:3, reps:'10',   swapGroup:'horizontal_pull', notes:'Overhand grip' },
-              { id:'rc-b-4', name:'Goblet Squat',       sets:3, reps:'12',   swapGroup:'knee_dominant',   notes:'Quad finisher' },
-              { id:'rc-b-5', name:'Ab Wheel Rollout',   sets:3, reps:'10',   swapGroup:'core_anterior',   notes:'Keep back flat' },
-            ]
-          },
-          { type:'rest',     name:'Rest',    icon:'🛌', notes:'Recovery.',  muscleGroups:[], exercises:[] },
-          { type:'training', name:'Full Body C', icon:'🔥', muscleGroups:['Full Body', 'Core'], duration:50,
-            exercises:[
-              { id:'rc-c-1', name:'Front Squat',        sets:3, reps:'8',    swapGroup:'knee_dominant',  notes:'Quad focus' },
-              { id:'rc-c-2', name:'DB Bench Press',     sets:3, reps:'10',   swapGroup:'horizontal_push',notes:'Unilateral stability' },
-              { id:'rc-c-3', name:'Lat Pulldown',       sets:3, reps:'12',   swapGroup:'vertical_pull',  notes:'Wide grip' },
-              { id:'rc-c-4', name:'Hip Thrust',         sets:3, reps:'15',   swapGroup:'hip_dominant',   notes:'Glute finisher' },
-              { id:'rc-c-5', name:'Cable Crunch',       sets:3, reps:'15',   swapGroup:'core_anterior',  notes:'Tuck chin' },
-            ]
-          },
-          { type:'recovery', name:'Active Recovery', icon:'🚶', notes:'Walk 30 min.', muscleGroups:[], exercises:[] },
-        ],
-      },
-
-      /* ── MAINTENANCE — 3 Days Full Body ─────────────────────── */
-      maintenance: {
-        name:        '3-Day Full Body Maintenance',
-        style:       'Strength / Quality of Life',
-        daysPerWeek: 3,
-        schedule: [
-          { type:'rest',     name:'Rest',    icon:'🛌', notes:'Full rest.',  muscleGroups:[], exercises:[] },
-          { type:'training', name:'Full Body Strength', icon:'💪', muscleGroups:['Full Body'], duration:45,
-            exercises:[
-              { id:'mn-a-1', name:'Squat',           sets:3, reps:'10',  swapGroup:'knee_dominant',  notes:'Any variation' },
-              { id:'mn-a-2', name:'Push-Up / Press', sets:3, reps:'12',  swapGroup:'horizontal_push',notes:'Choose your level' },
-              { id:'mn-a-3', name:'Row',             sets:3, reps:'12',  swapGroup:'horizontal_pull',notes:'DB or cable' },
-              { id:'mn-a-4', name:'Hip Hinge',       sets:3, reps:'10',  swapGroup:'hip_dominant',   notes:'Deadlift or RDL' },
-              { id:'mn-a-5', name:'Core Work',       sets:2, reps:'30s', swapGroup:'core_anterior',  notes:'Plank, hollow hold, etc.' },
-            ]
-          },
-          { type:'recovery', name:'Active Recovery', icon:'🚶', notes:'Walk, bike, or swim.',  muscleGroups:[], exercises:[] },
-          { type:'training', name:'Full Body Cardio', icon:'🏃', muscleGroups:['Full Body', 'Cardio'], duration:40,
-            exercises:[
-              { id:'mn-b-1', name:'Cardio of Choice', sets:1, reps:'20 min', swapGroup:'low_impact_cardio', notes:'Zone 2 — conversational pace' },
-              { id:'mn-b-2', name:'Bodyweight Squat',  sets:3, reps:'15',    swapGroup:'knee_dominant',     notes:'Light, high reps' },
-              { id:'mn-b-3', name:'Push-Up',           sets:3, reps:'15',    swapGroup:'horizontal_push',   notes:'Full range' },
-              { id:'mn-b-4', name:'Plank',             sets:3, reps:'45s',   swapGroup:'core_anterior',     notes:'Core maintenance' },
-            ]
-          },
-          { type:'rest',     name:'Rest',    icon:'🛌', notes:'Rest.',  muscleGroups:[], exercises:[] },
-          { type:'training', name:'Full Body + Mobility', icon:'🧘', muscleGroups:['Full Body', 'Flexibility'], duration:50,
-            exercises:[
-              { id:'mn-c-1', name:'Goblet Squat',      sets:3, reps:'12',  swapGroup:'knee_dominant',  notes:'Deep squat' },
-              { id:'mn-c-2', name:'DB Press',          sets:3, reps:'12',  swapGroup:'horizontal_push',notes:'Controlled' },
-              { id:'mn-c-3', name:'Lat Pulldown',      sets:3, reps:'12',  swapGroup:'vertical_pull',  notes:'Full stretch' },
-              { id:'mn-c-4', name:'Glute Bridge',      sets:3, reps:'20',  swapGroup:'hip_dominant',   notes:'Bodyweight or barbell' },
-              { id:'mn-c-5', name:'Hip Flexor Stretch',sets:2, reps:'60s', swapGroup:'core_anterior',  notes:'Each side' },
-            ]
-          },
-          { type:'recovery', name:'Active Recovery', icon:'🚶', notes:'Light activity.', muscleGroups:[], exercises:[] },
-        ],
-      },
-    }; // end WORKOUT_TEMPLATES
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       SWAP OPTIONS
-       Keyed by swapGroup — each group has 3-4 alternative exercises.
-
-       safeFor[] — injury flags this alternative is SAFE to do with.
-         e.g. safeFor: ['knee'] means this is good for someone with
-         a knee injury (it's lower impact / doesn't load the knee).
-
-       When rendering swap options, alternatives where any element
-       of their safeFor[] matches the user's injuries[] are sorted
-       first and get a "Safe for [injury]" badge.
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    const SWAP_OPTIONS = {
-      horizontal_push: [
-        { id: 'hp-1', name: 'Dumbbell Bench Press',  sets: 3, reps: '10–12', safeFor: [],                          note: 'Controlled range, wrists neutral' },
-        { id: 'hp-2', name: 'Machine Chest Press',   sets: 3, reps: '12–15', safeFor: ['shoulder', 'wrist'],       note: 'Good stability — ideal for injuries' },
-        { id: 'hp-3', name: 'Incline Push-Up',       sets: 3, reps: '15–20', safeFor: ['shoulder', 'wrist', 'lower_back'], note: 'Reduced load, great form drill' },
-        { id: 'hp-4', name: 'Cable Chest Fly',       sets: 3, reps: '12–15', safeFor: ['wrist'],                   note: 'Constant tension, shoulder-friendly' },
-      ],
-      horizontal_pull: [
-        { id: 'hpl-1', name: 'Single-Arm DB Row',   sets: 3, reps: '12 ea',  safeFor: ['lower_back'],              note: 'Supported position, safe for back' },
-        { id: 'hpl-2', name: 'Cable Seated Row',    sets: 3, reps: '12–15',  safeFor: ['lower_back', 'wrist'],     note: 'Neutral spine, stable surface' },
-        { id: 'hpl-3', name: 'Machine Row',         sets: 3, reps: '12–15',  safeFor: ['lower_back', 'wrist'],     note: 'Fully supported — minimal injury risk' },
-        { id: 'hpl-4', name: 'TRX / Ring Row',      sets: 3, reps: '12',     safeFor: ['lower_back'],              note: 'Bodyweight, scalable angle' },
-      ],
-      vertical_push: [
-        { id: 'vp-1', name: 'DB Seated Press',      sets: 3, reps: '10–12',  safeFor: ['lower_back'],              note: 'Seated = less spinal load' },
-        { id: 'vp-2', name: 'Machine Shoulder Press',sets:3, reps: '12–15',  safeFor: ['lower_back', 'wrist'],     note: 'Fixed path — joint-friendly' },
-        { id: 'vp-3', name: 'Arnold Press',         sets: 3, reps: '12',     safeFor: [],                          note: 'Full shoulder ROM' },
-        { id: 'vp-4', name: 'Landmine Press',       sets: 3, reps: '10 ea',  safeFor: ['shoulder'],                note: 'Pressing arc = shoulder-safe' },
-      ],
-      vertical_pull: [
-        { id: 'vtpl-1', name: 'Lat Pulldown',       sets: 3, reps: '12',     safeFor: ['shoulder', 'wrist'],       note: 'Controlled, great for beginners' },
-        { id: 'vtpl-2', name: 'Assisted Pull-Up',   sets: 3, reps: '10',     safeFor: ['wrist'],                   note: 'Machine or band-assisted' },
-        { id: 'vtpl-3', name: 'Cable Straight-Arm', sets: 3, reps: '15',     safeFor: ['wrist'],                   note: 'Lat isolation — no elbow load' },
-        { id: 'vtpl-4', name: 'Band Pull-Apart',    sets: 3, reps: '20',     safeFor: ['shoulder', 'neck'],        note: 'Rehab-friendly rear delt work' },
-      ],
-      knee_dominant: [
-        { id: 'kd-1', name: 'Leg Press',            sets: 4, reps: '12–15',  safeFor: ['lower_back'],              note: 'Supported spine, quad-heavy' },
-        { id: 'kd-2', name: 'Split Squat',          sets: 3, reps: '12 ea',  safeFor: ['lower_back'],              note: 'Unilateral, less spinal load' },
-        { id: 'kd-3', name: 'Step-Up',              sets: 3, reps: '12 ea',  safeFor: ['lower_back', 'knee'],      note: 'Low-impact knee rehab option' },
-        { id: 'kd-4', name: 'Wall Sit',             sets: 3, reps: '45 sec', safeFor: ['lower_back', 'knee'],      note: 'Isometric — minimal joint stress' },
-      ],
-      hip_dominant: [
-        { id: 'hd-1', name: 'Good Morning',         sets: 3, reps: '12',     safeFor: [],                          note: 'Hamstring emphasis, controlled load' },
-        { id: 'hd-2', name: 'Cable Pull-Through',   sets: 3, reps: '15',     safeFor: ['lower_back', 'knee'],      note: 'Light load, great for back issues' },
-        { id: 'hd-3', name: 'Glute Bridge',         sets: 3, reps: '20',     safeFor: ['lower_back', 'knee'],      note: 'Floor-based, zero joint stress' },
-        { id: 'hd-4', name: 'Nordic Hamstring Curl',sets: 3, reps: '6',      safeFor: [],                          note: 'Advanced — very effective' },
-      ],
-      elbow_flexion: [
-        { id: 'ef-1', name: 'Cable Curl',           sets: 3, reps: '12–15',  safeFor: ['wrist'],                   note: 'Constant tension, wrist neutral' },
-        { id: 'ef-2', name: 'Preacher Curl',        sets: 3, reps: '12',     safeFor: [],                          note: 'Eliminates cheating' },
-        { id: 'ef-3', name: 'Incline DB Curl',      sets: 3, reps: '12',     safeFor: ['wrist'],                   note: 'Long head stretch at bottom' },
-        { id: 'ef-4', name: 'Resistance Band Curl', sets: 3, reps: '15',     safeFor: ['wrist', 'elbow'],          note: 'Joint-friendly, variable resistance' },
-      ],
-      elbow_extension: [
-        { id: 'ee-1', name: 'Cable Pushdown (rope)',sets: 3, reps: '15',     safeFor: ['wrist', 'shoulder'],       note: 'Safe for shoulder issues' },
-        { id: 'ee-2', name: 'DB Kickback',          sets: 3, reps: '15 ea',  safeFor: ['wrist', 'shoulder'],       note: 'Good isolation, light weight' },
-        { id: 'ee-3', name: 'Close-Grip Push-Up',  sets: 3, reps: '15',     safeFor: ['wrist'],                   note: 'Bodyweight — no equipment' },
-        { id: 'ee-4', name: 'Band Tricep Extension',sets: 3, reps: '20',     safeFor: ['wrist', 'elbow'],          note: 'Low-load rehab option' },
-      ],
-      core_anterior: [
-        { id: 'ca-1', name: 'Dead Bug',             sets: 3, reps: '10 ea',  safeFor: ['lower_back', 'neck'],      note: 'No spinal flexion — back-safe' },
-        { id: 'ca-2', name: 'Hollow Body Hold',     sets: 3, reps: '30 sec', safeFor: ['neck'],                    note: 'Full body tension, advanced' },
-        { id: 'ca-3', name: 'Cable Crunch',         sets: 3, reps: '15',     safeFor: [],                          note: 'Controlled resistance' },
-        { id: 'ca-4', name: 'Pallof Press',         sets: 3, reps: '12 ea',  safeFor: ['lower_back', 'neck'],      note: 'Anti-rotation — very back-safe' },
-      ],
-      low_impact_cardio: [
-        { id: 'lic-1', name: 'Rowing Machine',      sets: 1, reps: '10 min', safeFor: ['knee', 'hip'],             note: 'Full body, low knee stress' },
-        { id: 'lic-2', name: 'Cycling (bike)',      sets: 1, reps: '15 min', safeFor: ['knee', 'lower_back'],      note: 'Very low impact' },
-        { id: 'lic-3', name: 'Elliptical Trainer',  sets: 1, reps: '15 min', safeFor: ['knee', 'hip'],             note: 'Zero-impact cardio' },
-        { id: 'lic-4', name: 'Swimming',            sets: 1, reps: '20 min', safeFor: ['knee','hip','lower_back'], note: 'Best for multi-area injuries' },
-      ],
-      full_body_cardio: [
-        { id: 'fbc-1', name: 'Battle Ropes',        sets: 4, reps: '30 sec', safeFor: ['knee', 'hip'],             note: 'Zero lower body impact' },
-        { id: 'fbc-2', name: 'Slam Ball',           sets: 4, reps: '15',     safeFor: ['knee'],                    note: 'Lower body minimal' },
-        { id: 'fbc-3', name: 'Step-Up Cardio',      sets: 4, reps: '1 min',  safeFor: ['knee', 'hip'],             note: 'Low-impact burpee sub' },
-        { id: 'fbc-4', name: 'Bear Crawl',          sets: 4, reps: '20m',    safeFor: ['knee', 'hip'],             note: 'No jumping, full body' },
-      ],
-      plyometric_lower: [
-        { id: 'pl-1', name: 'Broad Jump',           sets: 4, reps: '6',      safeFor: [],                          note: 'Horizontal, easier landing' },
-        { id: 'pl-2', name: 'Step-Up (explosive)',  sets: 4, reps: '8 ea',   safeFor: ['knee'],                    note: 'Reduced jump impact' },
-        { id: 'pl-3', name: 'Squat Pulse',          sets: 4, reps: '30 sec', safeFor: ['knee', 'hip'],             note: 'Isometric endurance sub' },
-        { id: 'pl-4', name: 'Skater Lunge',         sets: 4, reps: '10 ea',  safeFor: [],                          note: 'Lateral power, lower impact' },
-      ],
-      core_cardio: [
-        { id: 'cc-1', name: 'Bear Crawl',           sets: 4, reps: '20m',    safeFor: ['knee', 'hip'],             note: 'Shoulder-loaded core cardio' },
-        { id: 'cc-2', name: 'Plank Jack',           sets: 4, reps: '20',     safeFor: ['knee', 'hip'],             note: 'Plank position — less hip load' },
-        { id: 'cc-3', name: 'Sit-Up Variation',     sets: 4, reps: '20',     safeFor: [],                          note: 'Classic ab endurance' },
-        { id: 'cc-4', name: 'Side Plank Dip',       sets: 4, reps: '15 ea',  safeFor: ['knee', 'hip'],             note: 'Lateral core + shoulder' },
-      ],
-      rear_delt: [
-        { id: 'rd-1', name: 'Cable Face Pull',      sets: 3, reps: '15–20',  safeFor: ['shoulder'],                note: 'External rotation priority' },
-        { id: 'rd-2', name: 'Reverse Pec Deck',     sets: 3, reps: '15',     safeFor: ['shoulder'],                note: 'Machine, very stable' },
-        { id: 'rd-3', name: 'Band Pull-Apart',      sets: 3, reps: '20',     safeFor: ['shoulder', 'neck'],        note: 'Rehab-grade movement' },
-        { id: 'rd-4', name: 'DB Rear Delt Fly',     sets: 3, reps: '15',     safeFor: [],                          note: 'Hinge forward, elbows wide' },
-      ],
-      incline_push: [
-        { id: 'ip-1', name: 'Low-to-High Cable Fly',sets: 3, reps: '15',     safeFor: ['shoulder', 'wrist'],       note: 'Cable — joint-safe path' },
-        { id: 'ip-2', name: 'Landmine Press',       sets: 3, reps: '10 ea',  safeFor: ['shoulder'],                note: 'Arc = rotator-cuff friendly' },
-        { id: 'ip-3', name: 'Incline Push-Up',      sets: 3, reps: '15',     safeFor: ['shoulder', 'wrist'],       note: 'Bodyweight option' },
-        { id: 'ip-4', name: 'Machine Incline Press',sets: 3, reps: '12',     safeFor: ['shoulder'],                note: 'Fixed path, most stable' },
-      ],
-      chest_isolation: [
-        { id: 'ci-1', name: 'Pec Deck Machine',     sets: 3, reps: '15',     safeFor: ['wrist', 'shoulder'],       note: 'No dumbbell grip — wrist-safe' },
-        { id: 'ci-2', name: 'DB Fly',               sets: 3, reps: '12',     safeFor: [],                          note: 'Classic stretch' },
-        { id: 'ci-3', name: 'Single Arm Cable Fly', sets: 3, reps: '15 ea',  safeFor: ['shoulder', 'wrist'],       note: 'Unilateral control' },
-      ],
-      shoulder_abduction: [
-        { id: 'sa-1', name: 'Cable Lateral Raise',  sets: 4, reps: '15',     safeFor: ['shoulder'],                note: 'Constant tension' },
-        { id: 'sa-2', name: 'Machine Lateral Raise',sets: 4, reps: '15',     safeFor: ['shoulder', 'wrist'],       note: 'Supported, safest option' },
-        { id: 'sa-3', name: 'Band Side Raise',      sets: 4, reps: '20',     safeFor: ['shoulder', 'wrist'],       note: 'Light load, joint-friendly' },
-      ],
-      knee_flexion: [
-        { id: 'kf-1', name: 'Seated Leg Curl',      sets: 3, reps: '12',     safeFor: ['lower_back'],              note: 'Seated = less spinal load' },
-        { id: 'kf-2', name: 'Cable Leg Curl',       sets: 3, reps: '15',     safeFor: [],                          note: 'Standing cable attachment' },
-        { id: 'kf-3', name: 'Swiss Ball Curl',      sets: 3, reps: '12',     safeFor: ['knee'],                    note: 'Low load, hip-extension combo' },
-      ],
-      knee_extension: [
-        { id: 'ke-1', name: 'Terminal Knee Ext.',   sets: 3, reps: '20 ea',  safeFor: ['knee'],                    note: 'VMO activation — great for rehab' },
-        { id: 'ke-2', name: 'Sissy Squat',          sets: 3, reps: '12',     safeFor: [],                          note: 'Quad stretch — advanced' },
-        { id: 'ke-3', name: 'Wall Sit',             sets: 3, reps: '45 sec', safeFor: ['knee'],                    note: 'Isometric — minimal stress' },
-      ],
-      ankle_push: [
-        { id: 'ap-1', name: 'Seated Calf Raise',    sets: 3, reps: '20',     safeFor: ['knee', 'lower_back'],      note: 'Soleus focus — bent knee' },
-        { id: 'ap-2', name: 'Single-Leg Calf Raise',sets: 3, reps: '15 ea',  safeFor: ['lower_back'],              note: 'Greater ROM unilateral' },
-        { id: 'ap-3', name: 'Resistance Band Flex', sets: 3, reps: '20',     safeFor: ['knee', 'hip'],             note: 'Seated rehab option' },
-      ],
-    }; // end SWAP_OPTIONS
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       PAGE STATE
-
-       Two distinct state objects:
-
-       1. pageState — which day is selected, which plan is active
-       2. swapState — the modal's current state machine state
-
-       Python analogy: these are module-level dicts that only
-       the functions below should modify.
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    const pageState = {
-      selectedDay:  new Date().getDay(), // Today's day index (0=Sun, 6=Sat)
-      template:     null,                // The loaded WORKOUT_TEMPLATES[goal]
-      profile:      null,                // UserProfile from AppState
-      injuries:     [],                  // User's injury flags (from profile)
-    };
-
-    // The swap modal's state machine
-    // States: 'closed' | 'open'
-    const swapState = {
-      isOpen:            false,  // Is the modal visible?
-      targetExerciseId:  null,   // ID of the exercise being replaced
-      targetExerciseName:'',    // Display name (shown in modal header)
-      targetSwapGroup:   null,   // Which SWAP_OPTIONS key to show
-      pendingSelection:  null,   // The alternative the user has highlighted
-    };
-
-    // Applied swaps — persists across day switches for the session
-    // Structure: { 'exercise-id': { name, sets, reps } }
-    const activeSwaps = {};
-
-    // Completion state — persists to localStorage
-    // Structure: { 'YYYY-MM-DD': { dayComplete: bool, exercises: { 'ex-id': bool } } }
-    let completionStore = {};
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       COMPLETION STORE — localStorage persistence
-       Python analogy: a simple dict serialized to disk with json.
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    function loadCompletionStore() {
-      try {
-        const raw = localStorage.getItem('fitforge_workout_completions');
-        completionStore = raw ? JSON.parse(raw) : {};
-      } catch { completionStore = {}; }
-    }
-
-    function saveCompletionStore() {
-      try {
-        localStorage.setItem('fitforge_workout_completions', JSON.stringify(completionStore));
-      } catch (e) { console.warn('Could not save completions:', e); }
-    }
-
-    function getTodayKey() { return UIHelpers.getTodayString(); }
-
-    function getDayCompletionData(dayKey) {
-      return completionStore[dayKey] ?? { dayComplete: false, exercises: {} };
-    }
-
-    function setExerciseComplete(exerciseId, isComplete) {
-      const key  = getTodayKey();
-      if (!completionStore[key]) completionStore[key] = { dayComplete: false, exercises: {} };
-      completionStore[key].exercises[exerciseId] = isComplete;
-      saveCompletionStore();
-    }
-
-    function setDayComplete(isComplete) {
-      const key  = getTodayKey();
-      if (!completionStore[key]) completionStore[key] = { dayComplete: false, exercises: {} };
-      completionStore[key].dayComplete = isComplete;
-      saveCompletionStore();
-
-      // Also fire the Supabase placeholder
-      if (isComplete) {
-        SupabaseAPI.logWorkoutComplete(pageState.profile?.id, key, pageState.template?.name)
-          .catch(err => console.warn('Workout log sync failed:', err));
-      }
-    }
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       INITIALIZATION
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    document.addEventListener('DOMContentLoaded', () => {
-      // 1. Load completion history from localStorage
-      loadCompletionStore();
-
-      // 2. Get profile from AppState
-      pageState.profile  = AppState.getProfile();
-      pageState.injuries = pageState.profile?.injuries ?? [];
-
-      // 3. Select the correct workout template based on goal
-      const goal         = pageState.profile?.goal ?? 'fat_loss';
-      pageState.template = WORKOUT_TEMPLATES[goal] ?? WORKOUT_TEMPLATES.fat_loss;
-
-      // 4. Render the plan header card
-      renderPlanHeader(pageState.template, pageState.profile);
-
-      // 5. Render the week strip (7 day pills)
-      renderWeekStrip(pageState.template);
-
-      // 6. Render ALL day panels upfront (they're hidden; only active one shows)
-      //    This avoids re-rendering on every day switch — we just toggle visibility.
-      pageState.template.schedule.forEach((_, dayIndex) => {
-        renderDayPanel(dayIndex);
-      });
-
-      // 7. Activate today's day
-      switchToDay(pageState.selectedDay);
-
-      // 8. Update weekly summary stats
-      updateWeeklySummary(pageState.template);
-
-      // 9. Show injury notice if user flagged injuries
-      if (pageState.injuries.length > 0 && !pageState.injuries.includes('none')) {
-        const noticeEl = document.getElementById('injury-notice');
-        const textEl   = document.getElementById('injury-notice-text');
-        if (noticeEl) noticeEl.classList.remove('hidden');
-        if (textEl) {
-          const injuryNames = pageState.injuries
-            .filter(i => i !== 'none')
-            .map(i => i.replace('_', ' '))
-            .join(', ');
-          textEl.textContent = `Swap buttons (⇄) are highlighted for exercises that may stress your flagged areas: ${injuryNames}.`;
-        }
-      }
-
-      // 10. Set week label in header
-      const weekNum = getWeekNumber(new Date());
-      UIHelpers.setText('#week-label', `Week ${weekNum}`);
-
-      // 11. Wire up swap modal buttons
-      document.getElementById('swap-cancel-btn')?.addEventListener('click', closeSwapModal);
-      document.getElementById('swap-confirm-btn')?.addEventListener('click', confirmSwap);
-
-      // 12. Close modal when backdrop is clicked
-      document.getElementById('swap-modal')?.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('swap-modal')) closeSwapModal();
-      });
-    });
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       RENDER: PLAN HEADER CARD
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    function renderPlanHeader(template, profile) {
-      UIHelpers.setText('#plan-label', `${profile?.goal?.replace('_', ' ')?.toUpperCase() ?? 'FITNESS'} PLAN`);
-      UIHelpers.setText('#plan-name', template.name);
-
-      const metaContainer = document.getElementById('plan-meta');
-      if (metaContainer) {
-        const metaItems = [
-          { label: `${template.daysPerWeek} days / week` },
-          { label: template.style },
-          { label: profile?.equipment?.replace('_', ' ') ?? 'Full Gym' },
-        ];
-        metaContainer.innerHTML = metaItems.map(item => `
-          <div class="plan-meta-item">
-            <div class="plan-meta-item__dot"></div>
-            <span>${UIHelpers.escapeHTML(item.label)}</span>
-          </div>
-        `).join('');
-      }
-    }
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       RENDER: WEEK STRIP
-       Builds the 7 day pill buttons with type indicators.
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    function renderWeekStrip(template) {
-      const strip = document.getElementById('week-strip');
-      if (!strip) return;
-
-      const dayAbbrs    = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-      const dayFullNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-      const todayKey    = getTodayKey();
-
-      strip.innerHTML = template.schedule.map((day, index) => {
-        const todayData  = getDayCompletionData(todayKey);
-        const isComplete = completionStore[todayKey]?.dayComplete && index === new Date().getDay();
-        const typeClass  = `day-pill--${day.type}`;
-        const completeClass = isComplete ? 'day-pill--complete' : '';
-
-        // Dot content: checkmark if done, emoji if training/rest
-        const dotContent = isComplete ? '✓' : (day.type === 'training' ? '' : '');
-
-        return `
-          <button
-            class="day-pill ${typeClass} ${completeClass}"
-            id="day-pill-${index}"
-            role="tab"
-            aria-selected="false"
-            aria-controls="day-panel-${index}"
-            aria-label="${dayFullNames[index]} — ${day.name}"
-            data-day-index="${index}"
-            onclick="switchToDay(${index})"
-          >
-            <span class="day-pill__abbr">${dayAbbrs[index]}</span>
-            <div class="day-pill__dot">${dotContent}</div>
-          </button>
-        `;
-      }).join('');
-    }
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       SWITCH TO DAY
-       The core navigation function. Updates which panel is visible
-       and which day pill is marked active.
-
-       This is the simplest possible "tab panel" state machine:
-         currentActive ← deactivate all → activate target
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    function switchToDay(dayIndex) {
-      pageState.selectedDay = dayIndex;
-
-      // ── Update day pills ──────────────────────────────────────
-      document.querySelectorAll('.day-pill').forEach((pill, i) => {
-        pill.classList.toggle('is-active', i === dayIndex);
-        pill.setAttribute('aria-selected', String(i === dayIndex));
-      });
-
-      // ── Update day panels ─────────────────────────────────────
-      document.querySelectorAll('.workout-day-panel').forEach((panel, i) => {
-        panel.classList.toggle('is-active', i === dayIndex);
-      });
-    }
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       RENDER: DAY PANEL
-       Generates the full HTML for one day's workout content.
-       Called once per day on page init, not on every day switch.
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    function renderDayPanel(dayIndex) {
-      const panel = document.getElementById(`day-panel-${dayIndex}`);
-      if (!panel) return;
-
-      const day    = pageState.template.schedule[dayIndex];
-      const isToday = dayIndex === new Date().getDay();
-      const todayKey = getTodayKey();
-
-      // ── Rest day rendering ────────────────────────────────────
-      if (day.type === 'rest' || day.type === 'recovery') {
-        panel.innerHTML = `
-          <div class="day-header">
-            <div class="day-header__type day-header__type--${day.type}">
-              ${day.type === 'recovery' ? '🟦 Active Recovery' : '⬜ Rest Day'}
-            </div>
-            <h2 class="day-header__name">${UIHelpers.escapeHTML(day.name)}</h2>
-          </div>
-          <div class="rest-day-card">
-            <div class="rest-day-card__icon" aria-hidden="true">${day.icon}</div>
-            <h3 class="rest-day-card__title">${UIHelpers.escapeHTML(day.name)}</h3>
-            <p class="rest-day-card__sub">${UIHelpers.escapeHTML(day.notes)}</p>
-          </div>
-        `;
-        return;
-      }
-
-      // ── Training day rendering ────────────────────────────────
-      const completionData = getDayCompletionData(todayKey);
-      const isDayComplete  = isToday && completionData.dayComplete;
-
-      // Build the exercise cards
-      const exerciseCardsHTML = day.exercises.map(exercise => {
-        // Check if this exercise has been swapped this session
-        const currentExercise = activeSwaps[exercise.id] ?? exercise;
-
-        // Check if exercise is checked off (today only)
-        const isChecked = isToday && (completionData.exercises[exercise.id] ?? false);
-
-        // Is this exercise's swap group relevant to the user's injuries?
-        const injuries = pageState.injuries.filter(i => i !== 'none');
-        const swapOptions = SWAP_OPTIONS[exercise.swapGroup] ?? [];
-        const hasInjuryRelevantSwap = injuries.length > 0 &&
-          swapOptions.some(opt => opt.safeFor.some(s => injuries.includes(s)));
-
-        const swapBtnClass = hasInjuryRelevantSwap ? 'swap-btn swap-btn--injury-flagged' : 'swap-btn';
-
-        return `
-          <div
-            class="exercise-card ${isChecked ? 'is-done' : ''} ${activeSwaps[exercise.id] ? 'was-swapped' : ''}"
-            id="exercise-card-${exercise.id}"
-          >
-            <!-- Custom checkbox: tapping toggles completion -->
-            <button
-              class="exercise-check ${isChecked ? 'is-checked' : ''}"
-              id="check-${exercise.id}"
-              aria-label="Mark ${UIHelpers.escapeHTML(currentExercise.name)} as complete"
-              aria-pressed="${isChecked}"
-              onclick="toggleExerciseComplete('${exercise.id}')"
-            >
-              ${isChecked ? '✓' : ''}
-            </button>
-
-            <!-- Exercise info -->
-            <div>
-              <div class="exercise-card__name" id="exname-${exercise.id}">
-                ${UIHelpers.escapeHTML(currentExercise.name)}
-              </div>
-              <div class="exercise-card__detail">
-                ${currentExercise.sets} sets × ${UIHelpers.escapeHTML(currentExercise.reps)}
-                ${currentExercise.notes ? `· <span style="color:var(--color-text-muted);">${UIHelpers.escapeHTML(currentExercise.notes)}</span>` : ''}
-              </div>
-            </div>
-
-            <!-- Swap button -->
-            <button
-              class="${swapBtnClass}"
-              aria-label="Swap ${UIHelpers.escapeHTML(exercise.name)}"
-              title="Swap this exercise"
-              onclick="openSwapModal('${exercise.id}', '${UIHelpers.escapeHTML(exercise.name)}', '${exercise.swapGroup}')"
-            >
-              ⇄
-            </button>
-          </div>
-        `;
-      }).join('');
-
-      // Calculate total sets for the meta row
-      const totalSets = day.exercises.reduce((sum, ex) => sum + (ex.sets ?? 0), 0);
-
-      panel.innerHTML = `
-        <!-- Day header -->
-        <div class="day-header">
-          <div class="day-header__type day-header__type--training">
-            🟩 Training Day${isToday ? ' · Today' : ''}
-          </div>
-          <h2 class="day-header__name">${UIHelpers.escapeHTML(day.name)}</h2>
-
-          <!-- Meta: duration + volume -->
-          <div class="day-header__meta">
-            <div class="day-meta-chip">
-              <span>⏱</span><span>~${day.duration ?? 45} min</span>
-            </div>
-            <div class="day-meta-chip">
-              <span>📋</span><span>${day.exercises.length} exercises · ${totalSets} total sets</span>
-            </div>
-          </div>
-
-          <!-- Muscle group chips -->
-          <div class="muscle-group-row" aria-label="Target muscle groups">
-            ${day.muscleGroups.map(mg =>
-              `<span class="muscle-chip">${UIHelpers.escapeHTML(mg)}</span>`
-            ).join('')}
-          </div>
-        </div>
-
-        <!-- Exercises label -->
-        <p class="exercises-label">Exercises</p>
-
-        <!-- Exercise cards list -->
-        <div class="stack stack-sm" id="exercises-list-${dayIndex}">
-          ${exerciseCardsHTML}
-        </div>
-
-        <!-- Day complete banner (shows when day is marked done) or CTA button -->
-        ${isDayComplete
-          ? `<div class="day-complete-banner" id="day-complete-banner-${dayIndex}">
-               <div class="day-complete-banner__icon">🏆</div>
-               <div class="day-complete-banner__title">Day Crushed!</div>
-               <div class="day-complete-banner__sub">Logged to your weekly progress. Rest and recover.</div>
-             </div>`
-          : isToday
-            ? `<div class="complete-day-btn-wrap">
-                 <button
-                   class="btn btn--primary btn--lg btn--full"
-                   id="mark-day-complete-btn"
-                   onclick="markDayComplete(${dayIndex})"
-                 >
-                   <span>Mark Day Complete</span>
-                   <span>✓</span>
-                 </button>
-               </div>`
-            : ''
-        }
-      `;
-    }
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       INTERACTION: TOGGLE EXERCISE COMPLETE
-       Called when user taps the checkbox next to an exercise.
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    function toggleExerciseComplete(exerciseId) {
-      // Only allow checking off exercises on TODAY's panel
-      const todayDayIndex = new Date().getDay();
-      if (pageState.selectedDay !== todayDayIndex) {
-        UIHelpers.showToast('Check off exercises on the current day.', 'info');
-        return;
-      }
-
-      const key  = getTodayKey();
-      const data = getDayCompletionData(key);
-      const newState = !(data.exercises[exerciseId] ?? false);
-
-      // Update in-memory store + localStorage
-      setExerciseComplete(exerciseId, newState);
-
-      // Update the checkbox button
-      const checkBtn = document.getElementById(`check-${exerciseId}`);
-      if (checkBtn) {
-        checkBtn.classList.toggle('is-checked', newState);
-        checkBtn.textContent = newState ? '✓' : '';
-        checkBtn.setAttribute('aria-pressed', String(newState));
-      }
-
-      // Update the card's done state (triggers strikethrough)
-      const card = document.getElementById(`exercise-card-${exerciseId}`);
-      if (card) card.classList.toggle('is-done', newState);
-
-      // Check if ALL exercises for today are done
-      checkAllExercisesComplete(todayDayIndex);
-    }
-
-    /**
-     * Check if every exercise on today's plan is checked.
-     * If so, auto-scroll to the "Mark Day Complete" button.
-     */
-    function checkAllExercisesComplete(dayIndex) {
-      const day       = pageState.template.schedule[dayIndex];
-      const key       = getTodayKey();
-      const data      = getDayCompletionData(key);
-      const allDone   = day.exercises.every(ex => data.exercises[ex.id] === true);
-
-      if (allDone && day.exercises.length > 0) {
-        // Highlight the complete button
-        const completeBtn = document.getElementById('mark-day-complete-btn');
-        if (completeBtn) {
-          completeBtn.style.animation = 'pulse-accent 1s ease infinite';
-          completeBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
-    }
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       INTERACTION: MARK DAY COMPLETE
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    function markDayComplete(dayIndex) {
-      setDayComplete(true);
-
-      // Replace the CTA button with the completion banner
-      const btnWrap = document.querySelector('.complete-day-btn-wrap');
-      if (btnWrap) {
-        btnWrap.outerHTML = `
-          <div class="day-complete-banner" id="day-complete-banner-${dayIndex}">
-            <div class="day-complete-banner__icon">🏆</div>
-            <div class="day-complete-banner__title">Day Crushed!</div>
-            <div class="day-complete-banner__sub">Logged to your weekly progress. Rest and recover.</div>
-          </div>
-        `;
-      }
-
-      // Update the day pill to show complete state
-      const pill = document.getElementById(`day-pill-${dayIndex}`);
-      if (pill) {
-        pill.classList.add('day-pill--complete');
-        const dot = pill.querySelector('.day-pill__dot');
-        if (dot) dot.textContent = '✓';
-      }
-
-      // Update weekly summary
-      updateWeeklySummary(pageState.template);
-
-      UIHelpers.showToast('Workout logged! Great work 🔥', 'success');
-    }
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       SWAP MODAL STATE MACHINE
-
-       States: 'closed' → 'open' → 'closed'
-
-       openSwapModal()   : closed → open
-         - Sets swapState.targetExerciseId, targetSwapGroup
-         - Renders alternatives into the modal
-         - Adds .is-open to the overlay (CSS transition does the rest)
-
-       handleOptionSelect(): within 'open'
-         - Sets swapState.pendingSelection
-         - Enables the Confirm button
-
-       confirmSwap():    open → closed
-         - Applies activeSwaps[targetId] = pendingSelection
-         - Updates the exercise card in the DOM
-         - Closes modal
-
-       closeSwapModal(): open → closed
-         - Resets swapState
-         - Removes .is-open from overlay
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-    /** Transition: closed → open */
-    function openSwapModal(exerciseId, exerciseName, swapGroup) {
-      swapState.isOpen            = true;
-      swapState.targetExerciseId  = exerciseId;
-      swapState.targetExerciseName = exerciseName;
-      swapState.targetSwapGroup   = swapGroup;
-      swapState.pendingSelection  = null;
-
-      // Update modal display content
-      UIHelpers.setText('#swap-current-name', exerciseName);
-
-      // Render the alternatives list
-      renderSwapOptions(swapGroup);
-
-      // Disable confirm button until user picks an option
-      const confirmBtn = document.getElementById('swap-confirm-btn');
-      if (confirmBtn) confirmBtn.disabled = true;
-
-      // Open the modal (CSS transition handles animation)
-      const modal = document.getElementById('swap-modal');
-      if (modal) {
-        modal.classList.add('is-open');
-        modal.setAttribute('aria-hidden', 'false');
-
-        // Move focus to the modal for accessibility
-        modal.querySelector('.modal-sheet')?.focus();
-      }
-    }
-
-    /**
-     * Render the alternatives list inside the modal.
-     * Sorts options so that injury-safe ones appear first.
-     * @param {string} swapGroup - Key into SWAP_OPTIONS
-     */
-    function renderSwapOptions(swapGroup) {
-      const optionsList = document.getElementById('swap-options-list');
-      if (!optionsList) return;
-
-      const options   = SWAP_OPTIONS[swapGroup];
-      const injuries  = pageState.injuries.filter(i => i !== 'none');
-
-      if (!options || options.length === 0) {
-        optionsList.innerHTML = `<p style="color:var(--color-text-muted); font-size:var(--text-sm);">No alternatives defined for this movement pattern yet.</p>`;
-        return;
-      }
-
-      // Sort: injury-safe options first (like Python's sorted() with a key function)
-      const sorted = [...options].sort((a, b) => {
-        const aRelevant = injuries.some(inj => a.safeFor.includes(inj));
-        const bRelevant = injuries.some(inj => b.safeFor.includes(inj));
-        // True > False in JS comparison: injury-safe sorts to front
-        return bRelevant - aRelevant;
-      });
-
-      optionsList.innerHTML = sorted.map(opt => {
-        // Determine which injuries this option is safe for (for badge display)
-        const relevantInjuries = opt.safeFor.filter(s => injuries.includes(s));
-
-        const injuryBadge = relevantInjuries.length > 0
-          ? `<span class="injury-safe-badge">✓ Safe for ${relevantInjuries.map(i => i.replace('_',' ')).join(', ')}</span>`
-          : '';
-
-        return `
-          <button
-            class="swap-option"
-            id="swap-opt-${opt.id}"
-            role="radio"
-            aria-checked="false"
-            aria-label="Select ${UIHelpers.escapeHTML(opt.name)}"
-            onclick="handleSwapOptionSelect('${opt.id}', ${JSON.stringify(opt).replace(/"/g, '&quot;')})"
-          >
-            <div class="swap-option__radio" aria-hidden="true"></div>
-            <div class="swap-option__info">
-              <div class="swap-option__name">${UIHelpers.escapeHTML(opt.name)}</div>
-              <div class="swap-option__detail">
-                ${opt.sets} sets × ${UIHelpers.escapeHTML(opt.reps)}
-                ${opt.note ? `· ${UIHelpers.escapeHTML(opt.note)}` : ''}
-              </div>
-            </div>
-            ${injuryBadge}
-          </button>
-        `;
-      }).join('');
-    }
-
-    /** Within 'open' state: user selects an alternative */
-    function handleSwapOptionSelect(optionId, optionData) {
-      swapState.pendingSelection = optionData;
-
-      // Deselect all options
-      document.querySelectorAll('.swap-option').forEach(el => {
-        el.classList.remove('is-selected');
-        el.setAttribute('aria-checked', 'false');
-      });
-
-      // Select the clicked option
-      const selectedEl = document.getElementById(`swap-opt-${optionId}`);
-      if (selectedEl) {
-        selectedEl.classList.add('is-selected');
-        selectedEl.setAttribute('aria-checked', 'true');
-      }
-
-      // Enable the confirm button
-      const confirmBtn = document.getElementById('swap-confirm-btn');
-      if (confirmBtn) confirmBtn.disabled = false;
-    }
-
-    /** Transition: open → closed (with apply) */
-    function confirmSwap() {
-      if (!swapState.pendingSelection || !swapState.targetExerciseId) return;
-
-      const { targetExerciseId, pendingSelection } = swapState;
-
-      // Store the swap in our session-level map
-      activeSwaps[targetExerciseId] = pendingSelection;
-
-      // Update the exercise card in the DOM (without a full re-render)
-      const nameEl   = document.getElementById(`exname-${targetExerciseId}`);
-      const checkEl  = document.getElementById(`check-${targetExerciseId}`);
-      const card     = document.getElementById(`exercise-card-${targetExerciseId}`);
-
-      if (nameEl) nameEl.textContent = pendingSelection.name;
-
-      // Find and update the detail text
-      if (card) {
-        const detailEl = card.querySelector('.exercise-card__detail');
-        if (detailEl) {
-          detailEl.textContent = `${pendingSelection.sets} sets × ${pendingSelection.reps}`;
-        }
-
-        // Trigger the CSS highlight animation (was-swapped class)
-        card.classList.remove('was-swapped');
-        // Force reflow — without this, removing then adding the class
-        // doesn't restart the animation (browser optimizes it out)
-        void card.offsetWidth; // This line forces a reflow
-        card.classList.add('was-swapped');
-      }
-
-      UIHelpers.showToast(`Swapped to: ${pendingSelection.name} ✓`, 'success');
-
-      // Close modal
-      closeSwapModal();
-    }
-
-    /** Transition: open → closed (without apply) */
-    function closeSwapModal() {
-      swapState.isOpen           = false;
-      swapState.pendingSelection = null;
-
-      const modal = document.getElementById('swap-modal');
-      if (modal) {
-        modal.classList.remove('is-open');
-        modal.setAttribute('aria-hidden', 'true');
-      }
-    }
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       WEEKLY SUMMARY STATS
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    function updateWeeklySummary(template) {
-      // Count how many training days are in the schedule
-      const trainingDays = template.schedule.filter(d => d.type === 'training').length;
-
-      // Count completed days in localStorage for this week
-      // (Simple version: just check today's key for demo purposes)
-      // A full implementation would check all 7 days of the current week.
-      const todayComplete = completionStore[getTodayKey()]?.dayComplete ?? false;
-      const completedCount = todayComplete ? 1 : 0;
-
-      // Total exercises across the whole week
-      const totalExercises = template.schedule
-        .reduce((sum, day) => sum + (day.exercises?.length ?? 0), 0);
-
-      UIHelpers.setText('#stat-completed', completedCount);
-      UIHelpers.setText('#stat-training',  trainingDays);
-      UIHelpers.setText('#stat-exercises', totalExercises);
-    }
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       UTILITY: Get ISO week number from a Date
-       Returns the week number (1-52) for the given date.
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    function getWeekNumber(date) {
-      const d   = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-      const dow = d.getUTCDay() || 7;
-      d.setUTCDate(d.getUTCDate() + 4 - dow);
-      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-    }
-  </script>
+ <div class="app-shell">
+
+ <!-- ══════════════════════════════════════════════════════
+ HEADER
+ ═════════════════════════════════════════════════════ -->
+ <header class="app-header">
+ <div class="app-header__logo">Fit<span>Forge</span></div>
+ <div style="display:flex; gap:8px;">
+ <!-- Week number pill -->
+ <div style="background:var(--color-bg-elevated); border:1px solid var(--color-border); border-radius:var(--radius-full); padding:4px 12px;">
+ <span id="week-label" style="font-size:var(--text-xs); color:var(--color-text-secondary); font-family:var(--font-mono);">Week —</span>
+ </div>
+ </div>
+ </header>
+
+ <!-- ══════════════════════════════════════════════════════
+ MAIN CONTENT
+ ═════════════════════════════════════════════════════ -->
+ <main class="page-content" id="page-content">
+
+ <!-- SECTION 1: Plan Header Card -->
+ <div class="plan-header-card animate-fade-in-up" id="plan-header-card">
+ <div class="plan-header-card__label" id="plan-label">Loading plan...</div>
+ <div class="plan-header-card__name" id="plan-name">—</div>
+ <div class="plan-meta-row" id="plan-meta"></div>
+ </div>
+
+ <!-- SECTION 2: Week Strip (sticky, 7-day selector) -->
+ <div class="week-section">
+ <div class="week-strip-wrap">
+ <!-- 7 day pill buttons — rendered by JS -->
+ <div class="week-strip" id="week-strip" role="tablist" aria-label="Day of week selector">
+ <!-- Skeleton placeholder -->
+ <div class="skeleton" style="height:52px; border-radius:var(--radius-md); grid-column:1/-1;"></div>
+ </div>
+ </div>
+ </div>
+
+ <!-- SECTION 3: Injury Notice (shown only if user flagged injuries) -->
+ <div class="injury-notice hidden" id="injury-notice">
+ <span>⚠</span>
+ <span id="injury-notice-text">Swap buttons are highlighted for exercises that may stress your flagged areas.</span>
+ </div>
+
+ <!-- SECTION 4: Day Workout Panels -->
+ <!--
+ Each day has a .workout-day-panel div.
+ Only the active panel has .is-active and is rendered as flex.
+ JS switches panels by toggling .is-active.
+ 
+ The panels themselves are EMPTY placeholders here —
+ JS generates their inner HTML from the WORKOUT_TEMPLATES data.
+ This keeps the HTML clean and the data in one place.
+ -->
+ <div id="day-panels-container">
+ <!-- Day panels: Sun=0 through Sat=6 -->
+ <div class="workout-day-panel" id="day-panel-0" role="tabpanel"></div>
+ <div class="workout-day-panel" id="day-panel-1" role="tabpanel"></div>
+ <div class="workout-day-panel" id="day-panel-2" role="tabpanel"></div>
+ <div class="workout-day-panel" id="day-panel-3" role="tabpanel"></div>
+ <div class="workout-day-panel" id="day-panel-4" role="tabpanel"></div>
+ <div class="workout-day-panel" id="day-panel-5" role="tabpanel"></div>
+ <div class="workout-day-panel" id="day-panel-6" role="tabpanel"></div>
+ </div>
+
+ <!-- SECTION 5: Weekly Summary Card (always visible) -->
+ <div class="weekly-summary-card animate-fade-in-up" id="weekly-summary">
+ <div class="weekly-summary-card__title">This Week</div>
+ <div class="weekly-summary-grid">
+ <div class="weekly-stat">
+ <span class="weekly-stat__value" id="stat-completed">0</span>
+ <span class="weekly-stat__label">Days Done</span>
+ </div>
+ <div class="weekly-stat">
+ <span class="weekly-stat__value" id="stat-training">—</span>
+ <span class="weekly-stat__label">Training Days</span>
+ </div>
+ <div class="weekly-stat">
+ <span class="weekly-stat__value" id="stat-exercises">0</span>
+ <span class="weekly-stat__label">Total Exercises</span>
+ </div>
+ </div>
+ </div>
+
+ <div style="height: var(--space-8);"></div>
+ </main>
+
+ <!-- ══════════════════════════════════════════════════════
+ EXERCISE SWAP MODAL
+ Lives outside .page-content so it overlays everything.
+ ═════════════════════════════════════════════════════ -->
+ <div
+ class="modal-overlay"
+ id="swap-modal"
+ role="dialog"
+ aria-modal="true"
+ aria-labelledby="swap-modal-title"
+ aria-hidden="true"
+ >
+ <div class="modal-sheet">
+ <!-- Drag handle (visual affordance) -->
+ <div class="modal-handle" aria-hidden="true"></div>
+
+ <!-- Modal header -->
+ <div class="modal-header">
+ <p class="modal-eyebrow">Exercise Swap</p>
+ <h2 class="modal-title" id="swap-modal-title">Choose a replacement</h2>
+ </div>
+
+ <!-- Currently-being-replaced exercise -->
+ <div class="modal-current-exercise">
+ <div>
+ <div class="modal-current-exercise__label">Replacing</div>
+ <div class="modal-current-exercise__name" id="swap-current-name">—</div>
+ </div>
+ </div>
+
+ <!-- Alternatives list label -->
+ <p class="modal-section-label">Select an alternative:</p>
+
+ <!-- Alternatives list — injected by JS -->
+ <div class="stack stack-sm" id="swap-options-list">
+ <!-- Populated by renderSwapOptions() -->
+ </div>
+
+ <!-- Modal action buttons -->
+ <div class="modal-footer">
+ <button class="btn btn--secondary btn--md" id="swap-cancel-btn" aria-label="Cancel swap">
+ Cancel
+ </button>
+ <button class="btn btn--primary btn--md" id="swap-confirm-btn" disabled aria-label="Confirm exercise swap">
+ Confirm Swap
+ </button>
+ </div>
+ </div>
+ </div>
+
+ <!-- Bottom nav -->
+ <div id="bottom-nav-container"></div>
+
+ </div><!-- end .app-shell -->
+
+ <script src="script-merged.js"></script>
+
+ <script>
+ /**
+ * ============================================================
+ * WORKOUTS PAGE SCRIPT
+ * workouts.html — inline script
+ *
+ * ARCHITECTURE OVERVIEW:
+ *
+ * DATA LAYER (pure objects — no DOM):
+ * WORKOUT_TEMPLATES — all weekly plans keyed by goal
+ * SWAP_OPTIONS — alternatives keyed by swapGroup
+ * completionStore — localStorage-backed completion state
+ *
+ * STATE MACHINE (controls UI):
+ * pageState.selectedDay — which day pill is active (0-6)
+ * swapState — controls the swap modal (open/closed)
+ * activeSwaps — applied swaps (overrides template data)
+ *
+ * RENDER LAYER (DOM manipulation):
+ * renderWeekStrip() — builds the 7 day pills
+ * renderDayPanel() — builds one day's exercise list
+ * renderSwapOptions() — populates the modal alternatives
+ * updateWeeklySummary() — updates the stats card at the bottom
+ * ============================================================
+ */
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ WORKOUT TEMPLATES
+ The source-of-truth for all exercise data.
+
+ Structure:
+ WORKOUT_TEMPLATES[goal].schedule[dayIndex (0=Sun)]
+ → { type, name, muscleGroups[], exercises[] }
+
+ Each exercise:
+ { id, name, sets, reps, swapGroup, notes }
+
+ Python analogy: think of this as a dict of dataclasses.
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ const WORKOUT_TEMPLATES = {
+
+ /* ── FAT LOSS — 4 Training Days ─────────────────────────── */
+ fat_loss: {
+ name: '4-Day Circuit + HIIT',
+ style: 'Circuit Training / HIIT',
+ daysPerWeek: 4,
+ schedule: [
+ // ── Sunday (index 0) — Rest ──
+ {
+ type: 'rest',
+ name: 'Rest & Recover',
+ icon: '',
+ notes: 'Prioritize 7–9 hours of sleep. Recovery is where the adaptation happens.',
+ muscleGroups: [],
+ exercises: [],
+ },
+ // ── Monday (index 1) — Upper Body Circuit ──
+ {
+ type: 'training',
+ name: 'Upper Body Circuit',
+ icon: '',
+ muscleGroups: ['Chest', 'Back', 'Shoulders', 'Arms'],
+ duration: 45,
+ exercises: [
+ { id: 'fl-mon-1', name: 'Push-Up', sets: 3, reps: '15', swapGroup: 'horizontal_push', notes: 'Go to failure on last set' },
+ { id: 'fl-mon-2', name: 'Dumbbell Row', sets: 3, reps: '12 ea', swapGroup: 'horizontal_pull', notes: 'Keep back flat, elbow tight' },
+ { id: 'fl-mon-3', name: 'DB Shoulder Press', sets: 3, reps: '12', swapGroup: 'vertical_push', notes: 'Seated or standing' },
+ { id: 'fl-mon-4', name: 'Bicep Curl', sets: 3, reps: '15', swapGroup: 'elbow_flexion', notes: 'Control the eccentric (down)' },
+ { id: 'fl-mon-5', name: 'Tricep Dip', sets: 3, reps: '12', swapGroup: 'elbow_extension', notes: 'Use a bench or chair' },
+ { id: 'fl-mon-6', name: 'Plank', sets: 3, reps: '45 sec',swapGroup: 'core_anterior', notes: 'Squeeze glutes and abs' },
+ ],
+ },
+ // ── Tuesday (index 2) — HIIT Cardio ──
+ {
+ type: 'training',
+ name: 'HIIT Cardio',
+ icon: '⚡',
+ muscleGroups: ['Full Body', 'Cardiovascular'],
+ duration: 30,
+ exercises: [
+ { id: 'fl-tue-1', name: 'Jump Rope / Jacks', sets: 1, reps: '3 min', swapGroup: 'low_impact_cardio', notes: 'Warm-up pace' },
+ { id: 'fl-tue-2', name: 'Burpee', sets: 4, reps: '30 sec', swapGroup: 'full_body_cardio', notes: '30s work / 30s rest' },
+ { id: 'fl-tue-3', name: 'High Knees', sets: 4, reps: '30 sec', swapGroup: 'low_impact_cardio', notes: '30s work / 30s rest' },
+ { id: 'fl-tue-4', name: 'Mountain Climber', sets: 4, reps: '30 sec', swapGroup: 'core_cardio', notes: '30s work / 30s rest' },
+ { id: 'fl-tue-5', name: 'Box Jump', sets: 4, reps: '8', swapGroup: 'plyometric_lower', notes: 'Land softly, full hip extension at top' },
+ ],
+ },
+ // ── Wednesday (index 3) — Lower Body Strength ──
+ {
+ type: 'training',
+ name: 'Lower Body Strength',
+ icon: '',
+ muscleGroups: ['Quads', 'Hamstrings', 'Glutes', 'Calves'],
+ duration: 50,
+ exercises: [
+ { id: 'fl-wed-1', name: 'Goblet Squat', sets: 4, reps: '12', swapGroup: 'knee_dominant', notes: 'Hold dumbbell at chest' },
+ { id: 'fl-wed-2', name: 'Romanian Deadlift', sets: 3, reps: '12', swapGroup: 'hip_dominant', notes: 'Push hips back, soft knee' },
+ { id: 'fl-wed-3', name: 'Walking Lunge', sets: 3, reps: '12 ea', swapGroup: 'knee_dominant', notes: 'Long stride, upright torso' },
+ { id: 'fl-wed-4', name: 'Hip Thrust', sets: 4, reps: '15', swapGroup: 'hip_dominant', notes: 'Squeeze glutes at top for 2s' },
+ { id: 'fl-wed-5', name: 'Calf Raise', sets: 3, reps: '20', swapGroup: 'ankle_push', notes: 'Slow eccentric (3s down)' },
+ { id: 'fl-wed-6', name: 'Dead Bug', sets: 3, reps: '10 ea', swapGroup: 'core_anterior', notes: 'Press lower back to floor' },
+ ],
+ },
+ // ── Thursday (index 4) — Rest ──
+ {
+ type: 'rest',
+ name: 'Mobility Day',
+ icon: '',
+ notes: 'Light stretching, foam rolling. 20–30 minutes. Focus on whatever is tight from Mon/Tue/Wed.',
+ muscleGroups: [],
+ exercises: [],
+ },
+ // ── Friday (index 5) — Full Body HIIT ──
+ {
+ type: 'training',
+ name: 'Full Body HIIT',
+ icon: '',
+ muscleGroups: ['Full Body', 'Core', 'Cardiovascular'],
+ duration: 40,
+ exercises: [
+ { id: 'fl-fri-1', name: 'Kettlebell Swing', sets: 4, reps: '15', swapGroup: 'hip_dominant', notes: 'Drive hips, not arms' },
+ { id: 'fl-fri-2', name: 'Push-Up', sets: 3, reps: '15', swapGroup: 'horizontal_push', notes: 'Strict form, chest to floor' },
+ { id: 'fl-fri-3', name: 'Jump Squat', sets: 4, reps: '10', swapGroup: 'plyometric_lower',notes: 'Land with soft knees' },
+ { id: 'fl-fri-4', name: 'Pull-Up / Lat Pulldown',sets: 3, reps: '10', swapGroup: 'vertical_pull', notes: 'Full range of motion' },
+ { id: 'fl-fri-5', name: 'Plank to Push-Up', sets: 3, reps: '8 ea', swapGroup: 'core_anterior', notes: 'Keep hips level, no rotation' },
+ ],
+ },
+ // ── Saturday (index 6) — Active Recovery ──
+ {
+ type: 'recovery',
+ name: 'Active Recovery',
+ icon: '',
+ notes: '20–30 min walk or light cycling. Keep heart rate below 60% max. Movement without stress.',
+ muscleGroups: [],
+ exercises: [],
+ },
+ ],
+ }, // end fat_loss
+
+ /* ── MUSCLE GAIN — 5 Training Days (Push/Pull/Legs) ──────── */
+ muscle_gain: {
+ name: '5-Day Push / Pull / Legs',
+ style: 'Hypertrophy / Progressive Overload',
+ daysPerWeek: 5,
+ schedule: [
+ // Sunday — Rest
+ {
+ type: 'rest', name: 'Rest Day', icon: '',
+ notes: 'Full rest. Limit cardio. Let muscles repair and grow.',
+ muscleGroups: [], exercises: [],
+ },
+ // Monday — Chest & Triceps (Push A)
+ {
+ type: 'training', name: 'Chest & Triceps', icon: '',
+ muscleGroups: ['Chest', 'Triceps', 'Front Delts'],
+ duration: 60,
+ exercises: [
+ { id: 'mg-mon-1', name: 'Barbell Bench Press', sets: 4, reps: '6–8', swapGroup: 'horizontal_push', notes: 'Primary strength movement' },
+ { id: 'mg-mon-2', name: 'Incline DB Press', sets: 3, reps: '10–12', swapGroup: 'incline_push', notes: 'Upper chest emphasis' },
+ { id: 'mg-mon-3', name: 'Cable Chest Fly', sets: 3, reps: '12–15', swapGroup: 'chest_isolation', notes: 'Full stretch at bottom' },
+ { id: 'mg-mon-4', name: 'Overhead Tricep Ext.', sets: 3, reps: '12–15', swapGroup: 'elbow_extension', notes: 'Long head emphasis — elbows in' },
+ { id: 'mg-mon-5', name: 'Tricep Pushdown', sets: 3, reps: '15', swapGroup: 'elbow_extension', notes: 'Rope or bar attachment' },
+ ],
+ },
+ // Tuesday — Back & Biceps (Pull A)
+ {
+ type: 'training', name: 'Back & Biceps', icon: '',
+ muscleGroups: ['Lats', 'Traps', 'Rear Delts', 'Biceps'],
+ duration: 60,
+ exercises: [
+ { id: 'mg-tue-1', name: 'Barbell Row', sets: 4, reps: '6–8', swapGroup: 'horizontal_pull', notes: 'Overhand, row to lower chest' },
+ { id: 'mg-tue-2', name: 'Pull-Up', sets: 4, reps: '8–10', swapGroup: 'vertical_pull', notes: 'Add weight if 10 is easy' },
+ { id: 'mg-tue-3', name: 'Seated Cable Row', sets: 3, reps: '12', swapGroup: 'horizontal_pull', notes: 'V-bar, elbows tight to body' },
+ { id: 'mg-tue-4', name: 'Face Pull', sets: 3, reps: '15–20',swapGroup: 'rear_delt', notes: 'External rotation at top' },
+ { id: 'mg-tue-5', name: 'Barbell Curl', sets: 3, reps: '10–12',swapGroup: 'elbow_flexion', notes: 'No swinging' },
+ { id: 'mg-tue-6', name: 'Hammer Curl', sets: 2, reps: '12–15',swapGroup: 'elbow_flexion', notes: 'Brachialis emphasis' },
+ ],
+ },
+ // Wednesday — Legs A
+ {
+ type: 'training', name: 'Legs', icon: '',
+ muscleGroups: ['Quads', 'Hamstrings', 'Glutes', 'Calves'],
+ duration: 65,
+ exercises: [
+ { id: 'mg-wed-1', name: 'Barbell Back Squat', sets: 4, reps: '6–8', swapGroup: 'knee_dominant', notes: 'Primary lower body movement' },
+ { id: 'mg-wed-2', name: 'Romanian Deadlift', sets: 4, reps: '10–12', swapGroup: 'hip_dominant', notes: 'Heavy — hamstring focus' },
+ { id: 'mg-wed-3', name: 'Leg Press', sets: 3, reps: '12–15', swapGroup: 'knee_dominant', notes: 'Feet high = glute focus' },
+ { id: 'mg-wed-4', name: 'Lying Leg Curl', sets: 3, reps: '12–15', swapGroup: 'knee_flexion', notes: 'Full stretch, slow eccentric' },
+ { id: 'mg-wed-5', name: 'Leg Extension', sets: 3, reps: '15', swapGroup: 'knee_extension', notes: 'Terminal knee extension hold' },
+ { id: 'mg-wed-6', name: 'Standing Calf Raise', sets: 4, reps: '15–20', swapGroup: 'ankle_push', notes: 'Pause 2s at bottom stretch' },
+ ],
+ },
+ // Thursday — Rest
+ {
+ type: 'rest', name: 'Rest Day', icon: '',
+ notes: 'Recovery. High sleep, adequate protein. Optional light walk.',
+ muscleGroups: [], exercises: [],
+ },
+ // Friday — Shoulders & Arms (Push B)
+ {
+ type: 'training', name: 'Shoulders & Arms', icon: '⚡',
+ muscleGroups: ['Shoulders', 'Biceps', 'Triceps'],
+ duration: 55,
+ exercises: [
+ { id: 'mg-fri-1', name: 'Overhead Press', sets: 4, reps: '6–8', swapGroup: 'vertical_push', notes: 'Standing barbell or seated DB' },
+ { id: 'mg-fri-2', name: 'Lateral Raise', sets: 4, reps: '15–20', swapGroup: 'shoulder_abduction', notes: 'Slight forward lean, slow' },
+ { id: 'mg-fri-3', name: 'Rear Delt Fly', sets: 3, reps: '15–20', swapGroup: 'rear_delt', notes: 'Hinge forward or cable' },
+ { id: 'mg-fri-4', name: 'Concentration Curl', sets: 3, reps: '12 ea', swapGroup: 'elbow_flexion', notes: 'Full supination at top' },
+ { id: 'mg-fri-5', name: 'Skull Crusher', sets: 3, reps: '12', swapGroup: 'elbow_extension', notes: 'EZ bar, close grip' },
+ ],
+ },
+ // Saturday — Legs B
+ {
+ type: 'training', name: 'Legs (Variation)', icon: '',
+ muscleGroups: ['Glutes', 'Hamstrings', 'Quads', 'Calves'],
+ duration: 60,
+ exercises: [
+ { id: 'mg-sat-1', name: 'Front Squat', sets: 4, reps: '6–8', swapGroup: 'knee_dominant', notes: 'Quad dominant — upright torso' },
+ { id: 'mg-sat-2', name: 'Hip Thrust', sets: 4, reps: '12–15', swapGroup: 'hip_dominant', notes: 'Pause 2s at top contraction' },
+ { id: 'mg-sat-3', name: 'Bulgarian Split Squat', sets: 3, reps: '10 ea', swapGroup: 'knee_dominant', notes: 'Front foot far enough forward' },
+ { id: 'mg-sat-4', name: 'Nordic Curl', sets: 3, reps: '6–8', swapGroup: 'knee_flexion', notes: 'Hardest hamstring exercise — go slow' },
+ { id: 'mg-sat-5', name: 'Seated Calf Raise', sets: 3, reps: '20', swapGroup: 'ankle_push', notes: 'Soleus emphasis (bent knee)' },
+ ],
+ },
+ ],
+ }, // end muscle_gain
+
+ /* ── RECOMP — 4 Days Full Body ──────────────────────────── */
+ recomp: {
+ name: '4-Day Full Body Recomp',
+ style: 'Compound-First / Moderate Volume',
+ daysPerWeek: 4,
+ schedule: [
+ { type:'rest', name:'Rest', icon:'', notes:'Rest.', muscleGroups:[], exercises:[] },
+ { type:'training', name:'Full Body A', icon:'⚡', muscleGroups:['Full Body'], duration:55,
+ exercises:[
+ { id:'rc-a-1', name:'Barbell Squat', sets:4, reps:'8', swapGroup:'knee_dominant', notes:'Primary compound' },
+ { id:'rc-a-2', name:'Bench Press', sets:4, reps:'8', swapGroup:'horizontal_push',notes:'Primary upper push' },
+ { id:'rc-a-3', name:'Pull-Up', sets:3, reps:'8–10', swapGroup:'vertical_pull', notes:'Add band if needed' },
+ { id:'rc-a-4', name:'Romanian Deadlift', sets:3, reps:'10', swapGroup:'hip_dominant', notes:'Hinge pattern' },
+ { id:'rc-a-5', name:'Plank', sets:3, reps:'45s', swapGroup:'core_anterior', notes:'Core finisher' },
+ ]
+ },
+ { type:'rest', name:'Rest', icon:'', notes:'Light activity OK.', muscleGroups:[], exercises:[] },
+ { type:'training', name:'Full Body B', icon:'', muscleGroups:['Full Body'], duration:55,
+ exercises:[
+ { id:'rc-b-1', name:'Deadlift', sets:4, reps:'6–8', swapGroup:'hip_dominant', notes:'Heaviest lift of the week' },
+ { id:'rc-b-2', name:'Overhead Press', sets:4, reps:'8', swapGroup:'vertical_push', notes:'Standing barbell' },
+ { id:'rc-b-3', name:'Barbell Row', sets:3, reps:'10', swapGroup:'horizontal_pull', notes:'Overhand grip' },
+ { id:'rc-b-4', name:'Goblet Squat', sets:3, reps:'12', swapGroup:'knee_dominant', notes:'Quad finisher' },
+ { id:'rc-b-5', name:'Ab Wheel Rollout', sets:3, reps:'10', swapGroup:'core_anterior', notes:'Keep back flat' },
+ ]
+ },
+ { type:'rest', name:'Rest', icon:'', notes:'Recovery.', muscleGroups:[], exercises:[] },
+ { type:'training', name:'Full Body C', icon:'', muscleGroups:['Full Body', 'Core'], duration:50,
+ exercises:[
+ { id:'rc-c-1', name:'Front Squat', sets:3, reps:'8', swapGroup:'knee_dominant', notes:'Quad focus' },
+ { id:'rc-c-2', name:'DB Bench Press', sets:3, reps:'10', swapGroup:'horizontal_push',notes:'Unilateral stability' },
+ { id:'rc-c-3', name:'Lat Pulldown', sets:3, reps:'12', swapGroup:'vertical_pull', notes:'Wide grip' },
+ { id:'rc-c-4', name:'Hip Thrust', sets:3, reps:'15', swapGroup:'hip_dominant', notes:'Glute finisher' },
+ { id:'rc-c-5', name:'Cable Crunch', sets:3, reps:'15', swapGroup:'core_anterior', notes:'Tuck chin' },
+ ]
+ },
+ { type:'recovery', name:'Active Recovery', icon:'', notes:'Walk 30 min.', muscleGroups:[], exercises:[] },
+ ],
+ },
+
+ /* ── MAINTENANCE — 3 Days Full Body ─────────────────────── */
+ maintenance: {
+ name: '3-Day Full Body Maintenance',
+ style: 'Strength / Quality of Life',
+ daysPerWeek: 3,
+ schedule: [
+ { type:'rest', name:'Rest', icon:'', notes:'Full rest.', muscleGroups:[], exercises:[] },
+ { type:'training', name:'Full Body Strength', icon:'', muscleGroups:['Full Body'], duration:45,
+ exercises:[
+ { id:'mn-a-1', name:'Squat', sets:3, reps:'10', swapGroup:'knee_dominant', notes:'Any variation' },
+ { id:'mn-a-2', name:'Push-Up / Press', sets:3, reps:'12', swapGroup:'horizontal_push',notes:'Choose your level' },
+ { id:'mn-a-3', name:'Row', sets:3, reps:'12', swapGroup:'horizontal_pull',notes:'DB or cable' },
+ { id:'mn-a-4', name:'Hip Hinge', sets:3, reps:'10', swapGroup:'hip_dominant', notes:'Deadlift or RDL' },
+ { id:'mn-a-5', name:'Core Work', sets:2, reps:'30s', swapGroup:'core_anterior', notes:'Plank, hollow hold, etc.' },
+ ]
+ },
+ { type:'recovery', name:'Active Recovery', icon:'', notes:'Walk, bike, or swim.', muscleGroups:[], exercises:[] },
+ { type:'training', name:'Full Body Cardio', icon:'', muscleGroups:['Full Body', 'Cardio'], duration:40,
+ exercises:[
+ { id:'mn-b-1', name:'Cardio of Choice', sets:1, reps:'20 min', swapGroup:'low_impact_cardio', notes:'Zone 2 — conversational pace' },
+ { id:'mn-b-2', name:'Bodyweight Squat', sets:3, reps:'15', swapGroup:'knee_dominant', notes:'Light, high reps' },
+ { id:'mn-b-3', name:'Push-Up', sets:3, reps:'15', swapGroup:'horizontal_push', notes:'Full range' },
+ { id:'mn-b-4', name:'Plank', sets:3, reps:'45s', swapGroup:'core_anterior', notes:'Core maintenance' },
+ ]
+ },
+ { type:'rest', name:'Rest', icon:'', notes:'Rest.', muscleGroups:[], exercises:[] },
+ { type:'training', name:'Full Body + Mobility', icon:'', muscleGroups:['Full Body', 'Flexibility'], duration:50,
+ exercises:[
+ { id:'mn-c-1', name:'Goblet Squat', sets:3, reps:'12', swapGroup:'knee_dominant', notes:'Deep squat' },
+ { id:'mn-c-2', name:'DB Press', sets:3, reps:'12', swapGroup:'horizontal_push',notes:'Controlled' },
+ { id:'mn-c-3', name:'Lat Pulldown', sets:3, reps:'12', swapGroup:'vertical_pull', notes:'Full stretch' },
+ { id:'mn-c-4', name:'Glute Bridge', sets:3, reps:'20', swapGroup:'hip_dominant', notes:'Bodyweight or barbell' },
+ { id:'mn-c-5', name:'Hip Flexor Stretch',sets:2, reps:'60s', swapGroup:'core_anterior', notes:'Each side' },
+ ]
+ },
+ { type:'recovery', name:'Active Recovery', icon:'', notes:'Light activity.', muscleGroups:[], exercises:[] },
+ ],
+ },
+ }; // end WORKOUT_TEMPLATES
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SWAP OPTIONS
+ Keyed by swapGroup — each group has 3-4 alternative exercises.
+
+ safeFor[] — injury flags this alternative is SAFE to do with.
+ e.g. safeFor: ['knee'] means this is good for someone with
+ a knee injury (it's lower impact / doesn't load the knee).
+
+ When rendering swap options, alternatives where any element
+ of their safeFor[] matches the user's injuries[] are sorted
+ first and get a "Safe for [injury]" badge.
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ const SWAP_OPTIONS = {
+ horizontal_push: [
+ { id: 'hp-1', name: 'Dumbbell Bench Press', sets: 3, reps: '10–12', safeFor: [], note: 'Controlled range, wrists neutral' },
+ { id: 'hp-2', name: 'Machine Chest Press', sets: 3, reps: '12–15', safeFor: ['shoulder', 'wrist'], note: 'Good stability — ideal for injuries' },
+ { id: 'hp-3', name: 'Incline Push-Up', sets: 3, reps: '15–20', safeFor: ['shoulder', 'wrist', 'lower_back'], note: 'Reduced load, great form drill' },
+ { id: 'hp-4', name: 'Cable Chest Fly', sets: 3, reps: '12–15', safeFor: ['wrist'], note: 'Constant tension, shoulder-friendly' },
+ ],
+ horizontal_pull: [
+ { id: 'hpl-1', name: 'Single-Arm DB Row', sets: 3, reps: '12 ea', safeFor: ['lower_back'], note: 'Supported position, safe for back' },
+ { id: 'hpl-2', name: 'Cable Seated Row', sets: 3, reps: '12–15', safeFor: ['lower_back', 'wrist'], note: 'Neutral spine, stable surface' },
+ { id: 'hpl-3', name: 'Machine Row', sets: 3, reps: '12–15', safeFor: ['lower_back', 'wrist'], note: 'Fully supported — minimal injury risk' },
+ { id: 'hpl-4', name: 'TRX / Ring Row', sets: 3, reps: '12', safeFor: ['lower_back'], note: 'Bodyweight, scalable angle' },
+ ],
+ vertical_push: [
+ { id: 'vp-1', name: 'DB Seated Press', sets: 3, reps: '10–12', safeFor: ['lower_back'], note: 'Seated = less spinal load' },
+ { id: 'vp-2', name: 'Machine Shoulder Press',sets:3, reps: '12–15', safeFor: ['lower_back', 'wrist'], note: 'Fixed path — joint-friendly' },
+ { id: 'vp-3', name: 'Arnold Press', sets: 3, reps: '12', safeFor: [], note: 'Full shoulder ROM' },
+ { id: 'vp-4', name: 'Landmine Press', sets: 3, reps: '10 ea', safeFor: ['shoulder'], note: 'Pressing arc = shoulder-safe' },
+ ],
+ vertical_pull: [
+ { id: 'vtpl-1', name: 'Lat Pulldown', sets: 3, reps: '12', safeFor: ['shoulder', 'wrist'], note: 'Controlled, great for beginners' },
+ { id: 'vtpl-2', name: 'Assisted Pull-Up', sets: 3, reps: '10', safeFor: ['wrist'], note: 'Machine or band-assisted' },
+ { id: 'vtpl-3', name: 'Cable Straight-Arm', sets: 3, reps: '15', safeFor: ['wrist'], note: 'Lat isolation — no elbow load' },
+ { id: 'vtpl-4', name: 'Band Pull-Apart', sets: 3, reps: '20', safeFor: ['shoulder', 'neck'], note: 'Rehab-friendly rear delt work' },
+ ],
+ knee_dominant: [
+ { id: 'kd-1', name: 'Leg Press', sets: 4, reps: '12–15', safeFor: ['lower_back'], note: 'Supported spine, quad-heavy' },
+ { id: 'kd-2', name: 'Split Squat', sets: 3, reps: '12 ea', safeFor: ['lower_back'], note: 'Unilateral, less spinal load' },
+ { id: 'kd-3', name: 'Step-Up', sets: 3, reps: '12 ea', safeFor: ['lower_back', 'knee'], note: 'Low-impact knee rehab option' },
+ { id: 'kd-4', name: 'Wall Sit', sets: 3, reps: '45 sec', safeFor: ['lower_back', 'knee'], note: 'Isometric — minimal joint stress' },
+ ],
+ hip_dominant: [
+ { id: 'hd-1', name: 'Good Morning', sets: 3, reps: '12', safeFor: [], note: 'Hamstring emphasis, controlled load' },
+ { id: 'hd-2', name: 'Cable Pull-Through', sets: 3, reps: '15', safeFor: ['lower_back', 'knee'], note: 'Light load, great for back issues' },
+ { id: 'hd-3', name: 'Glute Bridge', sets: 3, reps: '20', safeFor: ['lower_back', 'knee'], note: 'Floor-based, zero joint stress' },
+ { id: 'hd-4', name: 'Nordic Hamstring Curl',sets: 3, reps: '6', safeFor: [], note: 'Advanced — very effective' },
+ ],
+ elbow_flexion: [
+ { id: 'ef-1', name: 'Cable Curl', sets: 3, reps: '12–15', safeFor: ['wrist'], note: 'Constant tension, wrist neutral' },
+ { id: 'ef-2', name: 'Preacher Curl', sets: 3, reps: '12', safeFor: [], note: 'Eliminates cheating' },
+ { id: 'ef-3', name: 'Incline DB Curl', sets: 3, reps: '12', safeFor: ['wrist'], note: 'Long head stretch at bottom' },
+ { id: 'ef-4', name: 'Resistance Band Curl', sets: 3, reps: '15', safeFor: ['wrist', 'elbow'], note: 'Joint-friendly, variable resistance' },
+ ],
+ elbow_extension: [
+ { id: 'ee-1', name: 'Cable Pushdown (rope)',sets: 3, reps: '15', safeFor: ['wrist', 'shoulder'], note: 'Safe for shoulder issues' },
+ { id: 'ee-2', name: 'DB Kickback', sets: 3, reps: '15 ea', safeFor: ['wrist', 'shoulder'], note: 'Good isolation, light weight' },
+ { id: 'ee-3', name: 'Close-Grip Push-Up', sets: 3, reps: '15', safeFor: ['wrist'], note: 'Bodyweight — no equipment' },
+ { id: 'ee-4', name: 'Band Tricep Extension',sets: 3, reps: '20', safeFor: ['wrist', 'elbow'], note: 'Low-load rehab option' },
+ ],
+ core_anterior: [
+ { id: 'ca-1', name: 'Dead Bug', sets: 3, reps: '10 ea', safeFor: ['lower_back', 'neck'], note: 'No spinal flexion — back-safe' },
+ { id: 'ca-2', name: 'Hollow Body Hold', sets: 3, reps: '30 sec', safeFor: ['neck'], note: 'Full body tension, advanced' },
+ { id: 'ca-3', name: 'Cable Crunch', sets: 3, reps: '15', safeFor: [], note: 'Controlled resistance' },
+ { id: 'ca-4', name: 'Pallof Press', sets: 3, reps: '12 ea', safeFor: ['lower_back', 'neck'], note: 'Anti-rotation — very back-safe' },
+ ],
+ low_impact_cardio: [
+ { id: 'lic-1', name: 'Rowing Machine', sets: 1, reps: '10 min', safeFor: ['knee', 'hip'], note: 'Full body, low knee stress' },
+ { id: 'lic-2', name: 'Cycling (bike)', sets: 1, reps: '15 min', safeFor: ['knee', 'lower_back'], note: 'Very low impact' },
+ { id: 'lic-3', name: 'Elliptical Trainer', sets: 1, reps: '15 min', safeFor: ['knee', 'hip'], note: 'Zero-impact cardio' },
+ { id: 'lic-4', name: 'Swimming', sets: 1, reps: '20 min', safeFor: ['knee','hip','lower_back'], note: 'Best for multi-area injuries' },
+ ],
+ full_body_cardio: [
+ { id: 'fbc-1', name: 'Battle Ropes', sets: 4, reps: '30 sec', safeFor: ['knee', 'hip'], note: 'Zero lower body impact' },
+ { id: 'fbc-2', name: 'Slam Ball', sets: 4, reps: '15', safeFor: ['knee'], note: 'Lower body minimal' },
+ { id: 'fbc-3', name: 'Step-Up Cardio', sets: 4, reps: '1 min', safeFor: ['knee', 'hip'], note: 'Low-impact burpee sub' },
+ { id: 'fbc-4', name: 'Bear Crawl', sets: 4, reps: '20m', safeFor: ['knee', 'hip'], note: 'No jumping, full body' },
+ ],
+ plyometric_lower: [
+ { id: 'pl-1', name: 'Broad Jump', sets: 4, reps: '6', safeFor: [], note: 'Horizontal, easier landing' },
+ { id: 'pl-2', name: 'Step-Up (explosive)', sets: 4, reps: '8 ea', safeFor: ['knee'], note: 'Reduced jump impact' },
+ { id: 'pl-3', name: 'Squat Pulse', sets: 4, reps: '30 sec', safeFor: ['knee', 'hip'], note: 'Isometric endurance sub' },
+ { id: 'pl-4', name: 'Skater Lunge', sets: 4, reps: '10 ea', safeFor: [], note: 'Lateral power, lower impact' },
+ ],
+ core_cardio: [
+ { id: 'cc-1', name: 'Bear Crawl', sets: 4, reps: '20m', safeFor: ['knee', 'hip'], note: 'Shoulder-loaded core cardio' },
+ { id: 'cc-2', name: 'Plank Jack', sets: 4, reps: '20', safeFor: ['knee', 'hip'], note: 'Plank position — less hip load' },
+ { id: 'cc-3', name: 'Sit-Up Variation', sets: 4, reps: '20', safeFor: [], note: 'Classic ab endurance' },
+ { id: 'cc-4', name: 'Side Plank Dip', sets: 4, reps: '15 ea', safeFor: ['knee', 'hip'], note: 'Lateral core + shoulder' },
+ ],
+ rear_delt: [
+ { id: 'rd-1', name: 'Cable Face Pull', sets: 3, reps: '15–20', safeFor: ['shoulder'], note: 'External rotation priority' },
+ { id: 'rd-2', name: 'Reverse Pec Deck', sets: 3, reps: '15', safeFor: ['shoulder'], note: 'Machine, very stable' },
+ { id: 'rd-3', name: 'Band Pull-Apart', sets: 3, reps: '20', safeFor: ['shoulder', 'neck'], note: 'Rehab-grade movement' },
+ { id: 'rd-4', name: 'DB Rear Delt Fly', sets: 3, reps: '15', safeFor: [], note: 'Hinge forward, elbows wide' },
+ ],
+ incline_push: [
+ { id: 'ip-1', name: 'Low-to-High Cable Fly',sets: 3, reps: '15', safeFor: ['shoulder', 'wrist'], note: 'Cable — joint-safe path' },
+ { id: 'ip-2', name: 'Landmine Press', sets: 3, reps: '10 ea', safeFor: ['shoulder'], note: 'Arc = rotator-cuff friendly' },
+ { id: 'ip-3', name: 'Incline Push-Up', sets: 3, reps: '15', safeFor: ['shoulder', 'wrist'], note: 'Bodyweight option' },
+ { id: 'ip-4', name: 'Machine Incline Press',sets: 3, reps: '12', safeFor: ['shoulder'], note: 'Fixed path, most stable' },
+ ],
+ chest_isolation: [
+ { id: 'ci-1', name: 'Pec Deck Machine', sets: 3, reps: '15', safeFor: ['wrist', 'shoulder'], note: 'No dumbbell grip — wrist-safe' },
+ { id: 'ci-2', name: 'DB Fly', sets: 3, reps: '12', safeFor: [], note: 'Classic stretch' },
+ { id: 'ci-3', name: 'Single Arm Cable Fly', sets: 3, reps: '15 ea', safeFor: ['shoulder', 'wrist'], note: 'Unilateral control' },
+ ],
+ shoulder_abduction: [
+ { id: 'sa-1', name: 'Cable Lateral Raise', sets: 4, reps: '15', safeFor: ['shoulder'], note: 'Constant tension' },
+ { id: 'sa-2', name: 'Machine Lateral Raise',sets: 4, reps: '15', safeFor: ['shoulder', 'wrist'], note: 'Supported, safest option' },
+ { id: 'sa-3', name: 'Band Side Raise', sets: 4, reps: '20', safeFor: ['shoulder', 'wrist'], note: 'Light load, joint-friendly' },
+ ],
+ knee_flexion: [
+ { id: 'kf-1', name: 'Seated Leg Curl', sets: 3, reps: '12', safeFor: ['lower_back'], note: 'Seated = less spinal load' },
+ { id: 'kf-2', name: 'Cable Leg Curl', sets: 3, reps: '15', safeFor: [], note: 'Standing cable attachment' },
+ { id: 'kf-3', name: 'Swiss Ball Curl', sets: 3, reps: '12', safeFor: ['knee'], note: 'Low load, hip-extension combo' },
+ ],
+ knee_extension: [
+ { id: 'ke-1', name: 'Terminal Knee Ext.', sets: 3, reps: '20 ea', safeFor: ['knee'], note: 'VMO activation — great for rehab' },
+ { id: 'ke-2', name: 'Sissy Squat', sets: 3, reps: '12', safeFor: [], note: 'Quad stretch — advanced' },
+ { id: 'ke-3', name: 'Wall Sit', sets: 3, reps: '45 sec', safeFor: ['knee'], note: 'Isometric — minimal stress' },
+ ],
+ ankle_push: [
+ { id: 'ap-1', name: 'Seated Calf Raise', sets: 3, reps: '20', safeFor: ['knee', 'lower_back'], note: 'Soleus focus — bent knee' },
+ { id: 'ap-2', name: 'Single-Leg Calf Raise',sets: 3, reps: '15 ea', safeFor: ['lower_back'], note: 'Greater ROM unilateral' },
+ { id: 'ap-3', name: 'Resistance Band Flex', sets: 3, reps: '20', safeFor: ['knee', 'hip'], note: 'Seated rehab option' },
+ ],
+ }; // end SWAP_OPTIONS
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PAGE STATE
+
+ Two distinct state objects:
+
+ 1. pageState — which day is selected, which plan is active
+ 2. swapState — the modal's current state machine state
+
+ Python analogy: these are module-level dicts that only
+ the functions below should modify.
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ const pageState = {
+ selectedDay: new Date().getDay(), // Today's day index (0=Sun, 6=Sat)
+ template: null, // The loaded WORKOUT_TEMPLATES[goal]
+ profile: null, // UserProfile from AppState
+ injuries: [], // User's injury flags (from profile)
+ };
+
+ // The swap modal's state machine
+ // States: 'closed' | 'open'
+ const swapState = {
+ isOpen: false, // Is the modal visible?
+ targetExerciseId: null, // ID of the exercise being replaced
+ targetExerciseName:'', // Display name (shown in modal header)
+ targetSwapGroup: null, // Which SWAP_OPTIONS key to show
+ pendingSelection: null, // The alternative the user has highlighted
+ };
+
+ // Applied swaps — persists across day switches for the session
+ // Structure: { 'exercise-id': { name, sets, reps } }
+ const activeSwaps = {};
+
+ // Completion state — persists to localStorage
+ // Structure: { 'YYYY-MM-DD': { dayComplete: bool, exercises: { 'ex-id': bool } } }
+ let completionStore = {};
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ COMPLETION STORE — localStorage persistence
+ Python analogy: a simple dict serialized to disk with json.
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ function loadCompletionStore() {
+ try {
+ const raw = localStorage.getItem('fitforge_workout_completions');
+ completionStore = raw ? JSON.parse(raw) : {};
+ } catch { completionStore = {}; }
+ }
+
+ function saveCompletionStore() {
+ try {
+ localStorage.setItem('fitforge_workout_completions', JSON.stringify(completionStore));
+ } catch (e) { console.warn('Could not save completions:', e); }
+ }
+
+ function getTodayKey() { return UIHelpers.getTodayString(); }
+
+ function getDayCompletionData(dayKey) {
+ return completionStore[dayKey] ?? { dayComplete: false, exercises: {} };
+ }
+
+ function setExerciseComplete(exerciseId, isComplete) {
+ const key = getTodayKey();
+ if (!completionStore[key]) completionStore[key] = { dayComplete: false, exercises: {} };
+ completionStore[key].exercises[exerciseId] = isComplete;
+ saveCompletionStore();
+ }
+
+ function setDayComplete(isComplete) {
+ const key = getTodayKey();
+ if (!completionStore[key]) completionStore[key] = { dayComplete: false, exercises: {} };
+ completionStore[key].dayComplete = isComplete;
+ saveCompletionStore();
+
+ // Also fire the Supabase placeholder
+ if (isComplete) {
+ SupabaseAPI.logWorkoutComplete(pageState.profile?.id, key, pageState.template?.name)
+ .catch(err => console.warn('Workout log sync failed:', err));
+ }
+ }
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ INITIALIZATION
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ document.addEventListener('DOMContentLoaded', () => {
+ // 1. Load completion history from localStorage
+ loadCompletionStore();
+
+ // 2. Get profile from AppState
+ pageState.profile = AppState.getProfile();
+ pageState.injuries = pageState.profile?.injuries ?? [];
+
+ // 3. Select the correct workout template based on goal
+ const goal = pageState.profile?.goal ?? 'fat_loss';
+ pageState.template = WORKOUT_TEMPLATES[goal] ?? WORKOUT_TEMPLATES.fat_loss;
+
+ // 4. Render the plan header card
+ renderPlanHeader(pageState.template, pageState.profile);
+
+ // 5. Render the week strip (7 day pills)
+ renderWeekStrip(pageState.template);
+
+ // 6. Render ALL day panels upfront (they're hidden; only active one shows)
+ // This avoids re-rendering on every day switch — we just toggle visibility.
+ pageState.template.schedule.forEach((_, dayIndex) => {
+ renderDayPanel(dayIndex);
+ });
+
+ // 7. Activate today's day
+ switchToDay(pageState.selectedDay);
+
+ // 8. Update weekly summary stats
+ updateWeeklySummary(pageState.template);
+
+ // 9. Show injury notice if user flagged injuries
+ if (pageState.injuries.length > 0 && !pageState.injuries.includes('none')) {
+ const noticeEl = document.getElementById('injury-notice');
+ const textEl = document.getElementById('injury-notice-text');
+ if (noticeEl) noticeEl.classList.remove('hidden');
+ if (textEl) {
+ const injuryNames = pageState.injuries
+ .filter(i => i !== 'none')
+ .map(i => i.replace('_', ' '))
+ .join(', ');
+ textEl.textContent = `Swap buttons (⇄) are highlighted for exercises that may stress your flagged areas: ${injuryNames}.`;
+ }
+ }
+
+ // 10. Set week label in header
+ const weekNum = getWeekNumber(new Date());
+ UIHelpers.setText('#week-label', `Week ${weekNum}`);
+
+ // 11. Wire up swap modal buttons
+ document.getElementById('swap-cancel-btn')?.addEventListener('click', closeSwapModal);
+ document.getElementById('swap-confirm-btn')?.addEventListener('click', confirmSwap);
+
+ // 12. Close modal when backdrop is clicked
+ document.getElementById('swap-modal')?.addEventListener('click', (e) => {
+ if (e.target === document.getElementById('swap-modal')) closeSwapModal();
+ });
+ });
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ RENDER: PLAN HEADER CARD
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ function renderPlanHeader(template, profile) {
+ UIHelpers.setText('#plan-label', `${profile?.goal?.replace('_', ' ')?.toUpperCase() ?? 'FITNESS'} PLAN`);
+ UIHelpers.setText('#plan-name', template.name);
+
+ const metaContainer = document.getElementById('plan-meta');
+ if (metaContainer) {
+ const metaItems = [
+ { label: `${template.daysPerWeek} days / week` },
+ { label: template.style },
+ { label: profile?.equipment?.replace('_', ' ') ?? 'Full Gym' },
+ ];
+ metaContainer.innerHTML = metaItems.map(item => `
+ <div class="plan-meta-item">
+ <div class="plan-meta-item__dot"></div>
+ <span>${UIHelpers.escapeHTML(item.label)}</span>
+ </div>
+ `).join('');
+ }
+ }
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ RENDER: WEEK STRIP
+ Builds the 7 day pill buttons with type indicators.
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ function renderWeekStrip(template) {
+ const strip = document.getElementById('week-strip');
+ if (!strip) return;
+
+ const dayAbbrs = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+ const dayFullNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+ const todayKey = getTodayKey();
+
+ strip.innerHTML = template.schedule.map((day, index) => {
+ const todayData = getDayCompletionData(todayKey);
+ const isComplete = completionStore[todayKey]?.dayComplete && index === new Date().getDay();
+ const typeClass = `day-pill--${day.type}`;
+ const completeClass = isComplete ? 'day-pill--complete' : '';
+
+ // Dot content: checkmark if done, emoji if training/rest
+ const dotContent = isComplete ? '' : (day.type === 'training' ? '' : '');
+
+ return `
+ <button
+ class="day-pill ${typeClass} ${completeClass}"
+ id="day-pill-${index}"
+ role="tab"
+ aria-selected="false"
+ aria-controls="day-panel-${index}"
+ aria-label="${dayFullNames[index]} — ${day.name}"
+ data-day-index="${index}"
+ onclick="switchToDay(${index})"
+ >
+ <span class="day-pill__abbr">${dayAbbrs[index]}</span>
+ <div class="day-pill__dot">${dotContent}</div>
+ </button>
+ `;
+ }).join('');
+ }
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SWITCH TO DAY
+ The core navigation function. Updates which panel is visible
+ and which day pill is marked active.
+
+ This is the simplest possible "tab panel" state machine:
+ currentActive ← deactivate all → activate target
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ function switchToDay(dayIndex) {
+ pageState.selectedDay = dayIndex;
+
+ // ── Update day pills ──────────────────────────────────────
+ document.querySelectorAll('.day-pill').forEach((pill, i) => {
+ pill.classList.toggle('is-active', i === dayIndex);
+ pill.setAttribute('aria-selected', String(i === dayIndex));
+ });
+
+ // ── Update day panels ─────────────────────────────────────
+ document.querySelectorAll('.workout-day-panel').forEach((panel, i) => {
+ panel.classList.toggle('is-active', i === dayIndex);
+ });
+ }
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ RENDER: DAY PANEL
+ Generates the full HTML for one day's workout content.
+ Called once per day on page init, not on every day switch.
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ function renderDayPanel(dayIndex) {
+ const panel = document.getElementById(`day-panel-${dayIndex}`);
+ if (!panel) return;
+
+ const day = pageState.template.schedule[dayIndex];
+ const isToday = dayIndex === new Date().getDay();
+ const todayKey = getTodayKey();
+
+ // ── Rest day rendering ────────────────────────────────────
+ if (day.type === 'rest' || day.type === 'recovery') {
+ panel.innerHTML = `
+ <div class="day-header">
+ <div class="day-header__type day-header__type--${day.type}">
+ ${day.type === 'recovery' ? ' Active Recovery' : '⬜ Rest Day'}
+ </div>
+ <h2 class="day-header__name">${UIHelpers.escapeHTML(day.name)}</h2>
+ </div>
+ <div class="rest-day-card">
+ <div class="rest-day-card__icon" aria-hidden="true">${day.icon}</div>
+ <h3 class="rest-day-card__title">${UIHelpers.escapeHTML(day.name)}</h3>
+ <p class="rest-day-card__sub">${UIHelpers.escapeHTML(day.notes)}</p>
+ </div>
+ `;
+ return;
+ }
+
+ // ── Training day rendering ────────────────────────────────
+ const completionData = getDayCompletionData(todayKey);
+ const isDayComplete = isToday && completionData.dayComplete;
+
+ // Build the exercise cards
+ const exerciseCardsHTML = day.exercises.map(exercise => {
+ // Check if this exercise has been swapped this session
+ const currentExercise = activeSwaps[exercise.id] ?? exercise;
+
+ // Check if exercise is checked off (today only)
+ const isChecked = isToday && (completionData.exercises[exercise.id] ?? false);
+
+ // Is this exercise's swap group relevant to the user's injuries?
+ const injuries = pageState.injuries.filter(i => i !== 'none');
+ const swapOptions = SWAP_OPTIONS[exercise.swapGroup] ?? [];
+ const hasInjuryRelevantSwap = injuries.length > 0 &&
+ swapOptions.some(opt => opt.safeFor.some(s => injuries.includes(s)));
+
+ const swapBtnClass = hasInjuryRelevantSwap ? 'swap-btn swap-btn--injury-flagged' : 'swap-btn';
+
+ return `
+ <div
+ class="exercise-card ${isChecked ? 'is-done' : ''} ${activeSwaps[exercise.id] ? 'was-swapped' : ''}"
+ id="exercise-card-${exercise.id}"
+ >
+ <!-- Custom checkbox: tapping toggles completion -->
+ <button
+ class="exercise-check ${isChecked ? 'is-checked' : ''}"
+ id="check-${exercise.id}"
+ aria-label="Mark ${UIHelpers.escapeHTML(currentExercise.name)} as complete"
+ aria-pressed="${isChecked}"
+ onclick="toggleExerciseComplete('${exercise.id}')"
+ >
+ ${isChecked ? '' : ''}
+ </button>
+
+ <!-- Exercise info -->
+ <div>
+ <div class="exercise-card__name" id="exname-${exercise.id}">
+ ${UIHelpers.escapeHTML(currentExercise.name)}
+ </div>
+ <div class="exercise-card__detail">
+ ${currentExercise.sets} sets × ${UIHelpers.escapeHTML(currentExercise.reps)}
+ ${currentExercise.notes ? `· <span style="color:var(--color-text-muted);">${UIHelpers.escapeHTML(currentExercise.notes)}</span>` : ''}
+ </div>
+ </div>
+
+ <!-- Swap button -->
+ <button
+ class="${swapBtnClass}"
+ aria-label="Swap ${UIHelpers.escapeHTML(exercise.name)}"
+ title="Swap this exercise"
+ onclick="openSwapModal('${exercise.id}', '${UIHelpers.escapeHTML(exercise.name)}', '${exercise.swapGroup}')"
+ >
+ ⇄
+ </button>
+ </div>
+ `;
+ }).join('');
+
+ // Calculate total sets for the meta row
+ const totalSets = day.exercises.reduce((sum, ex) => sum + (ex.sets ?? 0), 0);
+
+ panel.innerHTML = `
+ <!-- Day header -->
+ <div class="day-header">
+ <div class="day-header__type day-header__type--training">
+ Training Day${isToday ? ' · Today' : ''}
+ </div>
+ <h2 class="day-header__name">${UIHelpers.escapeHTML(day.name)}</h2>
+
+ <!-- Meta: duration + volume -->
+ <div class="day-header__meta">
+ <div class="day-meta-chip">
+ <span>⏱</span><span>~${day.duration ?? 45} min</span>
+ </div>
+ <div class="day-meta-chip">
+ <span>${day.exercises.length} exercises · ${totalSets} total sets</span>
+ </div>
+ </div>
+
+ <!-- Muscle group chips -->
+ <div class="muscle-group-row" aria-label="Target muscle groups">
+ ${day.muscleGroups.map(mg =>
+ `<span class="muscle-chip">${UIHelpers.escapeHTML(mg)}</span>`
+ ).join('')}
+ </div>
+ </div>
+
+ <!-- Exercises label -->
+ <p class="exercises-label">Exercises</p>
+
+ <!-- Exercise cards list -->
+ <div class="stack stack-sm" id="exercises-list-${dayIndex}">
+ ${exerciseCardsHTML}
+ </div>
+
+ <!-- Day complete banner (shows when day is marked done) or CTA button -->
+ ${isDayComplete
+ ? `<div class="day-complete-banner" id="day-complete-banner-${dayIndex}">
+ <div class="day-complete-banner__icon"></div>
+ <div class="day-complete-banner__title">Day Crushed!</div>
+ <div class="day-complete-banner__sub">Logged to your weekly progress. Rest and recover.</div>
+ </div>`
+ : isToday
+ ? `<div class="complete-day-btn-wrap">
+ <button
+ class="btn btn--primary btn--lg btn--full"
+ id="mark-day-complete-btn"
+ onclick="markDayComplete(${dayIndex})"
+ >
+ <span>Mark Day Complete</span>
+ 
+ </button>
+ </div>`
+ : ''
+ }
+ `;
+ }
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ INTERACTION: TOGGLE EXERCISE COMPLETE
+ Called when user taps the checkbox next to an exercise.
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ function toggleExerciseComplete(exerciseId) {
+ // Only allow checking off exercises on TODAY's panel
+ const todayDayIndex = new Date().getDay();
+ if (pageState.selectedDay !== todayDayIndex) {
+ UIHelpers.showToast('Check off exercises on the current day.', 'info');
+ return;
+ }
+
+ const key = getTodayKey();
+ const data = getDayCompletionData(key);
+ const newState = !(data.exercises[exerciseId] ?? false);
+
+ // Update in-memory store + localStorage
+ setExerciseComplete(exerciseId, newState);
+
+ // Update the checkbox button
+ const checkBtn = document.getElementById(`check-${exerciseId}`);
+ if (checkBtn) {
+ checkBtn.classList.toggle('is-checked', newState);
+ checkBtn.textContent = newState ? '' : '';
+ checkBtn.setAttribute('aria-pressed', String(newState));
+ }
+
+ // Update the card's done state (triggers strikethrough)
+ const card = document.getElementById(`exercise-card-${exerciseId}`);
+ if (card) card.classList.toggle('is-done', newState);
+
+ // Check if ALL exercises for today are done
+ checkAllExercisesComplete(todayDayIndex);
+ }
+
+ /**
+ * Check if every exercise on today's plan is checked.
+ * If so, auto-scroll to the "Mark Day Complete" button.
+ */
+ function checkAllExercisesComplete(dayIndex) {
+ const day = pageState.template.schedule[dayIndex];
+ const key = getTodayKey();
+ const data = getDayCompletionData(key);
+ const allDone = day.exercises.every(ex => data.exercises[ex.id] === true);
+
+ if (allDone && day.exercises.length > 0) {
+ // Highlight the complete button
+ const completeBtn = document.getElementById('mark-day-complete-btn');
+ if (completeBtn) {
+ completeBtn.style.animation = 'pulse-accent 1s ease infinite';
+ completeBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+ }
+ }
+ }
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ INTERACTION: MARK DAY COMPLETE
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ function markDayComplete(dayIndex) {
+ setDayComplete(true);
+
+ // Replace the CTA button with the completion banner
+ const btnWrap = document.querySelector('.complete-day-btn-wrap');
+ if (btnWrap) {
+ btnWrap.outerHTML = `
+ <div class="day-complete-banner" id="day-complete-banner-${dayIndex}">
+ <div class="day-complete-banner__icon"></div>
+ <div class="day-complete-banner__title">Day Crushed!</div>
+ <div class="day-complete-banner__sub">Logged to your weekly progress. Rest and recover.</div>
+ </div>
+ `;
+ }
+
+ // Update the day pill to show complete state
+ const pill = document.getElementById(`day-pill-${dayIndex}`);
+ if (pill) {
+ pill.classList.add('day-pill--complete');
+ const dot = pill.querySelector('.day-pill__dot');
+ if (dot) dot.textContent = '';
+ }
+
+ // Update weekly summary
+ updateWeeklySummary(pageState.template);
+
+ UIHelpers.showToast('Workout logged! Great work ', 'success');
+ }
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SWAP MODAL STATE MACHINE
+
+ States: 'closed' → 'open' → 'closed'
+
+ openSwapModal() : closed → open
+ - Sets swapState.targetExerciseId, targetSwapGroup
+ - Renders alternatives into the modal
+ - Adds .is-open to the overlay (CSS transition does the rest)
+
+ handleOptionSelect(): within 'open'
+ - Sets swapState.pendingSelection
+ - Enables the Confirm button
+
+ confirmSwap(): open → closed
+ - Applies activeSwaps[targetId] = pendingSelection
+ - Updates the exercise card in the DOM
+ - Closes modal
+
+ closeSwapModal(): open → closed
+ - Resets swapState
+ - Removes .is-open from overlay
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+ /** Transition: closed → open */
+ function openSwapModal(exerciseId, exerciseName, swapGroup) {
+ swapState.isOpen = true;
+ swapState.targetExerciseId = exerciseId;
+ swapState.targetExerciseName = exerciseName;
+ swapState.targetSwapGroup = swapGroup;
+ swapState.pendingSelection = null;
+
+ // Update modal display content
+ UIHelpers.setText('#swap-current-name', exerciseName);
+
+ // Render the alternatives list
+ renderSwapOptions(swapGroup);
+
+ // Disable confirm button until user picks an option
+ const confirmBtn = document.getElementById('swap-confirm-btn');
+ if (confirmBtn) confirmBtn.disabled = true;
+
+ // Open the modal (CSS transition handles animation)
+ const modal = document.getElementById('swap-modal');
+ if (modal) {
+ modal.classList.add('is-open');
+ modal.setAttribute('aria-hidden', 'false');
+
+ // Move focus to the modal for accessibility
+ modal.querySelector('.modal-sheet')?.focus();
+ }
+ }
+
+ /**
+ * Render the alternatives list inside the modal.
+ * Sorts options so that injury-safe ones appear first.
+ * @param {string} swapGroup - Key into SWAP_OPTIONS
+ */
+ function renderSwapOptions(swapGroup) {
+ const optionsList = document.getElementById('swap-options-list');
+ if (!optionsList) return;
+
+ const options = SWAP_OPTIONS[swapGroup];
+ const injuries = pageState.injuries.filter(i => i !== 'none');
+
+ if (!options || options.length === 0) {
+ optionsList.innerHTML = `<p style="color:var(--color-text-muted); font-size:var(--text-sm);">No alternatives defined for this movement pattern yet.</p>`;
+ return;
+ }
+
+ // Sort: injury-safe options first (like Python's sorted() with a key function)
+ const sorted = [...options].sort((a, b) => {
+ const aRelevant = injuries.some(inj => a.safeFor.includes(inj));
+ const bRelevant = injuries.some(inj => b.safeFor.includes(inj));
+ // True > False in JS comparison: injury-safe sorts to front
+ return bRelevant - aRelevant;
+ });
+
+ optionsList.innerHTML = sorted.map(opt => {
+ // Determine which injuries this option is safe for (for badge display)
+ const relevantInjuries = opt.safeFor.filter(s => injuries.includes(s));
+
+ const injuryBadge = relevantInjuries.length > 0
+ ? `<span class="injury-safe-badge"> Safe for ${relevantInjuries.map(i => i.replace('_',' ')).join(', ')}</span>`
+ : '';
+
+ return `
+ <button
+ class="swap-option"
+ id="swap-opt-${opt.id}"
+ role="radio"
+ aria-checked="false"
+ aria-label="Select ${UIHelpers.escapeHTML(opt.name)}"
+ onclick="handleSwapOptionSelect('${opt.id}', ${JSON.stringify(opt).replace(/"/g, '&quot;')})"
+ >
+ <div class="swap-option__radio" aria-hidden="true"></div>
+ <div class="swap-option__info">
+ <div class="swap-option__name">${UIHelpers.escapeHTML(opt.name)}</div>
+ <div class="swap-option__detail">
+ ${opt.sets} sets × ${UIHelpers.escapeHTML(opt.reps)}
+ ${opt.note ? `· ${UIHelpers.escapeHTML(opt.note)}` : ''}
+ </div>
+ </div>
+ ${injuryBadge}
+ </button>
+ `;
+ }).join('');
+ }
+
+ /** Within 'open' state: user selects an alternative */
+ function handleSwapOptionSelect(optionId, optionData) {
+ swapState.pendingSelection = optionData;
+
+ // Deselect all options
+ document.querySelectorAll('.swap-option').forEach(el => {
+ el.classList.remove('is-selected');
+ el.setAttribute('aria-checked', 'false');
+ });
+
+ // Select the clicked option
+ const selectedEl = document.getElementById(`swap-opt-${optionId}`);
+ if (selectedEl) {
+ selectedEl.classList.add('is-selected');
+ selectedEl.setAttribute('aria-checked', 'true');
+ }
+
+ // Enable the confirm button
+ const confirmBtn = document.getElementById('swap-confirm-btn');
+ if (confirmBtn) confirmBtn.disabled = false;
+ }
+
+ /** Transition: open → closed (with apply) */
+ function confirmSwap() {
+ if (!swapState.pendingSelection || !swapState.targetExerciseId) return;
+
+ const { targetExerciseId, pendingSelection } = swapState;
+
+ // Store the swap in our session-level map
+ activeSwaps[targetExerciseId] = pendingSelection;
+
+ // Update the exercise card in the DOM (without a full re-render)
+ const nameEl = document.getElementById(`exname-${targetExerciseId}`);
+ const checkEl = document.getElementById(`check-${targetExerciseId}`);
+ const card = document.getElementById(`exercise-card-${targetExerciseId}`);
+
+ if (nameEl) nameEl.textContent = pendingSelection.name;
+
+ // Find and update the detail text
+ if (card) {
+ const detailEl = card.querySelector('.exercise-card__detail');
+ if (detailEl) {
+ detailEl.textContent = `${pendingSelection.sets} sets × ${pendingSelection.reps}`;
+ }
+
+ // Trigger the CSS highlight animation (was-swapped class)
+ card.classList.remove('was-swapped');
+ // Force reflow — without this, removing then adding the class
+ // doesn't restart the animation (browser optimizes it out)
+ void card.offsetWidth; // This line forces a reflow
+ card.classList.add('was-swapped');
+ }
+
+ UIHelpers.showToast(`Swapped to: ${pendingSelection.name} `, 'success');
+
+ // Close modal
+ closeSwapModal();
+ }
+
+ /** Transition: open → closed (without apply) */
+ function closeSwapModal() {
+ swapState.isOpen = false;
+ swapState.pendingSelection = null;
+
+ const modal = document.getElementById('swap-modal');
+ if (modal) {
+ modal.classList.remove('is-open');
+ modal.setAttribute('aria-hidden', 'true');
+ }
+ }
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ WEEKLY SUMMARY STATS
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ function updateWeeklySummary(template) {
+ // Count how many training days are in the schedule
+ const trainingDays = template.schedule.filter(d => d.type === 'training').length;
+
+ // Count completed days in localStorage for this week
+ // (Simple version: just check today's key for demo purposes)
+ // A full implementation would check all 7 days of the current week.
+ const todayComplete = completionStore[getTodayKey()]?.dayComplete ?? false;
+ const completedCount = todayComplete ? 1 : 0;
+
+ // Total exercises across the whole week
+ const totalExercises = template.schedule
+ .reduce((sum, day) => sum + (day.exercises?.length ?? 0), 0);
+
+ UIHelpers.setText('#stat-completed', completedCount);
+ UIHelpers.setText('#stat-training', trainingDays);
+ UIHelpers.setText('#stat-exercises', totalExercises);
+ }
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ UTILITY: Get ISO week number from a Date
+ Returns the week number (1-52) for the given date.
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ function getWeekNumber(date) {
+ const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+ const dow = d.getUTCDay() || 7;
+ d.setUTCDate(d.getUTCDate() + 4 - dow);
+ const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+ return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+ }
+ </script>
 </body>
 </html>
