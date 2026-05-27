@@ -1,766 +1,766 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#090b10">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles-light-full.css">
-  
-  <title>FitForge — Grocery List</title>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="theme-color" content="#090b10">
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="styles-light-full.css">
+ 
+ <title>FitForge — Grocery List</title>
 
-  <style>
-    /* ── PAGE-SPECIFIC STYLES ──────────────────────────────────── */
+ <style>
+ /* ── PAGE-SPECIFIC STYLES ──────────────────────────────────── */
 
-    /* Fixed floating action bar at bottom (above nav) */
-    .grocery-action-bar {
-      position: sticky;
-      bottom: calc(var(--nav-height) + var(--safe-bottom));
-      background: rgba(9,11,16,0.95);
-      backdrop-filter: blur(12px);
-      border-top: 1px solid var(--color-border);
-      padding: var(--space-3) var(--space-4);
-      display: flex;
-      gap: var(--space-3);
-      align-items: center;
-      margin: 0 calc(-1 * var(--space-4));
-    }
+ /* Fixed floating action bar at bottom (above nav) */
+ .grocery-action-bar {
+ position: sticky;
+ bottom: calc(var(--nav-height) + var(--safe-bottom));
+ background: rgba(9,11,16,0.95);
+ backdrop-filter: blur(12px);
+ border-top: 1px solid var(--color-border);
+ padding: var(--space-3) var(--space-4);
+ display: flex;
+ gap: var(--space-3);
+ align-items: center;
+ margin: 0 calc(-1 * var(--space-4));
+ }
 
-    /* Progress ring: checked items / total items */
-    .progress-ring-mini {
-      width: 40px;
-      height: 40px;
-      flex-shrink: 0;
-    }
+ /* Progress ring: checked items / total items */
+ .progress-ring-mini {
+ width: 40px;
+ height: 40px;
+ flex-shrink: 0;
+ }
 
-    /* "Add item" form row */
-    .add-item-row {
-      display: grid;
-      grid-template-columns: 1fr auto 80px;
-      gap: var(--space-2);
-      align-items: start;
-    }
+ /* "Add item" form row */
+ .add-item-row {
+ display: grid;
+ grid-template-columns: 1fr auto 80px;
+ gap: var(--space-2);
+ align-items: start;
+ }
 
-    .add-item-row .form-input {
-      padding: var(--space-2) var(--space-3);
-      font-size: var(--text-sm);
-    }
+ .add-item-row .form-input {
+ padding: var(--space-2) var(--space-3);
+ font-size: var(--text-sm);
+ }
 
-    /* Category color-code the section header left border */
-    .grocery-section-header--protein { --section-color: var(--color-protein); }
-    .grocery-section-header--carbs   { --section-color: var(--color-carbs); }
-    .grocery-section-header--fat     { --section-color: var(--color-fat); }
-    .grocery-section-header--produce { --section-color: var(--color-success); }
+ /* Category color-code the section header left border */
+ .grocery-section-header--protein { --section-color: var(--color-protein); }
+ .grocery-section-header--carbs { --section-color: var(--color-carbs); }
+ .grocery-section-header--fat { --section-color: var(--color-fat); }
+ .grocery-section-header--produce { --section-color: var(--color-success); }
 
-    .grocery-section-header__name::before {
-      content: '';
-      display: inline-block;
-      width: 3px;
-      height: 12px;
-      background: var(--section-color, var(--color-text-muted));
-      border-radius: var(--radius-full);
-      margin-right: var(--space-2);
-      vertical-align: middle;
-    }
+ .grocery-section-header__name::before {
+ content: '';
+ display: inline-block;
+ width: 3px;
+ height: 12px;
+ background: var(--section-color, var(--color-text-muted));
+ border-radius: var(--radius-full);
+ margin-right: var(--space-2);
+ vertical-align: middle;
+ }
 
-    /* Empty state when search finds nothing */
-    .search-empty {
-      text-align: center;
-      padding: var(--space-12) var(--space-6);
-      color: var(--color-text-muted);
-      font-size: var(--text-sm);
-      display: none;
-    }
-    .search-empty.is-visible { display: block; }
-  </style>
+ /* Empty state when search finds nothing */
+ .search-empty {
+ text-align: center;
+ padding: var(--space-12) var(--space-6);
+ color: var(--color-text-muted);
+ font-size: var(--text-sm);
+ display: none;
+ }
+ .search-empty.is-visible { display: block; }
+ </style>
 </head>
 
 <body>
-  <div class="app-shell">
-
-    <!-- HEADER -->
-    <header class="app-header">
-      <div class="app-header__logo">Fit<span>Forge</span></div>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <!-- Checked count badge -->
-        <div style="background:var(--color-bg-elevated); border:1px solid var(--color-border); border-radius:var(--radius-full); padding:4px 12px; display:flex; align-items:center; gap:6px;">
-          <span style="font-size:12px;">✅</span>
-          <span id="header-checked-count" style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-secondary);">0 / 0</span>
-        </div>
-      </div>
-    </header>
-
-    <main class="page-content" id="page-content" style="overflow:visible;">
-
-      <!-- SECTION 1: Hero -->
-      <section style="padding: var(--space-4) 0 var(--space-2);">
-        <p class="label" style="color:var(--color-success); margin-bottom:var(--space-2);">Shopping List</p>
-        <h1 class="heading-1" style="font-family:var(--font-display); letter-spacing:var(--tracking-tight);">
-          Grocery List
-        </h1>
-        <p style="font-size:var(--text-sm); color:var(--color-text-secondary); margin-top:var(--space-2);" id="grocery-subtitle">
-          Loading your personalized list...
-        </p>
-      </section>
-
-      <!-- SECTION 2: Search -->
-      <div class="grocery-search-wrap animate-fade-in-up">
-        <input
-          type="search"
-          class="grocery-search"
-          id="grocery-search"
-          placeholder="Search items..."
-          aria-label="Search grocery items"
-        >
-      </div>
-
-      <!-- SECTION 3: Category Filter Tabs -->
-      <div class="filter-tab-strip animate-fade-in-up" role="tablist" aria-label="Filter by category" id="filter-tab-strip">
-        <!-- Tabs rendered by JS so counts are accurate -->
-      </div>
-
-      <!-- SECTION 4: Grocery Items (grouped by category) -->
-      <div id="grocery-list-container" class="stack stack-sm animate-fade-in-up">
-        <!-- Sections injected by JS -->
-        <div class="skeleton skeleton--card" style="height:200px;"></div>
-      </div>
-
-      <!-- Empty search state -->
-      <div class="search-empty" id="search-empty">
-        <div style="font-size:32px; margin-bottom:var(--space-3);">🔍</div>
-        <div>No items match "<span id="search-term"></span>"</div>
-      </div>
-
-      <!-- SECTION 5: Add New Item Form -->
-      <div class="stack stack-sm animate-fade-in-up" style="margin-top: var(--space-2);">
-        <p class="label">Add Item</p>
-        <div class="add-item-row">
-          <div class="form-group" style="margin:0;">
-            <input
-              type="text"
-              class="form-input"
-              id="new-item-name"
-              placeholder="e.g. Greek Yogurt"
-              maxlength="50"
-              aria-label="New grocery item name"
-            >
-          </div>
-          <div class="form-group" style="margin:0;">
-            <select class="form-select" id="new-item-category" aria-label="Category" style="padding:var(--space-2) var(--space-3);">
-              <option value="protein">Protein</option>
-              <option value="carbs">Carbs</option>
-              <option value="fat">Fat</option>
-              <option value="produce">Produce</option>
-            </select>
-          </div>
-          <button
-            class="btn btn--primary btn--md"
-            onclick="handleAddItem()"
-            aria-label="Add item to grocery list"
-            style="padding: var(--space-2) var(--space-4); align-self:start;"
-          >+ Add</button>
-        </div>
-      </div>
-
-      <!-- SECTION 6: Sync Status -->
-      <div class="sync-status" id="sync-status">
-        <div class="sync-status__dot"></div>
-        <span id="sync-status-text">Changes saved locally</span>
-      </div>
-
-      <!-- Spacer for floating action bar + bottom nav -->
-      <div style="height: calc(var(--nav-height) + 80px);"></div>
-    </main>
-
-    <!-- FLOATING ACTION BAR: bulk actions -->
-    <div class="grocery-action-bar">
-
-      <!-- Mini progress ring (SVG) -->
-      <svg class="progress-ring-mini" viewBox="0 0 40 40" aria-hidden="true">
-        <circle cx="20" cy="20" r="16" fill="none" stroke="var(--color-bg-elevated)" stroke-width="4"/>
-        <circle
-          id="mini-ring-fill"
-          cx="20" cy="20" r="16"
-          fill="none"
-          stroke="var(--color-success)"
-          stroke-width="4"
-          stroke-linecap="round"
-          stroke-dasharray="0 100"
-          transform="rotate(-90 20 20)"
-          style="transition: stroke-dasharray 0.5s ease;"
-        />
-      </svg>
-
-      <div style="flex:1;">
-        <div style="font-size:var(--text-sm); font-weight:var(--weight-bold); color:var(--color-text-primary);" id="action-bar-label">
-          0 of 0 items checked
-        </div>
-        <div style="font-size:var(--text-xs); color:var(--color-text-muted);" id="action-bar-sub">
-          Tap items to check them off
-        </div>
-      </div>
-
-      <button
-        class="btn btn--secondary btn--sm"
-        onclick="clearCheckedItems()"
-        aria-label="Clear all checked items"
-        id="clear-btn"
-      >Clear Done</button>
-    </div>
-
-    <div id="bottom-nav-container"></div>
-  </div>
-
-  <script src="script-merged.js"></script>
-  
-
-  <script>
-    /**
-     * ============================================================
-     * GROCERY LIST PAGE SCRIPT
-     * grocery-list.html — inline script
-     *
-     * DATA ARCHITECTURE:
-     *
-     *   GROCERY_MASTER_LIST — the full default item catalog (40+ items).
-     *     Defined as a constant — never mutated directly.
-     *     Each item has a `foodKey` matching onboarding tag strings.
-     *
-     *   groceryList — the WORKING list in memory.
-     *     Loaded from localStorage on init.
-     *     If no stored list exists, generated from GROCERY_MASTER_LIST
-     *     with each item's `isFavorite` flag set by comparing to
-     *     profile.favoriteFoods.
-     *     Any mutation (check/uncheck/add/delete) goes through
-     *     updateItem() which saves back to localStorage and queues
-     *     a debounced Supabase sync.
-     *
-     *   ACTIVE_CATEGORY — which filter tab is selected.
-     *   SEARCH_QUERY    — current search input value.
-     *
-     *   Render flow: any state change → renderList() which re-renders
-     *   the visible sections based on ACTIVE_CATEGORY + SEARCH_QUERY.
-     * ============================================================
-     */
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       MASTER ITEM CATALOG
-       ~40 common macro-focused grocery items.
-       `foodKey` matches the onboarding food tag strings so we can
-       identify user favorites.
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    const GROCERY_MASTER_LIST = [
-      // ── PROTEINS ──────────────────────────────────────────────
-      { id: 'g-p01', name: 'Chicken Breast',       amount: '2 lbs',   category: 'protein', foodKey: 'chicken',       emoji: '🍗' },
-      { id: 'g-p02', name: 'Ground Turkey (93%)',  amount: '1 lb',    category: 'protein', foodKey: 'turkey',        emoji: '🦃' },
-      { id: 'g-p03', name: 'Salmon Fillet',        amount: '1 lb',    category: 'protein', foodKey: 'salmon',        emoji: '🐟' },
-      { id: 'g-p04', name: 'Canned Tuna',          amount: '4 cans',  category: 'protein', foodKey: 'tuna',          emoji: '🐠' },
-      { id: 'g-p05', name: 'Whole Eggs',           amount: '1 dozen', category: 'protein', foodKey: 'eggs',          emoji: '🥚' },
-      { id: 'g-p06', name: 'Egg Whites',           amount: '32 oz',   category: 'protein', foodKey: 'eggs',          emoji: '🥚' },
-      { id: 'g-p07', name: 'Greek Yogurt (2%)',    amount: '32 oz',   category: 'protein', foodKey: 'greek_yogurt',  emoji: '🫙' },
-      { id: 'g-p08', name: 'Cottage Cheese',       amount: '16 oz',   category: 'protein', foodKey: 'cottage_cheese',emoji: '🧀' },
-      { id: 'g-p09', name: 'Shrimp (frozen)',      amount: '1 lb',    category: 'protein', foodKey: 'shrimp',        emoji: '🍤' },
-      { id: 'g-p10', name: 'Lean Ground Beef 93%', amount: '1 lb',   category: 'protein', foodKey: 'beef',          emoji: '🥩' },
-      { id: 'g-p11', name: 'Firm Tofu',            amount: '14 oz',   category: 'protein', foodKey: 'tofu',          emoji: '🫙' },
-      { id: 'g-p12', name: 'Protein Powder',       amount: '2 scoops',category: 'protein', foodKey: null,            emoji: '💊' },
-
-      // ── CARBOHYDRATES ──────────────────────────────────────────
-      { id: 'g-c01', name: 'Brown Rice',           amount: '2 lbs',   category: 'carbs',   foodKey: 'rice',   emoji: '🍚' },
-      { id: 'g-c02', name: 'Rolled Oats',          amount: '2 lbs',   category: 'carbs',   foodKey: 'oats',   emoji: '🥣' },
-      { id: 'g-c03', name: 'Sweet Potato',         amount: '3 large', category: 'carbs',   foodKey: 'potato', emoji: '🍠' },
-      { id: 'g-c04', name: 'Quinoa',               amount: '1 lb',    category: 'carbs',   foodKey: 'quinoa', emoji: '🌾' },
-      { id: 'g-c05', name: 'Whole Grain Bread',    amount: '1 loaf',  category: 'carbs',   foodKey: 'bread',  emoji: '🍞' },
-      { id: 'g-c06', name: 'Pasta (whole wheat)',  amount: '1 lb',    category: 'carbs',   foodKey: 'pasta',  emoji: '🍝' },
-      { id: 'g-c07', name: 'Banana',               amount: '1 bunch', category: 'carbs',   foodKey: null,     emoji: '🍌' },
-      { id: 'g-c08', name: 'Blueberries (frozen)', amount: '12 oz',   category: 'carbs',   foodKey: null,     emoji: '🫐' },
-      { id: 'g-c09', name: 'Apple',                amount: '4 count', category: 'carbs',   foodKey: null,     emoji: '🍎' },
-      { id: 'g-c10', name: 'Black Beans (can)',    amount: '2 cans',  category: 'carbs',   foodKey: null,     emoji: '🫘' },
-      { id: 'g-c11', name: 'Lentils',              amount: '1 lb',    category: 'carbs',   foodKey: null,     emoji: '🫘' },
-      { id: 'g-c12', name: 'White Rice',           amount: '2 lbs',   category: 'carbs',   foodKey: 'rice',   emoji: '🍚' },
-
-      // ── FATS ──────────────────────────────────────────────────
-      { id: 'g-f01', name: 'Avocado',              amount: '3 count', category: 'fat',     foodKey: 'avocado',emoji: '🥑' },
-      { id: 'g-f02', name: 'Extra Virgin Olive Oil',amount: '1 bottle',category:'fat',     foodKey: null,     emoji: '🫙' },
-      { id: 'g-f03', name: 'Raw Almonds',          amount: '1 lb',    category: 'fat',     foodKey: null,     emoji: '🌰' },
-      { id: 'g-f04', name: 'Peanut Butter',        amount: '16 oz',   category: 'fat',     foodKey: null,     emoji: '🥜' },
-      { id: 'g-f05', name: 'Walnuts',              amount: '8 oz',    category: 'fat',     foodKey: null,     emoji: '🌰' },
-      { id: 'g-f06', name: 'Chia Seeds',           amount: '8 oz',    category: 'fat',     foodKey: null,     emoji: '🌱' },
-      { id: 'g-f07', name: 'Flax Seeds',           amount: '8 oz',    category: 'fat',     foodKey: null,     emoji: '🌱' },
-      { id: 'g-f08', name: 'Coconut Oil',          amount: '14 oz',   category: 'fat',     foodKey: null,     emoji: '🥥' },
-
-      // ── PRODUCE / VEGGIES ─────────────────────────────────────
-      { id: 'g-v01', name: 'Broccoli',             amount: '2 crowns',category: 'produce', foodKey: 'veggies',emoji: '🥦' },
-      { id: 'g-v02', name: 'Spinach / Baby Greens',amount: '5 oz bag',category: 'produce', foodKey: 'veggies',emoji: '🥬' },
-      { id: 'g-v03', name: 'Bell Peppers (mixed)', amount: '4 count', category: 'produce', foodKey: 'veggies',emoji: '🫑' },
-      { id: 'g-v04', name: 'Zucchini',             amount: '2 count', category: 'produce', foodKey: 'veggies',emoji: '🥒' },
-      { id: 'g-v05', name: 'Asparagus',            amount: '1 bunch', category: 'produce', foodKey: 'veggies',emoji: '🌿' },
-      { id: 'g-v06', name: 'Baby Carrots',         amount: '1 bag',   category: 'produce', foodKey: null,     emoji: '🥕' },
-      { id: 'g-v07', name: 'Cherry Tomatoes',      amount: '1 pint',  category: 'produce', foodKey: null,     emoji: '🍅' },
-      { id: 'g-v08', name: 'Garlic',               amount: '1 head',  category: 'produce', foodKey: null,     emoji: '🧄' },
-      { id: 'g-v09', name: 'Yellow Onion',         amount: '2 count', category: 'produce', foodKey: null,     emoji: '🧅' },
-      { id: 'g-v10', name: 'Cucumber',             amount: '2 count', category: 'produce', foodKey: null,     emoji: '🥒' },
-    ];
-
-    /* ── CATEGORY DISPLAY CONFIG ─────────────────────────────── */
-    const CATEGORIES = {
-      all:     { label: 'All',     icon: '📋', color: 'var(--color-text-secondary)' },
-      protein: { label: 'Proteins',icon: '🍗', color: 'var(--color-protein)' },
-      carbs:   { label: 'Carbs',   icon: '🌾', color: 'var(--color-carbs)' },
-      fat:     { label: 'Fats',    icon: '🥑', color: 'var(--color-fat)' },
-      produce: { label: 'Produce', icon: '🥦', color: 'var(--color-success)' },
-    };
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       PAGE STATE
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    let groceryList    = [];  // Working list — all items with current checked state
-    let activeCategory = 'all';
-    let searchQuery    = '';
-    let syncDebounce   = null; // Timer for debounced Supabase sync
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       INITIALIZATION
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    document.addEventListener('DOMContentLoaded', () => {
-      const profile = AppState.getProfile();
-
-      // ── Load or initialize the grocery list ──────────────────
-      // Check localStorage first — if it exists, use stored data
-      // (preserves checked state across sessions).
-      const stored = StorageHelpers.getGroceryList();
-
-      if (stored?.items?.length > 0) {
-        groceryList = stored.items;
-      } else {
-        // First visit: build from master list + mark favorites
-        groceryList = buildInitialList(profile);
-        saveGroceryList();
-      }
-
-      // ── Update page subtitle with favorite count ─────────────
-      const favoriteCount = groceryList.filter(i => i.isFavorite).length;
-      UIHelpers.setText(
-        '#grocery-subtitle',
-        `${groceryList.length} items · ${favoriteCount} flagged as your favorites`
-      );
-
-      // ── Render filter tabs ────────────────────────────────────
-      renderFilterTabs();
-
-      // ── Render the list ───────────────────────────────────────
-      renderList();
-      updateRecipeBadge();
-
-      // ── Wire up search input ──────────────────────────────────
-      document.getElementById('grocery-search')?.addEventListener('input', (e) => {
-        searchQuery = e.target.value.trim().toLowerCase();
-        renderList();
-      });
-    });
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       BUILD INITIAL LIST
-       Called once when no stored list exists.
-       Marks items as favorites based on the user's onboarding selections.
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    function buildInitialList(profile) {
-      const favoriteFoods = profile?.favoriteFoods ?? [];
-
-      return GROCERY_MASTER_LIST.map(item => ({
-        ...item,
-        checked:    false, // nothing checked by default
-        isCustom:   false, // this item came from the master list
-
-        // KEY FEATURE: isFavorite = true if the item's foodKey appears
-        // in the user's favoriteFoods array from onboarding.
-        // e.g., if user picked 'chicken', then Chicken Breast gets ⭐
-        isFavorite: item.foodKey !== null && favoriteFoods.includes(item.foodKey),
-      }));
-    }
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       RENDER: FILTER TABS
-       Builds the category tab strip with per-category item counts.
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    function renderFilterTabs() {
-      const strip = document.getElementById('filter-tab-strip');
-      if (!strip) return;
-
-      // Count items per category (unchecked only for cleaner UX)
-      const counts = { all: groceryList.filter(i => !i.checked).length };
-      Object.keys(CATEGORIES).filter(k => k !== 'all').forEach(cat => {
-        counts[cat] = groceryList.filter(i => i.category === cat && !i.checked).length;
-      });
-
-      strip.innerHTML = Object.entries(CATEGORIES).map(([key, cat]) => `
-        <button
-          class="filter-tab ${activeCategory === key ? 'is-active' : ''}"
-          role="tab"
-          aria-selected="${activeCategory === key}"
-          aria-label="Show ${cat.label}"
-          onclick="setActiveCategory('${key}')"
-        >
-          <span>${cat.icon}</span>
-          <span>${cat.label}</span>
-          <span class="filter-tab__count">${counts[key] ?? 0}</span>
-        </button>
-      `).join('');
-    }
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       RENDER: MAIN LIST
-       Filters items by category + search, then renders grouped
-       by category with favorites sorted to the top.
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    function renderList() {
-      const container = document.getElementById('grocery-list-container');
-      if (!container) return;
-
-      // ── Filter by search query ────────────────────────────────
-      // Python analogy: [item for item in list if query in item.name.lower()]
-      const searchFiltered = searchQuery
-        ? groceryList.filter(i => i.name.toLowerCase().includes(searchQuery))
-        : groceryList;
-
-      // ── Filter by active category ─────────────────────────────
-      const categoryFiltered = activeCategory === 'all'
-        ? searchFiltered
-        : searchFiltered.filter(i => i.category === activeCategory);
-
-      // ── Empty search state ────────────────────────────────────
-      const searchEmptyEl = document.getElementById('search-empty');
-      const isSearchEmpty = searchQuery && categoryFiltered.length === 0;
-      if (searchEmptyEl) {
-        searchEmptyEl.classList.toggle('is-visible', isSearchEmpty);
-        UIHelpers.setText('#search-term', UIHelpers.escapeHTML(searchQuery));
-      }
-      if (isSearchEmpty) {
-        container.innerHTML = '';
-        return;
-      }
-
-      // ── Group items by category ───────────────────────────────
-      // Python analogy: {cat: [items] for items grouped by category}
-      const grouped = {};
-      const categoriesToShow = activeCategory === 'all'
-        ? Object.keys(CATEGORIES).filter(k => k !== 'all')
-        : [activeCategory];
-
-      categoriesToShow.forEach(cat => {
-        const items = categoryFiltered.filter(i => i.category === cat);
-        if (items.length > 0) grouped[cat] = items;
-      });
-
-      // ── Build HTML for each category section ──────────────────
-      const sectionsHTML = Object.entries(grouped).map(([cat, items]) => {
-        const catInfo = CATEGORIES[cat];
-
-        // Within each category: sort favorites FIRST, then alphabetically.
-        // Python analogy:
-        //   sorted(items, key=lambda i: (not i.isFavorite, i.name))
-        const sorted = [...items].sort((a, b) => {
-          if (a.isFavorite !== b.isFavorite) return a.isFavorite ? -1 : 1;
-          if (a.checked !== b.checked) return a.checked ? 1 : -1; // checked → bottom
-          return a.name.localeCompare(b.name);
-        });
-
-        return `
-          <div class="grocery-section" data-category="${cat}">
-            <div class="grocery-section-header grocery-section-header--${cat}">
-              <span class="grocery-section-header__icon">${catInfo.icon}</span>
-              <span class="grocery-section-header__name" style="--section-color:${catInfo.color}">
-                ${catInfo.label}
-              </span>
-              <span class="grocery-section-header__count">
-                ${sorted.filter(i => !i.checked).length} remaining
-              </span>
-            </div>
-
-            ${sorted.map(item => buildItemHTML(item)).join('')}
-          </div>
-        `;
-      }).join('');
-
-      container.innerHTML = sectionsHTML;
-
-      // ── Update action bar and header counts ───────────────────
-      updateProgressIndicators();
-    }
-
-    /** Build the HTML for a single grocery item row */
-    function buildItemHTML(item) {
-      return `
-        <div
-          class="grocery-item ${item.checked ? 'is-checked' : ''} ${item.isFavorite ? 'is-favorite' : ''}"
-          id="grocery-item-${item.id}"
-        >
-          <!-- Checkbox -->
-          <button
-            class="grocery-check ${item.checked ? 'is-checked' : ''}"
-            onclick="toggleItem('${item.id}')"
-            aria-label="${item.checked ? 'Uncheck' : 'Check'} ${UIHelpers.escapeHTML(item.name)}"
-            aria-pressed="${item.checked}"
-          >${item.checked ? '✓' : ''}</button>
-
-          <!-- Name + amount -->
-          <div>
-            <div class="grocery-item__name">
-              ${item.emoji ? `<span aria-hidden="true">${item.emoji} </span>` : ''}
-              ${UIHelpers.escapeHTML(item.name)}
-            </div>
-            <div class="grocery-item__amount">${UIHelpers.escapeHTML(item.amount ?? '')}</div>
-          </div>
-
-          <!-- Favorite star — only visible when isFavorite: true (CSS handles this) -->
-          <span
-            class="grocery-favorite-star"
-            aria-label="${item.isFavorite ? 'This is one of your favorite foods' : ''}"
-            title="${item.isFavorite ? '⭐ Matches your onboarding food picks' : ''}"
-          >⭐</span>
-
-          <!-- Delete button -->
-          <button
-            class="grocery-item__delete"
-            onclick="deleteItem('${item.id}')"
-            aria-label="Remove ${UIHelpers.escapeHTML(item.name)} from list"
-            title="Remove item"
-          >✕</button>
-        </div>
-      `;
-    }
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       ITEM INTERACTIONS
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-    /** Toggle an item's checked state */
-    function toggleItem(itemId) {
-      const item = groceryList.find(i => i.id === itemId);
-      if (!item) return;
-
-      item.checked = !item.checked;
-
-      // Update DOM without full re-render for performance
-      const card    = document.getElementById(`grocery-item-${itemId}`);
-      const checkEl = card?.querySelector('.grocery-check');
-
-      if (card) {
-        card.classList.toggle('is-checked', item.checked);
-      }
-      if (checkEl) {
-        checkEl.classList.toggle('is-checked', item.checked);
-        checkEl.textContent = item.checked ? '✓' : '';
-        checkEl.setAttribute('aria-pressed', String(item.checked));
-      }
-
-      // Update item's name strikethrough
-      const nameEl = card?.querySelector('.grocery-item__name');
-      // (CSS handles strikethrough via .is-checked → .grocery-item__name)
-
-      // Save + sync
-      persistAndSync();
-      updateProgressIndicators();
-      renderFilterTabs(); // Update counts
-      updateRecipeBadge();
-    }
-
-    /** Add a new custom item to the list */
-    function handleAddItem() {
-      const nameInput = document.getElementById('new-item-name');
-      const catSelect = document.getElementById('new-item-category');
-
-      const name     = nameInput?.value.trim();
-      const category = catSelect?.value ?? 'produce';
-
-      if (!name) {
-        UIHelpers.showToast('Please enter an item name.', 'info');
-        nameInput?.focus();
-        return;
-      }
-
-      const newItem = {
-        id:         `custom-${Date.now()}`,
-        name,
-        amount:     '',
-        category,
-        foodKey:    null,
-        emoji:      CATEGORIES[category]?.icon ?? '📦',
-        checked:    false,
-        isFavorite: false,
-        isCustom:   true,
-      };
-
-      groceryList.push(newItem);
-
-      // Clear the input
-      if (nameInput) nameInput.value = '';
-
-      persistAndSync();
-      renderList();
-      renderFilterTabs();
-
-      UIHelpers.showToast(`"${name}" added to ${CATEGORIES[category]?.label ?? category}`, 'success');
-    }
-
-    /** Delete an item permanently */
-    function deleteItem(itemId) {
-      groceryList = groceryList.filter(i => i.id !== itemId);
-      persistAndSync();
-      renderList();
-      renderFilterTabs();
-    }
-
-    /** Remove all checked items */
-    function clearCheckedItems() {
-      const checkedCount = groceryList.filter(i => i.checked).length;
-      if (checkedCount === 0) {
-        UIHelpers.showToast('No checked items to clear.', 'info');
-        return;
-      }
-
-      groceryList = groceryList.map(i => ({ ...i, checked: false }));
-      persistAndSync();
-      renderList();
-      renderFilterTabs();
-      UIHelpers.showToast(`${checkedCount} items unchecked.`, 'success');
-    }
-
-    /** Set active category filter */
-    function setActiveCategory(category) {
-      activeCategory = category;
-      renderFilterTabs();
-      renderList();
-    }
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       PROGRESS INDICATORS
-       Updates the header count, action bar, and mini ring.
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    function updateProgressIndicators() {
-      const total   = groceryList.length;
-      const checked = groceryList.filter(i => i.checked).length;
-      const pct     = total > 0 ? checked / total : 0;
-
-      // Header count
-      UIHelpers.setText('#header-checked-count', `${checked} / ${total}`);
-
-      // Action bar text
-      UIHelpers.setText('#action-bar-label', `${checked} of ${total} items checked`);
-      UIHelpers.setText('#action-bar-sub',
-        checked === total && total > 0
-          ? 'All done! Ready to shop 🛒'
-          : 'Tap items as you pick them up'
-      );
-
-      // Mini SVG ring (circumference of r=16 circle = 2π×16 ≈ 100.53)
-      // For simplicity we use 100 as the circumference (close enough for a mini ring)
-      const MINI_CIRC = 100;
-      const ringFill  = document.getElementById('mini-ring-fill');
-      if (ringFill) {
-        requestAnimationFrame(() => {
-          ringFill.style.strokeDasharray = `${(pct * MINI_CIRC).toFixed(1)} ${MINI_CIRC}`;
-        });
-      }
-    }
-
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       PERSISTENCE & SYNC
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    function saveGroceryList() {
-      StorageHelpers.saveGroceryList({
-        items:       groceryList,
-        lastUpdated: new Date().toISOString(),
-      });
-    }
-
-    /**
-     * Save to localStorage immediately, then debounce a Supabase sync.
-     *
-     * "Debouncing" means: if this function is called many times in
-     * rapid succession (e.g., user checks 5 items quickly), we only
-     * fire the Supabase sync ONCE, after 2 seconds of inactivity.
-     *
-     * Python analogy: like a threading.Timer that gets cancelled
-     * and restarted each time the function is called.
-     */
-    function persistAndSync() {
-      // 1. Save to localStorage immediately (no delay — data is safe)
-      saveGroceryList();
-
-      // 2. Update the sync status indicator to "pending"
-      setSyncStatus('syncing', 'Syncing...');
-
-      // 3. Cancel any previously scheduled sync
-      if (syncDebounce) clearTimeout(syncDebounce);
-
-      // 4. Schedule a new sync 2 seconds from now
-      syncDebounce = setTimeout(async () => {
-        try {
-          const profile = AppState.getProfile();
-          await SupabaseAPI.syncGroceryList(profile?.id ?? 'guest', groceryList);
-          setSyncStatus('synced', `Synced · ${new Date().toLocaleTimeString()}`);
-        } catch (err) {
-          console.warn('Grocery sync failed:', err);
-          setSyncStatus('error', 'Sync failed — saved locally');
-        }
-      }, 2000);
-    }
-
-    function setSyncStatus(state, text) {
-      const el = document.getElementById('sync-status');
-      const textEl = document.getElementById('sync-status-text');
-      if (!el || !textEl) return;
-
-      el.className = `sync-status is-${state}`;
-      textEl.textContent = text;
-    }
-
-    /**
-     * Count how many recipes in the nutrition catalog are "available"
-     * (all required ingredients are in the checked grocery items).
-     * We inline a minimal version of the recipe catalog here so the
-     * grocery page doesn't need to import nutrition.html's script.
-     */
-    function updateRecipeBadge() {
-      const badge = document.getElementById('recipe-count-badge');
-      if (!badge) return;
-
-      // Minimal required ingredients map matching nutrition.html RECIPE_CATALOG
-      const RECIPE_REQUIREMENTS = [
-        ['oats', 'greek_yogurt'], ['eggs', 'veggies'], ['greek_yogurt'],
-        ['oats'], ['chicken', 'rice', 'veggies'], ['turkey', 'rice'],
-        ['tuna', 'veggies'], ['shrimp', 'rice', 'veggies'],
-        ['salmon', 'veggies'], ['beef', 'potato', 'veggies'],
-        ['tofu', 'veggies', 'rice'], ['cottage_cheese'], ['eggs'],
-        ['avocado'],
-      ];
-
-      // Get checked foodKeys from current groceryList
-      const checkedKeys = new Set(
-        groceryList.filter(i => i.checked && i.foodKey).map(i => i.foodKey)
-      );
-
-      const readyCount = RECIPE_REQUIREMENTS.filter(required =>
-        required.every(key => checkedKeys.has(key))
-      ).length;
-
-      if (readyCount > 0) {
-        badge.textContent = `${readyCount} recipes ready`;
-        badge.style.display = 'inline-flex';
-      } else {
-        badge.style.display = 'none';
-      }
-    }
-  </script>
+ <div class="app-shell">
+
+ <!-- HEADER -->
+ <header class="app-header">
+ <div class="app-header__logo">Fit<span>Forge</span></div>
+ <div style="display:flex; gap:8px; align-items:center;">
+ <!-- Checked count badge -->
+ <div style="background:var(--color-bg-elevated); border:1px solid var(--color-border); border-radius:var(--radius-full); padding:4px 12px; display:flex; align-items:center; gap:6px;">
+ 
+ <span id="header-checked-count" style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--color-text-secondary);">0 / 0</span>
+ </div>
+ </div>
+ </header>
+
+ <main class="page-content" id="page-content" style="overflow:visible;">
+
+ <!-- SECTION 1: Hero -->
+ <section style="padding: var(--space-4) 0 var(--space-2);">
+ <p class="label" style="color:var(--color-success); margin-bottom:var(--space-2);">Shopping List</p>
+ <h1 class="heading-1" style="font-family:var(--font-display); letter-spacing:var(--tracking-tight);">
+ Grocery List
+ </h1>
+ <p style="font-size:var(--text-sm); color:var(--color-text-secondary); margin-top:var(--space-2);" id="grocery-subtitle">
+ Loading your personalized list...
+ </p>
+ </section>
+
+ <!-- SECTION 2: Search -->
+ <div class="grocery-search-wrap animate-fade-in-up">
+ <input
+ type="search"
+ class="grocery-search"
+ id="grocery-search"
+ placeholder="Search items..."
+ aria-label="Search grocery items"
+ >
+ </div>
+
+ <!-- SECTION 3: Category Filter Tabs -->
+ <div class="filter-tab-strip animate-fade-in-up" role="tablist" aria-label="Filter by category" id="filter-tab-strip">
+ <!-- Tabs rendered by JS so counts are accurate -->
+ </div>
+
+ <!-- SECTION 4: Grocery Items (grouped by category) -->
+ <div id="grocery-list-container" class="stack stack-sm animate-fade-in-up">
+ <!-- Sections injected by JS -->
+ <div class="skeleton skeleton--card" style="height:200px;"></div>
+ </div>
+
+ <!-- Empty search state -->
+ <div class="search-empty" id="search-empty">
+ <div style="font-size:32px; margin-bottom:var(--space-3);"></div>
+ <div>No items match ""</div>
+ </div>
+
+ <!-- SECTION 5: Add New Item Form -->
+ <div class="stack stack-sm animate-fade-in-up" style="margin-top: var(--space-2);">
+ <p class="label">Add Item</p>
+ <div class="add-item-row">
+ <div class="form-group" style="margin:0;">
+ <input
+ type="text"
+ class="form-input"
+ id="new-item-name"
+ placeholder="e.g. Greek Yogurt"
+ maxlength="50"
+ aria-label="New grocery item name"
+ >
+ </div>
+ <div class="form-group" style="margin:0;">
+ <select class="form-select" id="new-item-category" aria-label="Category" style="padding:var(--space-2) var(--space-3);">
+ <option value="protein">Protein</option>
+ <option value="carbs">Carbs</option>
+ <option value="fat">Fat</option>
+ <option value="produce">Produce</option>
+ </select>
+ </div>
+ <button
+ class="btn btn--primary btn--md"
+ onclick="handleAddItem()"
+ aria-label="Add item to grocery list"
+ style="padding: var(--space-2) var(--space-4); align-self:start;"
+ >+ Add</button>
+ </div>
+ </div>
+
+ <!-- SECTION 6: Sync Status -->
+ <div class="sync-status" id="sync-status">
+ <div class="sync-status__dot"></div>
+ <span id="sync-status-text">Changes saved locally</span>
+ </div>
+
+ <!-- Spacer for floating action bar + bottom nav -->
+ <div style="height: calc(var(--nav-height) + 80px);"></div>
+ </main>
+
+ <!-- FLOATING ACTION BAR: bulk actions -->
+ <div class="grocery-action-bar">
+
+ <!-- Mini progress ring (SVG) -->
+ <svg class="progress-ring-mini" viewBox="0 0 40 40" aria-hidden="true">
+ <circle cx="20" cy="20" r="16" fill="none" stroke="var(--color-bg-elevated)" stroke-width="4"/>
+ <circle
+ id="mini-ring-fill"
+ cx="20" cy="20" r="16"
+ fill="none"
+ stroke="var(--color-success)"
+ stroke-width="4"
+ stroke-linecap="round"
+ stroke-dasharray="0 100"
+ transform="rotate(-90 20 20)"
+ style="transition: stroke-dasharray 0.5s ease;"
+ />
+ </svg>
+
+ <div style="flex:1;">
+ <div style="font-size:var(--text-sm); font-weight:var(--weight-bold); color:var(--color-text-primary);" id="action-bar-label">
+ 0 of 0 items checked
+ </div>
+ <div style="font-size:var(--text-xs); color:var(--color-text-muted);" id="action-bar-sub">
+ Tap items to check them off
+ </div>
+ </div>
+
+ <button
+ class="btn btn--secondary btn--sm"
+ onclick="clearCheckedItems()"
+ aria-label="Clear all checked items"
+ id="clear-btn"
+ >Clear Done</button>
+ </div>
+
+ <div id="bottom-nav-container"></div>
+ </div>
+
+ <script src="script-merged.js"></script>
+ 
+
+ <script>
+ /**
+ * ============================================================
+ * GROCERY LIST PAGE SCRIPT
+ * grocery-list.html — inline script
+ *
+ * DATA ARCHITECTURE:
+ *
+ * GROCERY_MASTER_LIST — the full default item catalog (40+ items).
+ * Defined as a constant — never mutated directly.
+ * Each item has a `foodKey` matching onboarding tag strings.
+ *
+ * groceryList — the WORKING list in memory.
+ * Loaded from localStorage on init.
+ * If no stored list exists, generated from GROCERY_MASTER_LIST
+ * with each item's `isFavorite` flag set by comparing to
+ * profile.favoriteFoods.
+ * Any mutation (check/uncheck/add/delete) goes through
+ * updateItem() which saves back to localStorage and queues
+ * a debounced Supabase sync.
+ *
+ * ACTIVE_CATEGORY — which filter tab is selected.
+ * SEARCH_QUERY — current search input value.
+ *
+ * Render flow: any state change → renderList() which re-renders
+ * the visible sections based on ACTIVE_CATEGORY + SEARCH_QUERY.
+ * ============================================================
+ */
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ MASTER ITEM CATALOG
+ ~40 common macro-focused grocery items.
+ `foodKey` matches the onboarding food tag strings so we can
+ identify user favorites.
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ const GROCERY_MASTER_LIST = [
+ // ── PROTEINS ──────────────────────────────────────────────
+ { id: 'g-p01', name: 'Chicken Breast', amount: '2 lbs', category: 'protein', foodKey: 'chicken', emoji: '' },
+ { id: 'g-p02', name: 'Ground Turkey (93%)', amount: '1 lb', category: 'protein', foodKey: 'turkey', emoji: '' },
+ { id: 'g-p03', name: 'Salmon Fillet', amount: '1 lb', category: 'protein', foodKey: 'salmon', emoji: '' },
+ { id: 'g-p04', name: 'Canned Tuna', amount: '4 cans', category: 'protein', foodKey: 'tuna', emoji: '' },
+ { id: 'g-p05', name: 'Whole Eggs', amount: '1 dozen', category: 'protein', foodKey: 'eggs', emoji: '' },
+ { id: 'g-p06', name: 'Egg Whites', amount: '32 oz', category: 'protein', foodKey: 'eggs', emoji: '' },
+ { id: 'g-p07', name: 'Greek Yogurt (2%)', amount: '32 oz', category: 'protein', foodKey: 'greek_yogurt', emoji: '' },
+ { id: 'g-p08', name: 'Cottage Cheese', amount: '16 oz', category: 'protein', foodKey: 'cottage_cheese',emoji: '' },
+ { id: 'g-p09', name: 'Shrimp (frozen)', amount: '1 lb', category: 'protein', foodKey: 'shrimp', emoji: '' },
+ { id: 'g-p10', name: 'Lean Ground Beef 93%', amount: '1 lb', category: 'protein', foodKey: 'beef', emoji: '' },
+ { id: 'g-p11', name: 'Firm Tofu', amount: '14 oz', category: 'protein', foodKey: 'tofu', emoji: '' },
+ { id: 'g-p12', name: 'Protein Powder', amount: '2 scoops',category: 'protein', foodKey: null, emoji: '' },
+
+ // ── CARBOHYDRATES ──────────────────────────────────────────
+ { id: 'g-c01', name: 'Brown Rice', amount: '2 lbs', category: 'carbs', foodKey: 'rice', emoji: '' },
+ { id: 'g-c02', name: 'Rolled Oats', amount: '2 lbs', category: 'carbs', foodKey: 'oats', emoji: '' },
+ { id: 'g-c03', name: 'Sweet Potato', amount: '3 large', category: 'carbs', foodKey: 'potato', emoji: '' },
+ { id: 'g-c04', name: 'Quinoa', amount: '1 lb', category: 'carbs', foodKey: 'quinoa', emoji: '' },
+ { id: 'g-c05', name: 'Whole Grain Bread', amount: '1 loaf', category: 'carbs', foodKey: 'bread', emoji: '' },
+ { id: 'g-c06', name: 'Pasta (whole wheat)', amount: '1 lb', category: 'carbs', foodKey: 'pasta', emoji: '' },
+ { id: 'g-c07', name: 'Banana', amount: '1 bunch', category: 'carbs', foodKey: null, emoji: '' },
+ { id: 'g-c08', name: 'Blueberries (frozen)', amount: '12 oz', category: 'carbs', foodKey: null, emoji: '' },
+ { id: 'g-c09', name: 'Apple', amount: '4 count', category: 'carbs', foodKey: null, emoji: '' },
+ { id: 'g-c10', name: 'Black Beans (can)', amount: '2 cans', category: 'carbs', foodKey: null, emoji: '' },
+ { id: 'g-c11', name: 'Lentils', amount: '1 lb', category: 'carbs', foodKey: null, emoji: '' },
+ { id: 'g-c12', name: 'White Rice', amount: '2 lbs', category: 'carbs', foodKey: 'rice', emoji: '' },
+
+ // ── FATS ──────────────────────────────────────────────────
+ { id: 'g-f01', name: 'Avocado', amount: '3 count', category: 'fat', foodKey: 'avocado',emoji: '' },
+ { id: 'g-f02', name: 'Extra Virgin Olive Oil',amount: '1 bottle',category:'fat', foodKey: null, emoji: '' },
+ { id: 'g-f03', name: 'Raw Almonds', amount: '1 lb', category: 'fat', foodKey: null, emoji: '' },
+ { id: 'g-f04', name: 'Peanut Butter', amount: '16 oz', category: 'fat', foodKey: null, emoji: '' },
+ { id: 'g-f05', name: 'Walnuts', amount: '8 oz', category: 'fat', foodKey: null, emoji: '' },
+ { id: 'g-f06', name: 'Chia Seeds', amount: '8 oz', category: 'fat', foodKey: null, emoji: '' },
+ { id: 'g-f07', name: 'Flax Seeds', amount: '8 oz', category: 'fat', foodKey: null, emoji: '' },
+ { id: 'g-f08', name: 'Coconut Oil', amount: '14 oz', category: 'fat', foodKey: null, emoji: '' },
+
+ // ── PRODUCE / VEGGIES ─────────────────────────────────────
+ { id: 'g-v01', name: 'Broccoli', amount: '2 crowns',category: 'produce', foodKey: 'veggies',emoji: '' },
+ { id: 'g-v02', name: 'Spinach / Baby Greens',amount: '5 oz bag',category: 'produce', foodKey: 'veggies',emoji: '' },
+ { id: 'g-v03', name: 'Bell Peppers (mixed)', amount: '4 count', category: 'produce', foodKey: 'veggies',emoji: '' },
+ { id: 'g-v04', name: 'Zucchini', amount: '2 count', category: 'produce', foodKey: 'veggies',emoji: '' },
+ { id: 'g-v05', name: 'Asparagus', amount: '1 bunch', category: 'produce', foodKey: 'veggies',emoji: '' },
+ { id: 'g-v06', name: 'Baby Carrots', amount: '1 bag', category: 'produce', foodKey: null, emoji: '' },
+ { id: 'g-v07', name: 'Cherry Tomatoes', amount: '1 pint', category: 'produce', foodKey: null, emoji: '' },
+ { id: 'g-v08', name: 'Garlic', amount: '1 head', category: 'produce', foodKey: null, emoji: '' },
+ { id: 'g-v09', name: 'Yellow Onion', amount: '2 count', category: 'produce', foodKey: null, emoji: '' },
+ { id: 'g-v10', name: 'Cucumber', amount: '2 count', category: 'produce', foodKey: null, emoji: '' },
+ ];
+
+ /* ── CATEGORY DISPLAY CONFIG ─────────────────────────────── */
+ const CATEGORIES = {
+ all: { label: 'All', icon: '', color: 'var(--color-text-secondary)' },
+ protein: { label: 'Proteins',icon: '', color: 'var(--color-protein)' },
+ carbs: { label: 'Carbs', icon: '', color: 'var(--color-carbs)' },
+ fat: { label: 'Fats', icon: '', color: 'var(--color-fat)' },
+ produce: { label: 'Produce', icon: '', color: 'var(--color-success)' },
+ };
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PAGE STATE
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ let groceryList = []; // Working list — all items with current checked state
+ let activeCategory = 'all';
+ let searchQuery = '';
+ let syncDebounce = null; // Timer for debounced Supabase sync
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ INITIALIZATION
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ document.addEventListener('DOMContentLoaded', () => {
+ const profile = AppState.getProfile();
+
+ // ── Load or initialize the grocery list ──────────────────
+ // Check localStorage first — if it exists, use stored data
+ // (preserves checked state across sessions).
+ const stored = StorageHelpers.getGroceryList();
+
+ if (stored?.items?.length > 0) {
+ groceryList = stored.items;
+ } else {
+ // First visit: build from master list + mark favorites
+ groceryList = buildInitialList(profile);
+ saveGroceryList();
+ }
+
+ // ── Update page subtitle with favorite count ─────────────
+ const favoriteCount = groceryList.filter(i => i.isFavorite).length;
+ UIHelpers.setText(
+ '#grocery-subtitle',
+ `${groceryList.length} items · ${favoriteCount} flagged as your favorites`
+ );
+
+ // ── Render filter tabs ────────────────────────────────────
+ renderFilterTabs();
+
+ // ── Render the list ───────────────────────────────────────
+ renderList();
+ updateRecipeBadge();
+
+ // ── Wire up search input ──────────────────────────────────
+ document.getElementById('grocery-search')?.addEventListener('input', (e) => {
+ searchQuery = e.target.value.trim().toLowerCase();
+ renderList();
+ });
+ });
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ BUILD INITIAL LIST
+ Called once when no stored list exists.
+ Marks items as favorites based on the user's onboarding selections.
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ function buildInitialList(profile) {
+ const favoriteFoods = profile?.favoriteFoods ?? [];
+
+ return GROCERY_MASTER_LIST.map(item => ({
+ ...item,
+ checked: false, // nothing checked by default
+ isCustom: false, // this item came from the master list
+
+ // KEY FEATURE: isFavorite = true if the item's foodKey appears
+ // in the user's favoriteFoods array from onboarding.
+ // e.g., if user picked 'chicken', then Chicken Breast gets ⭐
+ isFavorite: item.foodKey !== null && favoriteFoods.includes(item.foodKey),
+ }));
+ }
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ RENDER: FILTER TABS
+ Builds the category tab strip with per-category item counts.
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ function renderFilterTabs() {
+ const strip = document.getElementById('filter-tab-strip');
+ if (!strip) return;
+
+ // Count items per category (unchecked only for cleaner UX)
+ const counts = { all: groceryList.filter(i => !i.checked).length };
+ Object.keys(CATEGORIES).filter(k => k !== 'all').forEach(cat => {
+ counts[cat] = groceryList.filter(i => i.category === cat && !i.checked).length;
+ });
+
+ strip.innerHTML = Object.entries(CATEGORIES).map(([key, cat]) => `
+ <button
+ class="filter-tab ${activeCategory === key ? 'is-active' : ''}"
+ role="tab"
+ aria-selected="${activeCategory === key}"
+ aria-label="Show ${cat.label}"
+ onclick="setActiveCategory('${key}')"
+ >
+ <span>${cat.icon}</span>
+ <span>${cat.label}</span>
+ <span class="filter-tab__count">${counts[key] ?? 0}</span>
+ </button>
+ `).join('');
+ }
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ RENDER: MAIN LIST
+ Filters items by category + search, then renders grouped
+ by category with favorites sorted to the top.
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ function renderList() {
+ const container = document.getElementById('grocery-list-container');
+ if (!container) return;
+
+ // ── Filter by search query ────────────────────────────────
+ // Python analogy: [item for item in list if query in item.name.lower()]
+ const searchFiltered = searchQuery
+ ? groceryList.filter(i => i.name.toLowerCase().includes(searchQuery))
+ : groceryList;
+
+ // ── Filter by active category ─────────────────────────────
+ const categoryFiltered = activeCategory === 'all'
+ ? searchFiltered
+ : searchFiltered.filter(i => i.category === activeCategory);
+
+ // ── Empty search state ────────────────────────────────────
+ const searchEmptyEl = document.getElementById('search-empty');
+ const isSearchEmpty = searchQuery && categoryFiltered.length === 0;
+ if (searchEmptyEl) {
+ searchEmptyEl.classList.toggle('is-visible', isSearchEmpty);
+ UIHelpers.setText('#search-term', UIHelpers.escapeHTML(searchQuery));
+ }
+ if (isSearchEmpty) {
+ container.innerHTML = '';
+ return;
+ }
+
+ // ── Group items by category ───────────────────────────────
+ // Python analogy: {cat: [items] for items grouped by category}
+ const grouped = {};
+ const categoriesToShow = activeCategory === 'all'
+ ? Object.keys(CATEGORIES).filter(k => k !== 'all')
+ : [activeCategory];
+
+ categoriesToShow.forEach(cat => {
+ const items = categoryFiltered.filter(i => i.category === cat);
+ if (items.length > 0) grouped[cat] = items;
+ });
+
+ // ── Build HTML for each category section ──────────────────
+ const sectionsHTML = Object.entries(grouped).map(([cat, items]) => {
+ const catInfo = CATEGORIES[cat];
+
+ // Within each category: sort favorites FIRST, then alphabetically.
+ // Python analogy:
+ // sorted(items, key=lambda i: (not i.isFavorite, i.name))
+ const sorted = [...items].sort((a, b) => {
+ if (a.isFavorite !== b.isFavorite) return a.isFavorite ? -1 : 1;
+ if (a.checked !== b.checked) return a.checked ? 1 : -1; // checked → bottom
+ return a.name.localeCompare(b.name);
+ });
+
+ return `
+ <div class="grocery-section" data-category="${cat}">
+ <div class="grocery-section-header grocery-section-header--${cat}">
+ <span class="grocery-section-header__icon">${catInfo.icon}</span>
+ <span class="grocery-section-header__name" style="--section-color:${catInfo.color}">
+ ${catInfo.label}
+ </span>
+ <span class="grocery-section-header__count">
+ ${sorted.filter(i => !i.checked).length} remaining
+ </span>
+ </div>
+
+ ${sorted.map(item => buildItemHTML(item)).join('')}
+ </div>
+ `;
+ }).join('');
+
+ container.innerHTML = sectionsHTML;
+
+ // ── Update action bar and header counts ───────────────────
+ updateProgressIndicators();
+ }
+
+ /** Build the HTML for a single grocery item row */
+ function buildItemHTML(item) {
+ return `
+ <div
+ class="grocery-item ${item.checked ? 'is-checked' : ''} ${item.isFavorite ? 'is-favorite' : ''}"
+ id="grocery-item-${item.id}"
+ >
+ <!-- Checkbox -->
+ <button
+ class="grocery-check ${item.checked ? 'is-checked' : ''}"
+ onclick="toggleItem('${item.id}')"
+ aria-label="${item.checked ? 'Uncheck' : 'Check'} ${UIHelpers.escapeHTML(item.name)}"
+ aria-pressed="${item.checked}"
+ >${item.checked ? '' : ''}</button>
+
+ <!-- Name + amount -->
+ <div>
+ <div class="grocery-item__name">
+ ${item.emoji ? `<span aria-hidden="true">${item.emoji} </span>` : ''}
+ ${UIHelpers.escapeHTML(item.name)}
+ </div>
+ <div class="grocery-item__amount">${UIHelpers.escapeHTML(item.amount ?? '')}</div>
+ </div>
+
+ <!-- Favorite star — only visible when isFavorite: true (CSS handles this) -->
+ <span
+ class="grocery-favorite-star"
+ aria-label="${item.isFavorite ? 'This is one of your favorite foods' : ''}"
+ title="${item.isFavorite ? '⭐ Matches your onboarding food picks' : ''}"
+ >⭐</span>
+
+ <!-- Delete button -->
+ <button
+ class="grocery-item__delete"
+ onclick="deleteItem('${item.id}')"
+ aria-label="Remove ${UIHelpers.escapeHTML(item.name)} from list"
+ title="Remove item"
+ ></button>
+ </div>
+ `;
+ }
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ ITEM INTERACTIONS
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+ /** Toggle an item's checked state */
+ function toggleItem(itemId) {
+ const item = groceryList.find(i => i.id === itemId);
+ if (!item) return;
+
+ item.checked = !item.checked;
+
+ // Update DOM without full re-render for performance
+ const card = document.getElementById(`grocery-item-${itemId}`);
+ const checkEl = card?.querySelector('.grocery-check');
+
+ if (card) {
+ card.classList.toggle('is-checked', item.checked);
+ }
+ if (checkEl) {
+ checkEl.classList.toggle('is-checked', item.checked);
+ checkEl.textContent = item.checked ? '' : '';
+ checkEl.setAttribute('aria-pressed', String(item.checked));
+ }
+
+ // Update item's name strikethrough
+ const nameEl = card?.querySelector('.grocery-item__name');
+ // (CSS handles strikethrough via .is-checked → .grocery-item__name)
+
+ // Save + sync
+ persistAndSync();
+ updateProgressIndicators();
+ renderFilterTabs(); // Update counts
+ updateRecipeBadge();
+ }
+
+ /** Add a new custom item to the list */
+ function handleAddItem() {
+ const nameInput = document.getElementById('new-item-name');
+ const catSelect = document.getElementById('new-item-category');
+
+ const name = nameInput?.value.trim();
+ const category = catSelect?.value ?? 'produce';
+
+ if (!name) {
+ UIHelpers.showToast('Please enter an item name.', 'info');
+ nameInput?.focus();
+ return;
+ }
+
+ const newItem = {
+ id: `custom-${Date.now()}`,
+ name,
+ amount: '',
+ category,
+ foodKey: null,
+ emoji: CATEGORIES[category]?.icon ?? '',
+ checked: false,
+ isFavorite: false,
+ isCustom: true,
+ };
+
+ groceryList.push(newItem);
+
+ // Clear the input
+ if (nameInput) nameInput.value = '';
+
+ persistAndSync();
+ renderList();
+ renderFilterTabs();
+
+ UIHelpers.showToast(`"${name}" added to ${CATEGORIES[category]?.label ?? category}`, 'success');
+ }
+
+ /** Delete an item permanently */
+ function deleteItem(itemId) {
+ groceryList = groceryList.filter(i => i.id !== itemId);
+ persistAndSync();
+ renderList();
+ renderFilterTabs();
+ }
+
+ /** Remove all checked items */
+ function clearCheckedItems() {
+ const checkedCount = groceryList.filter(i => i.checked).length;
+ if (checkedCount === 0) {
+ UIHelpers.showToast('No checked items to clear.', 'info');
+ return;
+ }
+
+ groceryList = groceryList.map(i => ({ ...i, checked: false }));
+ persistAndSync();
+ renderList();
+ renderFilterTabs();
+ UIHelpers.showToast(`${checkedCount} items unchecked.`, 'success');
+ }
+
+ /** Set active category filter */
+ function setActiveCategory(category) {
+ activeCategory = category;
+ renderFilterTabs();
+ renderList();
+ }
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PROGRESS INDICATORS
+ Updates the header count, action bar, and mini ring.
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ function updateProgressIndicators() {
+ const total = groceryList.length;
+ const checked = groceryList.filter(i => i.checked).length;
+ const pct = total > 0 ? checked / total : 0;
+
+ // Header count
+ UIHelpers.setText('#header-checked-count', `${checked} / ${total}`);
+
+ // Action bar text
+ UIHelpers.setText('#action-bar-label', `${checked} of ${total} items checked`);
+ UIHelpers.setText('#action-bar-sub',
+ checked === total && total > 0
+ ? 'All done! Ready to shop'
+ : 'Tap items as you pick them up'
+ );
+
+ // Mini SVG ring (circumference of r=16 circle = 2π×16 ≈ 100.53)
+ // For simplicity we use 100 as the circumference (close enough for a mini ring)
+ const MINI_CIRC = 100;
+ const ringFill = document.getElementById('mini-ring-fill');
+ if (ringFill) {
+ requestAnimationFrame(() => {
+ ringFill.style.strokeDasharray = `${(pct * MINI_CIRC).toFixed(1)} ${MINI_CIRC}`;
+ });
+ }
+ }
+
+
+ /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PERSISTENCE & SYNC
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+ function saveGroceryList() {
+ StorageHelpers.saveGroceryList({
+ items: groceryList,
+ lastUpdated: new Date().toISOString(),
+ });
+ }
+
+ /**
+ * Save to localStorage immediately, then debounce a Supabase sync.
+ *
+ * "Debouncing" means: if this function is called many times in
+ * rapid succession (e.g., user checks 5 items quickly), we only
+ * fire the Supabase sync ONCE, after 2 seconds of inactivity.
+ *
+ * Python analogy: like a threading.Timer that gets cancelled
+ * and restarted each time the function is called.
+ */
+ function persistAndSync() {
+ // 1. Save to localStorage immediately (no delay — data is safe)
+ saveGroceryList();
+
+ // 2. Update the sync status indicator to "pending"
+ setSyncStatus('syncing', 'Syncing...');
+
+ // 3. Cancel any previously scheduled sync
+ if (syncDebounce) clearTimeout(syncDebounce);
+
+ // 4. Schedule a new sync 2 seconds from now
+ syncDebounce = setTimeout(async () => {
+ try {
+ const profile = AppState.getProfile();
+ await SupabaseAPI.syncGroceryList(profile?.id ?? 'guest', groceryList);
+ setSyncStatus('synced', `Synced · ${new Date().toLocaleTimeString()}`);
+ } catch (err) {
+ console.warn('Grocery sync failed:', err);
+ setSyncStatus('error', 'Sync failed — saved locally');
+ }
+ }, 2000);
+ }
+
+ function setSyncStatus(state, text) {
+ const el = document.getElementById('sync-status');
+ const textEl = document.getElementById('sync-status-text');
+ if (!el || !textEl) return;
+
+ el.className = `sync-status is-${state}`;
+ textEl.textContent = text;
+ }
+
+ /**
+ * Count how many recipes in the nutrition catalog are "available"
+ * (all required ingredients are in the checked grocery items).
+ * We inline a minimal version of the recipe catalog here so the
+ * grocery page doesn't need to import nutrition.html's script.
+ */
+ function updateRecipeBadge() {
+ const badge = document.getElementById('recipe-count-badge');
+ if (!badge) return;
+
+ // Minimal required ingredients map matching nutrition.html RECIPE_CATALOG
+ const RECIPE_REQUIREMENTS = [
+ ['oats', 'greek_yogurt'], ['eggs', 'veggies'], ['greek_yogurt'],
+ ['oats'], ['chicken', 'rice', 'veggies'], ['turkey', 'rice'],
+ ['tuna', 'veggies'], ['shrimp', 'rice', 'veggies'],
+ ['salmon', 'veggies'], ['beef', 'potato', 'veggies'],
+ ['tofu', 'veggies', 'rice'], ['cottage_cheese'], ['eggs'],
+ ['avocado'],
+ ];
+
+ // Get checked foodKeys from current groceryList
+ const checkedKeys = new Set(
+ groceryList.filter(i => i.checked && i.foodKey).map(i => i.foodKey)
+ );
+
+ const readyCount = RECIPE_REQUIREMENTS.filter(required =>
+ required.every(key => checkedKeys.has(key))
+ ).length;
+
+ if (readyCount > 0) {
+ badge.textContent = `${readyCount} recipes ready`;
+ badge.style.display = 'inline-flex';
+ } else {
+ badge.style.display = 'none';
+ }
+ }
+ </script>
 </body>
 </html>
